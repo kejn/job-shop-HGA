@@ -24,7 +24,7 @@ const Oper &Oper::operator=(const Oper &other) {
 	return (*this);
 }
 
-int Oper::getCompletitionTime() {
+unsigned int Oper::getCompletitionTime() {
 	return (startingTime + processingTime);
 }
 
@@ -36,11 +36,11 @@ void Oper::setId(int id) {
 	this->id = id;
 }
 
-int Oper::getMachineNumber() const {
+unsigned int Oper::getMachineNumber() const {
 	return (machineNumber);
 }
 
-void Oper::setMachineNumber(int machineNumber) {
+void Oper::setMachineNumber(unsigned int machineNumber) {
 	this->machineNumber = machineNumber;
 }
 
@@ -52,19 +52,22 @@ void Oper::setPid(int pid) {
 	this->pid = pid;
 }
 
-int Oper::getProcessingTime() const {
+unsigned int Oper::getProcessingTime() const {
 	return (processingTime);
 }
 
-void Oper::setProcessingTime(int processingTime) {
+void Oper::setProcessingTime(unsigned int processingTime) {
 	this->processingTime = processingTime;
 }
 
-int Oper::getStartingTime() const {
+unsigned int Oper::getStartingTime() const {
 	return (startingTime);
 }
 
-void Oper::setStartingTime(int startingTime) {
+void Oper::setStartingTime(unsigned int startingTime) {
 	this->startingTime = startingTime;
 }
 
+bool Oper::isFirstInJob() {
+	return (id == 0);
+}

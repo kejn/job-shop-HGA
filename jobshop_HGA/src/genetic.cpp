@@ -1,6 +1,4 @@
 #include <algorithm>
-#include <cstdlib>
-#include <ctime>
 #include <fstream>
 #include <iostream>
 #include <iterator>
@@ -31,11 +29,12 @@ int main() throw (string) {
 		}
 		return (1);
 	}
-	Gantt ganttInfo = loadOperationsFromFile(file);
+	Gantt ganttInfo = loadOperationsFromFile(file); // [1]
 	ganttInfo.printJobs();
 	initPopGen(ganttInfo);
 
 	file.close();
+//	system("schedule.jpg");
 	return (0);
 }
 
@@ -61,20 +60,26 @@ Gantt loadOperationsFromFile(fstream &file) throw (string) {
 	file >> numberOfJobs >> numberOfMachines;
 	Gantt ganttInfo(numberOfJobs, numberOfMachines);
 
-	for (int i = 0; i < numberOfJobs; ++i) {
-		for (int j = 0; j < numberOfMachines; ++j) {
+	for (int jobIndex = 0; jobIndex < numberOfJobs; ++jobIndex) {
+		for (int machineIndex = 0; machineIndex < numberOfMachines;
+				++machineIndex) {
 			Oper operation;
 			int machineNumber, processingTime;
+
 			file >> machineNumber >> processingTime;
+
 			operation.setMachineNumber(machineNumber);
 			operation.setProcessingTime(processingTime);
-			operation.setPid(i);
-			operation.setId(j);
-			if (j > 0) {
-				operation.setStartingTime(
-						ganttInfo.prevOperationTo(i, j).getCompletitionTime());
+			operation.setPid(jobIndex);
+			operation.setId(machineIndex);
+
+			if (!operation.isFirstInJob()) {
+				int startingTime = ganttInfo.prevOperationTo(jobIndex,
+						machineIndex).getCompletitionTime();
+				operation.setStartingTime(startingTime);
 			}
-			ganttInfo.addOperation(i, operation);
+
+			ganttInfo.addOperation(jobIndex, operation);
 		}
 	}
 	return (ganttInfo);
@@ -82,75 +87,69 @@ Gantt loadOperationsFromFile(fstream &file) throw (string) {
 
 void initPopGen(Gantt &ganttInfo) {
 	cout << "initPopGen(), tot_noper: " << ganttInfo.getTotNOper() << endl;
+
 	// [2] losowanie kolejnosci zadan
-	vector<int> sequence(ganttInfo.getNJobs());
-	int n = 0;
-	generate(sequence.begin(), sequence.end(), [&n] {return (n++);});
-	srand(time(nullptr));
-	random_shuffle(sequence.begin(), sequence.end());
+	vector<unsigned int> sequence = ganttInfo.randomJobOrder();
+
 	cout << "initial job order: ";
 	copy(sequence.begin(), sequence.end(), ostream_iterator<int>(cout, " "));
 	cout << endl;
 
-	// [3]
-	int operCount = 0, oper = 0;
-	while (operCount < ganttInfo.getTotNOper()) { 	// [4]
-		for (int i : sequence) {				// [5]
-			bool prevFound = false;
-			Oper prevOper;
-			try {
-				prevOper = ganttInfo.prevOperationTo(i, oper);
-				prevFound = true;
-			} catch (...) {
-			}
-			vector<Oper> M(ganttInfo.getNMachines());				// [6]
-			// [7] == operInfo.completitionTime
-			int t0, t1;							// [8]
-			if (!prevFound) {		// [9]
-				t0 = 0;
-			} else {							// [10]
-				t0 = prevOper.getCompletitionTime();
-			}									// [11]
-			for (unsigned int k = 0; k < M.size(); ++k) { // [12]
-				vector<Oper> &machine = ganttInfo.getMachines()[k];
-				Oper operInfo2(ganttInfo.getOperations()[i][oper]);
-				operInfo2.setMachineNumber(k);
-				// [13] == operInfo.p
-				if (machine.empty()) {			// [14]
-					t1 = 0;
-				} else {						// [15]
-					t1 = machine.back().getCompletitionTime();
-				}								// [16]
-				if (t1 <= t0) {					// [17]
-					operInfo2.setStartingTime(t0);
-				} else if ((machine.size() > 1)
-						&& (operInfo2.getProcessingTime()
-								<= (machine.back().getStartingTime()
-										- machine[machine.size() - 2].getCompletitionTime()))) { // [18]
-					if (machine.size() > 1) {
-						operInfo2.setStartingTime(
-								machine[machine.size() - 2].getCompletitionTime());
-					}
-				} else {						// [19]
-					operInfo2.setStartingTime(t1);
-				}								// [20]
-				M[k] = operInfo2; 				// [17-20]
-			}									// [21]
-			// [22]
-			vector<Oper>::iterator minC =
-					min_element(M.begin(), M.end(),
-							[](Oper a1, Oper a2) {return (a1.getCompletitionTime() < a2.getCompletitionTime());});
-			int minCK = distance(M.begin(), minC);
+	unsigned int operCount = 0, oper = 0;								// [3]
+	while (operCount < ganttInfo.getTotNOper()) { 						// [4]
+		for (unsigned int i : sequence) {								// [5]
+			vector<Oper> M(ganttInfo.getNMachines());					// [6]
+			vector<unsigned int> T(ganttInfo.getNMachines());			// [7]
+			int t0, t1;													// [8]
 
+			try {														//[9-13]
+				Oper prevOper = ganttInfo.prevOperationTo(i, oper);
+				t0 = prevOper.getCompletitionTime();
+			} catch (const string &message) {
+				cerr << message << "(job: " << i << ", oper: " << oper << ")\n";
+				t0 = 0;
+			}
+
+			for (unsigned int k = 0; k < ganttInfo.getNMachines(); ++k) {// [14]
+				vector<Oper> & machineK = ganttInfo.getMachines()[k];
+				Oper operInfo(ganttInfo.getOperations()[i][oper]);
+				operInfo.setMachineNumber(k);
+				// [15] Oper::getProcessingTime()
+
+				if (machineK.empty()) {								 // [16-20]
+					t1 = 0;
+				} else {
+					t1 = machineK.back().getCompletitionTime();
+				}
+
+				if (t1 <= t0) {										// [21-27]
+					operInfo.setStartingTime(t0);
+				} else if ((machineK.size() > 1)
+						&& (operInfo.getProcessingTime()
+								<= (machineK.back().getStartingTime()
+										- machineK[machineK.size() - 2].getCompletitionTime()))) {
+					if (machineK.size() > 1) {
+						operInfo.setStartingTime(
+								machineK[machineK.size() - 2].getCompletitionTime());
+					}
+				} else {
+					operInfo.setStartingTime(t1);
+				}
+				T[k] = operInfo.getCompletitionTime();
+				M[k] = operInfo;
+			}															// [28]
+			// [29]
+			vector<unsigned int>::iterator minC = min_element(T.begin(), T.end());
+			unsigned int minCK = distance(T.begin(), minC);
 			vector<Oper>::iterator iter =
 					ganttInfo.getMachines()[minCK].begin();
 			for (; iter != ganttInfo.getMachines()[minCK].end(); ++iter) {
-				if (minC->getStartingTime() < iter->getCompletitionTime()) {
+				if (M[minCK].getStartingTime() < iter->getCompletitionTime()) {
 					break;
 				}
 			}
-			ganttInfo.getMachines()[minCK].insert(iter, *minC);
-			ganttInfo.getOperations()[i][oper] = *minC;
+			ganttInfo.getMachines()[minCK].insert(iter, M[minCK]);
+			ganttInfo.getOperations()[i][oper] = M[minCK]; // update!!!
 			// [23]
 			Gene gene(minCK, i, oper);
 			ganttInfo.getChromosome().push_back(gene);

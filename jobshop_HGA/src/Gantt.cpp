@@ -7,6 +7,9 @@
 
 #include "../inc/Gantt.h"
 
+#include <algorithm>
+#include <cstdlib>
+#include <ctime>
 #include <iomanip>
 #include <iostream>
 
@@ -19,18 +22,18 @@ void Gantt::addOperation(int i, const Oper &operation) {
 
 Oper Gantt::nextOperationTo(unsigned int job, unsigned int operation)
 		throw (string) {
-	if ((job < operations.size()) && (operation < operations[job].size() - 1)) {
-		return (operations[job][operation + 1]);
+	if ((job >= nJobs) || (operation >= operations[job].size() - 1)) {
+		throw string("next operation: operation not found.");
 	}
-	throw string("next operation: operation not found.");
+	return (operations[job][operation + 1]);
 }
 
 Oper Gantt::prevOperationTo(unsigned int job, unsigned int referenceOperation)
 		throw (string) {
-	if ((job < operations.size()) && (referenceOperation > 0)) {
-		return (operations[job][referenceOperation - 1]);
+	if ((job >= nJobs) || (referenceOperation == 0)) {
+		throw string("prev operation: operation not found.");
 	}
-	throw string("prev operation: operation not found.");
+	return (operations[job][referenceOperation - 1]);
 }
 
 void Gantt::addOnMachine(int i, const Oper &operation) {
@@ -38,6 +41,7 @@ void Gantt::addOnMachine(int i, const Oper &operation) {
 }
 
 void Gantt::printJobs() {
+	cout << "Gantt::printJobs()" << endl;
 	for (unsigned int i = 0; i < operations.size(); ++i) {
 		cout << "job" << i << '\t';
 		for (unsigned int j = 0; j < operations[i].size(); ++j) {
@@ -74,15 +78,24 @@ std::vector<std::vector<Oper> >& Gantt::getOperations() {
 	return (operations);
 }
 
-int Gantt::getNJobs() const {
+unsigned int Gantt::getNJobs() const {
 	return (nJobs);
 }
 
-int Gantt::getNMachines() const {
+unsigned int Gantt::getNMachines() const {
 	return (nMachines);
 }
 
-
-int Gantt::getTotNOper() const {
+unsigned int Gantt::getTotNOper() const {
 	return (totNOper);
 }
+
+vector<unsigned int> Gantt::randomJobOrder() {
+	vector<unsigned int> sequence(nJobs);
+	int n = 0;
+	generate(sequence.begin(), sequence.end(), [&n] {return (n++);});
+	srand(time(nullptr));
+	random_shuffle(sequence.begin(), sequence.end());
+	return (sequence);
+}
+

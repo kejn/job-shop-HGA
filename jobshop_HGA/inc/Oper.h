@@ -9,9 +9,9 @@
 #define OPER_H_
 
 class Oper {
-	int startingTime;
-	int processingTime;
-	int machineNumber;
+	unsigned int startingTime;
+	unsigned int processingTime;
+	unsigned int machineNumber;
 
 	int id;
 	int pid;
@@ -19,18 +19,19 @@ public:
 	Oper();
 	Oper(const Oper &other);
 
+	bool isFirstInJob();
 	const Oper &operator=(const Oper &other);
-	int getCompletitionTime();
+	unsigned int getCompletitionTime();
 
-	int getStartingTime() const;
-	int getProcessingTime() const;
-	int getMachineNumber() const;
+	unsigned int getStartingTime() const;
+	unsigned int getProcessingTime() const;
+	unsigned int getMachineNumber() const;
 	int getId() const;
 	int getPid() const;
 
-	void setStartingTime(int startingTime);
-	void setProcessingTime(int processingTime);
-	void setMachineNumber(int machineNumber);
+	void setStartingTime(unsigned int startingTime);
+	void setProcessingTime(unsigned int processingTime);
+	void setMachineNumber(unsigned int machineNumber);
 	void setId(int id);
 	void setPid(int pid);
 };

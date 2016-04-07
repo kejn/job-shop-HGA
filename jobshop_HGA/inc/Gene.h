@@ -9,17 +9,17 @@
 #define INC_GENE_H_
 
 class Gene {
-	int machineNumber; // machine no
-	int jobNumber; // job no
-	int operationNumber; // operation no
+	unsigned int machineNumber; // machine no
+	unsigned int jobNumber; // job no
+	unsigned int operationNumber; // operation no
 public:
 	Gene();
 	Gene(int machineNo, int jobNo, int operationNo);
 	Gene & operator=(const Gene & other);
 
-	int getMachineNumber() const;
-	int getJobNumber() const;
-	int getOperationNumber() const;
+	unsigned int getMachineNumber() const;
+	unsigned int getJobNumber() const;
+	unsigned int getOperationNumber() const;
 
 	void setMachineNumber(int machineNumber);
 	void setJobNumber(int jobNumber);

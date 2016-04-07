@@ -24,15 +24,15 @@ Gene & Gene::operator =(const Gene & other) {
 	return (*this);
 }
 
-int Gene::getMachineNumber() const {
+unsigned int Gene::getMachineNumber() const {
 	return (machineNumber);
 }
 
-int Gene::getJobNumber() const {
+unsigned int Gene::getJobNumber() const {
 	return (jobNumber);
 }
 
-int Gene::getOperationNumber() const {
+unsigned int Gene::getOperationNumber() const {
 	return (operationNumber);
 }
 

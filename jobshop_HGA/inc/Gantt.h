@@ -18,15 +18,15 @@
  * Gantt chart of nJobs on nMachines with altogether totNOper number of operations.
  */
 class Gantt {
-	int nJobs;
-	int nMachines;
-	int totNOper;
+	unsigned int nJobs;
+	unsigned int nMachines;
+	unsigned int totNOper;
 	std::vector<std::vector<Oper> > operations;
 	std::vector<std::vector<Oper> > machines;
 
 	std::vector<Gene> chromosome;
 public:
-	Gantt(int nJobs, int nMachines) {
+	Gantt(unsigned int nJobs, unsigned int nMachines) {
 		this->nJobs = nJobs;
 		this->nMachines = nMachines;
 		totNOper = 0;
@@ -46,13 +46,15 @@ public:
 	void printJobs();
 	void printMachines();
 
+	std::vector<unsigned int> randomJobOrder();
+
 	std::vector<Gene>& getChromosome();
 	std::vector<std::vector<Oper> >& getMachines();
 	std::vector<std::vector<Oper> >& getOperations();
 
-	int getNJobs() const;
-	int getNMachines() const;
-	int getTotNOper() const;
+	unsigned int getNJobs() const;
+	unsigned int getNMachines() const;
+	unsigned int getTotNOper() const;
 };
 
 #endif /* GANTT_H_ */
