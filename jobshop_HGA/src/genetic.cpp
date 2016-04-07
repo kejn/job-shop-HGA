@@ -18,10 +18,12 @@ void openFile(fstream &file, const string &fileName) throw (string);
 Gantt loadOperationsFromFile(fstream &file) throw (string);
 void initPopGen(Gantt &ganttInfo);
 
+static const string BENCHMARK_FILE_PATH = "res/bench_js.txt";
+
 int main() throw (string) {
 	fstream file;
 	try {
-		openFile(file, "bench_js.txt");
+		openFile(file, BENCHMARK_FILE_PATH.c_str());
 	} catch (const string &message) {
 		cerr << message << endl;
 		if (file.is_open()) {
