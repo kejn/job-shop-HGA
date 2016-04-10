@@ -11,10 +11,14 @@
 #include "../inc/Oper.h"
 
 using namespace std;
+using RevOperIt = std::reverse_iterator<std::vector<Oper>::iterator>;
+using ConstRevOperIt = std::reverse_iterator<std::vector<Oper>::const_iterator>;
 
 void openFile(fstream &file, const string &fileName) throw (string);
 Gantt loadOperationsFromFile(fstream &file) throw (string);
 void initPopGen(Gantt &ganttInfo);
+RevOperIt whereCanIFit(const Oper & operation, RevOperIt rIter,
+		ConstRevOperIt rEnd, unsigned int t0);
 
 static const string BENCHMARK_FILE_PATH = "res/bench_js.txt";
 
@@ -32,6 +36,7 @@ int main() throw (string) {
 	Gantt ganttInfo = loadOperationsFromFile(file); // [1]
 	ganttInfo.printJobs();
 	initPopGen(ganttInfo);
+	ganttInfo.printJobs();
 
 	file.close();
 //	system("schedule.jpg");
@@ -100,13 +105,13 @@ void initPopGen(Gantt &ganttInfo) {
 		for (unsigned int i : sequence) {								// [5]
 			vector<Oper> M(ganttInfo.getNMachines());					// [6]
 			vector<unsigned int> T(ganttInfo.getNMachines());			// [7]
-			int t0, t1;													// [8]
+			unsigned int t0, t1;										// [8]
 
 			try {														//[9-13]
 				Oper prevOper = ganttInfo.prevOperationTo(i, oper);
 				t0 = prevOper.getCompletitionTime();
 			} catch (const string &message) {
-				cerr << message << "(job: " << i << ", oper: " << oper << ")\n";
+//				cerr << message << "(job: " << i << ", oper: " << oper << ")\n";
 				t0 = 0;
 			}
 
@@ -124,22 +129,23 @@ void initPopGen(Gantt &ganttInfo) {
 
 				if (t1 <= t0) {										// [21-27]
 					operInfo.setStartingTime(t0);
-				} else if ((machineK.size() > 1)
-						&& (operInfo.getProcessingTime()
-								<= (machineK.back().getStartingTime()
-										- machineK[machineK.size() - 2].getCompletitionTime()))) {
-					if (machineK.size() > 1) {
-						operInfo.setStartingTime(
-								machineK[machineK.size() - 2].getCompletitionTime());
-					}
 				} else {
-					operInfo.setStartingTime(t1);
+					RevOperIt iter = whereCanIFit(operInfo, machineK.rbegin(),
+							machineK.rend(), t0);
+					if (iter != machineK.rend()) {
+						operInfo.setStartingTime((*iter).getCompletitionTime());
+					} else {
+						operInfo.setStartingTime(t1);
+					}
 				}
+
 				T[k] = operInfo.getCompletitionTime();
 				M[k] = operInfo;
-			}															// [28]
+			} // end for
+
 			// [29]
-			vector<unsigned int>::iterator minC = min_element(T.begin(), T.end());
+			vector<unsigned int>::iterator minC = min_element(T.begin(),
+					T.end());
 			unsigned int minCK = distance(T.begin(), minC);
 			vector<Oper>::iterator iter =
 					ganttInfo.getMachines()[minCK].begin();
@@ -148,14 +154,44 @@ void initPopGen(Gantt &ganttInfo) {
 					break;
 				}
 			}
-			ganttInfo.getMachines()[minCK].insert(iter, M[minCK]);
-			ganttInfo.getOperations()[i][oper] = M[minCK]; // update!!!
-			// [23]
-			Gene gene(minCK, i, oper);
-			ganttInfo.getChromosome().push_back(gene);
-			++operCount;
-		}
+
+			ganttInfo.insertOnMachine(minCK, iter, M[minCK]);
+
+			ganttInfo.getChromosome().push_back(Gene(minCK, i, oper));	// [30]
+			++operCount;												// [31]
+		} // end for (unsigned int i : sequence)
 		++oper;
 	}
 	ganttInfo.printMachines();
+	ganttInfo.printChromosome();
+}
+
+/**
+ * Starting from the last operation check if operation, with minimum starting
+ * time = t0, can fit between two consecutive operations on machineK.
+ *
+ * Parameters:
+ * operation - operation to fit
+ * machineK - machine on which we check
+ * t0 - completition time of operation's technological predecessor
+ *
+ * Return:
+ * iterator to the operation after which the operation can fit
+ * (as early as possible after t0).
+ */
+RevOperIt whereCanIFit(const Oper & operation, RevOperIt rIter,
+		ConstRevOperIt rEnd, unsigned int t0) {
+
+	unsigned int p = operation.getProcessingTime();
+	vector<RevOperIt> canFit;
+
+	for (++rIter; rIter != rEnd; ++rIter) {
+		unsigned int currentOperEnds = (*(rIter)).getCompletitionTime();
+		unsigned int nextOperStarts = (*(rIter - 1)).getStartingTime();
+		if ((currentOperEnds >= t0)
+				&& (p <= (nextOperStarts - currentOperEnds))) {
+			canFit.push_back(rIter);
+		}
+	}
+	return (canFit.empty() ? rIter : canFit.back());
 }

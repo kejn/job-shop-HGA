@@ -21,9 +21,11 @@ public:
 	unsigned int getJobNumber() const;
 	unsigned int getOperationNumber() const;
 
-	void setMachineNumber(int machineNumber);
-	void setJobNumber(int jobNumber);
-	void setOperationNumber(int operationNumber);
+	void print() const;
+
+	void setMachineNumber(unsigned int machineNumber);
+	void setJobNumber(unsigned int jobNumber);
+	void setOperationNumber(unsigned int operationNumber);
 };
 
 #endif /* INC_GENE_H_ */

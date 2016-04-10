@@ -21,7 +21,7 @@ public:
 
 	bool isFirstInJob();
 	const Oper &operator=(const Oper &other);
-	unsigned int getCompletitionTime();
+	unsigned int getCompletitionTime() const;
 
 	unsigned int getStartingTime() const;
 	unsigned int getProcessingTime() const;

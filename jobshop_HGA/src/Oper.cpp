@@ -24,7 +24,7 @@ const Oper &Oper::operator=(const Oper &other) {
 	return (*this);
 }
 
-unsigned int Oper::getCompletitionTime() {
+unsigned int Oper::getCompletitionTime() const {
 	return (startingTime + processingTime);
 }
 

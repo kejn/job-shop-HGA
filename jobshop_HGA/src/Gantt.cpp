@@ -86,6 +86,20 @@ unsigned int Gantt::getNMachines() const {
 	return (nMachines);
 }
 
+void Gantt::insertOnMachine(int machineIndex,
+		const std::vector<Oper>::iterator &iterator, const Oper &operation) {
+	machines[machineIndex].insert(iterator, operation);
+	operations[operation.getPid()][operation.getId()] = operation;
+}
+
+void Gantt::printChromosome() {
+	for(const Gene &gene : chromosome) {
+		gene.print();
+		cout << "-";
+	}
+	cout << endl;
+}
+
 unsigned int Gantt::getTotNOper() const {
 	return (totNOper);
 }

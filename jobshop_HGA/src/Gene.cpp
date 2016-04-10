@@ -7,6 +7,8 @@
 
 #include "../inc/Gene.h"
 
+#include <iostream>
+
 Gene::Gene() {
 	machineNumber = jobNumber = operationNumber = -1;
 }
@@ -36,14 +38,19 @@ unsigned int Gene::getOperationNumber() const {
 	return (operationNumber);
 }
 
-void Gene::setMachineNumber(int machineNumber) {
+void Gene::setMachineNumber(unsigned int machineNumber) {
 	this->machineNumber = machineNumber;
 }
 
-void Gene::setJobNumber(int jobNumber) {
+void Gene::setJobNumber(unsigned int jobNumber) {
 	this->jobNumber = jobNumber;
 }
 
-void Gene::setOperationNumber(int operationNumber) {
+void Gene::setOperationNumber(unsigned int operationNumber) {
 	this->operationNumber = operationNumber;
+}
+
+void Gene::print() const {
+	std::cout << "(" << machineNumber << "," << jobNumber << ","
+			<< operationNumber << ")";
 }

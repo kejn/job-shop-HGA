@@ -42,9 +42,13 @@ public:
 			throw (std::string);
 
 	void addOnMachine(int i, const Oper &operation);
+	void insertOnMachine(int machineIndex,
+			const std::vector<Oper>::iterator &iterator,
+			const Oper & operation);
 
 	void printJobs();
 	void printMachines();
+	void printChromosome();
 
 	std::vector<unsigned int> randomJobOrder();
 
