@@ -12,13 +12,12 @@
 
 using namespace std;
 using RevOperIt = std::reverse_iterator<std::vector<Oper>::iterator>;
-using ConstRevOperIt = std::reverse_iterator<std::vector<Oper>::const_iterator>;
 
 void openFile(fstream &file, const string &fileName) throw (string);
 Gantt loadOperationsFromFile(fstream &file) throw (string);
 void initPopGen(Gantt &ganttInfo);
 RevOperIt whereCanIFit(const Oper & operation, RevOperIt rIter,
-		ConstRevOperIt rEnd, unsigned int t0);
+		const RevOperIt rEnd, unsigned int t0);
 
 static const string BENCHMARK_FILE_PATH = "res/bench_js.txt";
 
@@ -180,7 +179,7 @@ void initPopGen(Gantt &ganttInfo) {
  * (as early as possible after t0).
  */
 RevOperIt whereCanIFit(const Oper & operation, RevOperIt rIter,
-		ConstRevOperIt rEnd, unsigned int t0) {
+		const RevOperIt rEnd, unsigned int t0) {
 
 	unsigned int p = operation.getProcessingTime();
 	vector<RevOperIt> canFit;
@@ -188,10 +187,13 @@ RevOperIt whereCanIFit(const Oper & operation, RevOperIt rIter,
 	for (++rIter; rIter != rEnd; ++rIter) {
 		unsigned int currentOperEnds = (*(rIter)).getCompletitionTime();
 		unsigned int nextOperStarts = (*(rIter - 1)).getStartingTime();
-		if ((currentOperEnds >= t0)
-				&& (p <= (nextOperStarts - currentOperEnds))) {
+		if (currentOperEnds < t0) {
+			rIter = rEnd;
+			break;
+		} else if(p <= (nextOperStarts - currentOperEnds)) {
 			canFit.push_back(rIter);
 		}
 	}
+
 	return (canFit.empty() ? rIter : canFit.back());
 }
