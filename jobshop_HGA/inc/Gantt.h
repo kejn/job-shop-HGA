@@ -5,6 +5,8 @@
  *      Author: Kamil
  */
 
+#include <cstdlib>
+#include <ctime>
 #include <string>
 #include <vector>
 
@@ -23,16 +25,14 @@ class Gantt {
 	unsigned int totNOper;
 	std::vector<std::vector<Oper> > operations;
 	std::vector<std::vector<Oper> > machines;
+	static std::vector<std::string> colors;
 
 	std::vector<Gene> chromosome;
+
+	std::string getRandomColor();
+	std::string getColor(unsigned int index);
 public:
-	Gantt(unsigned int nJobs, unsigned int nMachines) {
-		this->nJobs = nJobs;
-		this->nMachines = nMachines;
-		totNOper = 0;
-		operations = std::vector<std::vector<Oper>>(nJobs);
-		machines = std::vector<std::vector<Oper>>(nMachines);
-	}
+	Gantt(unsigned int nJobs, unsigned int nMachines);
 
 	void addOperation(int i, const Oper &operation);
 
@@ -49,6 +49,8 @@ public:
 	void printJobs();
 	void printMachines();
 	void printChromosome();
+	void printJobsHTML(std::string fileName = "res/jobs.html");
+	void printMachinesHTML(std::string fileName = "res/machines.html");
 
 	std::vector<unsigned int> randomJobOrder();
 

@@ -6,6 +6,7 @@
  */
 
 #include "../inc/Oper.h"
+#include <sstream>
 
 Oper::Oper() {
 	startingTime = processingTime = 0;
@@ -70,4 +71,11 @@ void Oper::setStartingTime(unsigned int startingTime) {
 
 bool Oper::isFirstInJob() {
 	return (id == 0);
+}
+
+std::string Oper::toString() {
+	std::stringstream ss;
+	ss << "[pid,id]=[" << pid << "," << id << "], (s,p,c)=(" << startingTime
+			<< "," << processingTime << "," << getCompletitionTime() << ")";
+	return (ss.str());
 }

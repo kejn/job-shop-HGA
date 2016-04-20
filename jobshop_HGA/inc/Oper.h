@@ -8,6 +8,8 @@
 #ifndef OPER_H_
 #define OPER_H_
 
+#include <string>
+
 class Oper {
 	unsigned int startingTime;
 	unsigned int processingTime;
@@ -34,6 +36,8 @@ public:
 	void setMachineNumber(unsigned int machineNumber);
 	void setId(int id);
 	void setPid(int pid);
+
+	std::string toString();
 };
 
 

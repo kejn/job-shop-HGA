@@ -33,10 +33,10 @@ int main() throw (string) {
 		return (1);
 	}
 	Gantt ganttInfo = loadOperationsFromFile(file); // [1]
-	ganttInfo.printJobs();
+	ganttInfo.printJobsHTML();
 	initPopGen(ganttInfo);
-	ganttInfo.printJobs();
-
+	ganttInfo.printJobsHTML("res/jobs_initPopGen.html");
+	ganttInfo.printMachinesHTML("res/machines_initPopGen.html");
 	file.close();
 //	system("schedule.jpg");
 	return (0);

@@ -8,12 +8,13 @@
 #include "../inc/Gantt.h"
 
 #include <algorithm>
-#include <cstdlib>
-#include <ctime>
 #include <iomanip>
 #include <iostream>
+#include <fstream>
 
 using namespace std;
+
+vector<string> Gantt::colors;
 
 void Gantt::addOperation(int i, const Oper &operation) {
 	operations[i].push_back(operation);
@@ -93,11 +94,131 @@ void Gantt::insertOnMachine(int machineIndex,
 }
 
 void Gantt::printChromosome() {
-	for(const Gene &gene : chromosome) {
+	for (const Gene &gene : chromosome) {
 		gene.print();
 		cout << "-";
 	}
 	cout << endl;
+}
+
+string Gantt::getRandomColor() {
+    char letters[] = "0123456789ABCDEF";
+    string color = "#";
+    for (int i = 0; i < 6; ++i) {
+        color += letters[rand() % 16];
+    }
+    return (color);
+}
+
+void Gantt::printJobsHTML(std::string fileName) {
+	ofstream outputFile(fileName.c_str());
+	if (!outputFile.good()) {
+		throw string("Cannot open file: " + fileName);
+	}
+	outputFile << "<!doctype html>\n"
+			<< "<html>\n"
+			<< "<head>\n"
+			<< "<meta "
+			<< 		"http-equiv=\"Content-Type\""
+			<<		"content=\"text/html; charset=UTF-8\"/>\n"
+			<< "<title>Jobs</title>"
+			<< "<style>\n"
+			<< 	"body,div,table,tr,td {\n"
+			<< 		"margin: 0;\n"
+			<<		"padding: 0;\n"
+			<< 	"}\n"
+			<<	"div {\n"
+			<<		"width: 2000px;"
+			<<	"}\n"
+			<< 	"table {\n"
+			<<		"border-spacing: 0px;\n"
+			<<		"padding: 2px;"
+			<< 	"}\n"
+			<< 	"td {\n"
+			<<		"border-right: 1px black solid;\n"
+			<< 	"}\n"
+			<< "</style>\n"
+			<< "</head>\n"
+			<< "<body>\n";
+
+	for (unsigned int i = 0; i < operations.size(); ++i) {
+		outputFile << "<div><table>\n<tr>\n<td style=\"width: 70px;\">Job "
+				<< i << "</td>\n";
+		for (unsigned int j = 0; j < operations[i].size(); ++j) {
+			outputFile << "<td style=\"width: "
+					<< operations[i][j].getProcessingTime()
+					<< "px; background-color: "
+					<< getColor(i)
+					<< ";\"></td>\n";
+		}
+		outputFile << "</tr>\n</table></div>";
+	}
+	outputFile << "</body>\n</html>";
+}
+
+string Gantt::getColor(unsigned int index) {
+	if(index >= Gantt::colors.size()) {
+		Gantt::colors.resize(index);
+		Gantt::colors.push_back(getRandomColor());
+	}
+	return (Gantt::colors[index]);
+}
+
+void Gantt::printMachinesHTML(std::string fileName) {
+	ofstream outputFile(fileName.c_str());
+	if (!outputFile.good()) {
+		throw string("Cannot open file: " + fileName);
+	}
+	outputFile << "<!doctype html>\n"
+			<< "<html>\n"
+			<< "<head>\n"
+			<< "<meta "
+			<< 		"http-equiv=\"Content-Type\""
+			<<		"content=\"text/html; charset=UTF-8\"/>\n"
+			<< "<title>Machines</title>"
+			<< "<style>\n"
+			<< 	"body,div,table,tr,td {\n"
+			<< 		"margin: 0;\n"
+			<<		"padding: 0;\n"
+			<< 	"}\n"
+			<<	"div {\n"
+			<<		"width: 2000px;"
+			<<	"}\n"
+			<< 	"table {\n"
+			<<		"border-spacing: 0px;\n"
+			<<		"padding: 2px;"
+			<< 	"}\n"
+			<< 	"td {\n"
+			<<		"border-right: 1px black solid;\n"
+			<< 	"}\n"
+			<< "</style>\n"
+			<< "</head>\n"
+			<< "<body>\n";
+
+	for (unsigned int i = 0; i < machines.size(); ++i) {
+		outputFile << "<div><table>\n<tr>\n<td style=\"width: 100px;\">Machine "
+				<< i << "</td>\n";
+		for (unsigned int j = 0; j < machines[i].size(); ++j) {
+			unsigned int sCurr = machines[i][j].getStartingTime();
+			if(j > 0) {
+				unsigned int cPrev = machines[i][j-1].getCompletitionTime();
+				if(cPrev < sCurr) {
+					outputFile << "<td style=\"width: " << sCurr - cPrev
+							<< "px;\"></td>";
+				}
+			} else if(sCurr > 0){
+				outputFile << "<td style=\"width: " << sCurr << "px;\"></td>";
+			}
+			outputFile << "<td style=\"width: "
+					<< machines[i][j].getProcessingTime()
+					<< "px; background-color: "
+					<< colors[machines[i][j].getPid()]
+					<< ";\" title=\"" << machines[i][j].toString()
+					<< "\"></td>\n";
+		}
+		outputFile << "</tr>\n</table></div>";
+	}
+	outputFile << "</body>\n</html>";
 }
 
 unsigned int Gantt::getTotNOper() const {
@@ -113,3 +234,27 @@ vector<unsigned int> Gantt::randomJobOrder() {
 	return (sequence);
 }
 
+Gantt::Gantt(unsigned int nJobs, unsigned int nMachines) {
+	this->nJobs = nJobs;
+	this->nMachines = nMachines;
+	totNOper = 0;
+	operations = std::vector<std::vector<Oper>>(nJobs);
+	machines = std::vector<std::vector<Oper>>(nMachines);
+	Gantt::colors.reserve(nJobs);
+
+	srand(time(nullptr));
+	Gantt::colors  = {
+			"BlueViolet",
+			"Crimson",
+			"DarkGreen",
+			"Tomato",
+			"DarkOrange",
+			"DodgerBlue",
+			"Gold",
+			"Indigo",
+			"LightSalmon",
+			"Lime",
+			"MediumVioletRed",
+			"DeepSkyBlue"
+	};
+}
