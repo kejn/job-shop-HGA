@@ -8,9 +8,15 @@
 #include "../inc/Gantt.h"
 
 #include <algorithm>
+#include <initializer_list>
 #include <iomanip>
 #include <iostream>
-#include <fstream>
+#include <sstream>
+
+#include "../inc/files/files.h"
+#include "../inc/html/PageHTML.h"
+#include "../inc/html/TagContentHTML.h"
+#include "../inc/html/TextContentHTML.h"
 
 using namespace std;
 
@@ -102,12 +108,12 @@ void Gantt::printChromosome() {
 }
 
 string Gantt::getRandomColor() {
-    char letters[] = "0123456789ABCDEF";
-    string color = "#";
-    for (int i = 0; i < 6; ++i) {
-        color += letters[rand() % 16];
-    }
-    return (color);
+	char letters[] = "0123456789ABCDEF";
+	string color = "#";
+	for (int i = 0; i < 6; ++i) {
+		color += letters[rand() % 16];
+	}
+	return (color);
 }
 
 void Gantt::printJobsHTML(std::string fileName) {
@@ -115,41 +121,23 @@ void Gantt::printJobsHTML(std::string fileName) {
 	if (!outputFile.good()) {
 		throw string("Cannot open file: " + fileName);
 	}
-	outputFile << "<!doctype html>\n"
-			<< "<html>\n"
-			<< "<head>\n"
-			<< "<meta "
-			<< 		"http-equiv=\"Content-Type\""
-			<<		"content=\"text/html; charset=UTF-8\"/>\n"
-			<< "<title>Jobs</title>"
-			<< "<style>\n"
-			<< 	"body,div,table,tr,td {\n"
-			<< 		"margin: 0;\n"
-			<<		"padding: 0;\n"
-			<< 	"}\n"
-			<<	"div {\n"
-			<<		"width: 2000px;"
-			<<	"}\n"
-			<< 	"table {\n"
-			<<		"border-spacing: 0px;\n"
-			<<		"padding: 2px;"
-			<< 	"}\n"
-			<< 	"td {\n"
-			<<		"border-right: 1px black solid;\n"
-			<< 	"}\n"
-			<< "</style>\n"
-			<< "</head>\n"
-			<< "<body>\n";
+	outputFile << "<!doctype html>\n" << "<html>\n" << "<head>\n" << "<meta "
+			<< "http-equiv=\"Content-Type\""
+			<< "content=\"text/html; charset=UTF-8\"/>\n"
+			<< "<title>Jobs</title>" << "<style>\n"
+			<< "body,div,table,tr,td {\n" << "margin: 0;\n" << "padding: 0;\n"
+			<< "}\n" << "div {\n" << "width: 2000px;" << "}\n" << "table {\n"
+			<< "border-spacing: 0px;\n" << "padding: 2px;" << "}\n" << "td {\n"
+			<< "border-right: 1px black solid;\n" << "}\n" << "</style>\n"
+			<< "</head>\n" << "<body>\n";
 
 	for (unsigned int i = 0; i < operations.size(); ++i) {
-		outputFile << "<div><table>\n<tr>\n<td style=\"width: 70px;\">Job "
-				<< i << "</td>\n";
+		outputFile << "<div><table>\n<tr>\n<td style=\"width: 70px;\">Job " << i
+				<< "</td>\n";
 		for (unsigned int j = 0; j < operations[i].size(); ++j) {
 			outputFile << "<td style=\"width: "
 					<< operations[i][j].getProcessingTime()
-					<< "px; background-color: "
-					<< getColor(i)
-					<< ";\"></td>\n";
+					<< "px; background-color: " << getColor(i) << ";\"></td>\n";
 		}
 		outputFile << "</tr>\n</table></div>";
 	}
@@ -157,7 +145,7 @@ void Gantt::printJobsHTML(std::string fileName) {
 }
 
 string Gantt::getColor(unsigned int index) {
-	if(index >= Gantt::colors.size()) {
+	if (index >= Gantt::colors.size()) {
 		Gantt::colors.resize(index);
 		Gantt::colors.push_back(getRandomColor());
 	}
@@ -165,60 +153,88 @@ string Gantt::getColor(unsigned int index) {
 }
 
 void Gantt::printMachinesHTML(std::string fileName) {
-	ofstream outputFile(fileName.c_str());
-	if (!outputFile.good()) {
-		throw string("Cannot open file: " + fileName);
+	createDirectory(GENERATED_FOLDER);
+	fstream outputFile;
+	try {
+		openFile(outputFile, fileName, ios::out);
+	} catch (const string &message) {
+		cerr << message << endl;
+		return;
 	}
-	outputFile << "<!doctype html>\n"
-			<< "<html>\n"
-			<< "<head>\n"
-			<< "<meta "
-			<< 		"http-equiv=\"Content-Type\""
-			<<		"content=\"text/html; charset=UTF-8\"/>\n"
-			<< "<title>Machines</title>"
-			<< "<style>\n"
-			<< 	"body,div,table,tr,td {\n"
-			<< 		"margin: 0;\n"
-			<<		"padding: 0;\n"
-			<< 	"}\n"
-			<<	"div {\n"
-			<<		"width: 2000px;"
-			<<	"}\n"
-			<< 	"table {\n"
-			<<		"border-spacing: 0px;\n"
-			<<		"padding: 2px;"
-			<< 	"}\n"
-			<< 	"td {\n"
-			<<		"border-right: 1px black solid;\n"
-			<< 	"}\n"
-			<< "</style>\n"
-			<< "</head>\n"
-			<< "<body>\n";
+
+	const string stylesFileName = "css/gantt_styles.css";
+	const string scriptFileName = "js/hover_functions.js";
+
+	PageHTML htmlPage;
+	htmlPage.addContentType("text/html; charset=UTF-8");
+	htmlPage.addTitle("Machines");
+	htmlPage.addStyle(stylesFileName);
+	htmlPage.addScript(scriptFileName);
 
 	for (unsigned int i = 0; i < machines.size(); ++i) {
-		outputFile << "<div><table>\n<tr>\n<td style=\"width: 100px;\">Machine "
-				<< i << "</td>\n";
+		TagContentHTML* div = new TagContentHTML("div");
+		TagContentHTML* table = new TagContentHTML("table");
+		TagContentHTML* tr = new TagContentHTML("tr");
+		TagContentHTML* td = new TagContentHTML("td");
+
+		stringstream ssMachine;
+		ssMachine << "Machine " << i;
+		TextContentHTML* machineNo = new TextContentHTML(ssMachine.str());
+		td->addParam("style", "width: 100px;");
+		td->addChild(machineNo);
+
+		tr->addChild(td);
 		for (unsigned int j = 0; j < machines[i].size(); ++j) {
 			unsigned int sCurr = machines[i][j].getStartingTime();
-			if(j > 0) {
-				unsigned int cPrev = machines[i][j-1].getCompletitionTime();
-				if(cPrev < sCurr) {
-					outputFile << "<td style=\"width: " << sCurr - cPrev
-							<< "px;\"></td>";
+			if (j > 0) {
+				unsigned int cPrev = machines[i][j - 1].getCompletitionTime();
+				if (cPrev < sCurr) {
+					TagContentHTML* tdOperation = new TagContentHTML("td");
+					stringstream ssMachine;
+					ssMachine << "width: " << sCurr - cPrev - 1 << "px;";
+					tdOperation->addParam("style", ssMachine.str());
+					tr->addChild(tdOperation);
 				}
-			} else if(sCurr > 0){
-				outputFile << "<td style=\"width: " << sCurr << "px;\"></td>";
+			} else if (sCurr > 0) {
+				TagContentHTML* tdOperation = new TagContentHTML("td");
+				stringstream ssMachine;
+				ssMachine << "width: " << sCurr - 1 << "px;";
+				tdOperation->addParam("style", ssMachine.str());
+				tr->addChild(tdOperation);
 			}
-			outputFile << "<td style=\"width: "
-					<< machines[i][j].getProcessingTime()
+			TagContentHTML* tdOperation = new TagContentHTML("td");
+			stringstream ssMachine;
+			ssMachine << "width: " << machines[i][j].getProcessingTime() - 1
 					<< "px; background-color: "
-					<< colors[machines[i][j].getPid()]
-					<< ";\" title=\"" << machines[i][j].toString()
-					<< "\"></td>\n";
+					<< getColor(machines[i][j].getPid());
+			tdOperation->addParam("style", ssMachine.str());
+			tdOperation->addParam("title", machines[i][j].toString());
+			ssMachine.str("");
+			ssMachine << "job" << machines[i][j].getPid();
+			string jobNumber(ssMachine.str());
+			tdOperation->addParam("class", jobNumber);
+			tdOperation->addParam("onmouseover", "mOver('" + jobNumber + "')");
+			tdOperation->addParam("onmouseout", "mOut()");
+			tr->addChild(tdOperation);
 		}
-		outputFile << "</tr>\n</table></div>";
+		table->addChild(tr);
+		div->addChild(table);
+		htmlPage.add(PageHTML::Section::BODY, div);
 	}
-	outputFile << "</body>\n</html>";
+	outputFile << htmlPage.toString();
+	outputFile.close();
+
+	try {
+		createDirectory(GENERATED_FOLDER + "css/");
+		createDirectory(GENERATED_FOLDER + "js/");
+		copyFile(RESOURCE_FOLDER + stylesFileName,
+				GENERATED_FOLDER + stylesFileName);
+		copyFile(RESOURCE_FOLDER + scriptFileName,
+				GENERATED_FOLDER + scriptFileName);
+	} catch (const string &message) {
+		cerr << message << endl;
+		return;
+	}
 }
 
 unsigned int Gantt::getTotNOper() const {
@@ -243,18 +259,18 @@ Gantt::Gantt(unsigned int nJobs, unsigned int nMachines) {
 	Gantt::colors.reserve(nJobs);
 
 	srand(time(nullptr));
-	Gantt::colors  = {
-			"BlueViolet",
-			"Crimson",
-			"DarkGreen",
-			"Tomato",
-			"DarkOrange",
-			"DodgerBlue",
-			"Gold",
-			"Indigo",
-			"LightSalmon",
-			"Lime",
-			"MediumVioletRed",
-			"DeepSkyBlue"
+	Gantt::colors = {
+		"BlueViolet",
+		"Crimson",
+		"DarkGreen",
+		"Tomato",
+		"DarkOrange",
+		"DodgerBlue",
+		"Gold",
+		"Indigo",
+		"LightSalmon",
+		"Lime",
+		"MediumVioletRed",
+		"DeepSkyBlue"
 	};
 }

@@ -1,0 +1,17 @@
+body,div,table,tr,td {
+	margin: 0px;
+	padding: 0px;
+}
+
+div {
+	width: 2000px;
+}
+
+table {
+	border-spacing: 0px;
+	padding: 2px;
+}
+
+td {
+	border-right: 1px black solid;
+}

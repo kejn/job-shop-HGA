@@ -9,22 +9,22 @@
 #include "../inc/Gantt.h"
 #include "../inc/Gene.h"
 #include "../inc/Oper.h"
+#include "../inc/files/files.h"
 
 using namespace std;
 using RevOperIt = std::reverse_iterator<std::vector<Oper>::iterator>;
 
-void openFile(fstream &file, const string &fileName) throw (string);
 Gantt loadOperationsFromFile(fstream &file) throw (string);
 void initPopGen(Gantt &ganttInfo);
 RevOperIt whereCanIFit(const Oper & operation, RevOperIt rIter,
 		const RevOperIt rEnd, unsigned int t0);
 
-static const string BENCHMARK_FILE_PATH = "res/bench_js.txt";
+static const string BENCHMARK_FILE_PATH = RESOURCE_FOLDER + "bench_js.txt";
 
 int main() throw (string) {
 	fstream file;
 	try {
-		openFile(file, BENCHMARK_FILE_PATH.c_str());
+		openFile(file, BENCHMARK_FILE_PATH, ios::in);
 	} catch (const string &message) {
 		cerr << message << endl;
 		if (file.is_open()) {
@@ -33,21 +33,13 @@ int main() throw (string) {
 		return (1);
 	}
 	Gantt ganttInfo = loadOperationsFromFile(file); // [1]
-	ganttInfo.printJobsHTML();
-	initPopGen(ganttInfo);
-	ganttInfo.printJobsHTML("res/jobs_initPopGen.html");
-	ganttInfo.printMachinesHTML("res/machines_initPopGen.html");
 	file.close();
-//	system("schedule.jpg");
-	return (0);
-}
 
-void openFile(fstream &file, const string &fileName) throw (string) {
-	file.open(fileName.c_str(), fstream::in | fstream::out);
-	if (file.bad()) {
-		string message = "Nie udalo sie otworzyc pliku \"" + fileName + "\"";
-		throw message;
-	}
+	initPopGen(ganttInfo);
+	ganttInfo.printMachinesHTML();
+	system("generated\\machines.html");
+
+	return (0);
 }
 
 Gantt loadOperationsFromFile(fstream &file) throw (string) {

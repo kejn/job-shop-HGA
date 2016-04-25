@@ -5,11 +5,10 @@
  *      Author: Kamil
  */
 
-#include <cstdlib>
-#include <ctime>
 #include <string>
 #include <vector>
 
+#include "files/files.h"
 #include "Gene.h"
 #include "Oper.h"
 
@@ -49,8 +48,9 @@ public:
 	void printJobs();
 	void printMachines();
 	void printChromosome();
-	void printJobsHTML(std::string fileName = "res/jobs.html");
-	void printMachinesHTML(std::string fileName = "res/machines.html");
+	void printJobsHTML(std::string fileName = GENERATED_FOLDER + "jobs.html");
+	void printMachinesHTML(
+			std::string fileName = GENERATED_FOLDER + "machines.html");
 
 	std::vector<unsigned int> randomJobOrder();
 
