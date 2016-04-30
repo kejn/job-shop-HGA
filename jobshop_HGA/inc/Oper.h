@@ -15,8 +15,8 @@ class Oper {
 	unsigned int processingTime;
 	unsigned int machineNumber;
 
-	int id;
-	int pid;
+	unsigned int id;
+	unsigned int pid;
 public:
 	Oper();
 	Oper(const Oper &other);
@@ -28,14 +28,14 @@ public:
 	unsigned int getStartingTime() const;
 	unsigned int getProcessingTime() const;
 	unsigned int getMachineNumber() const;
-	int getId() const;
-	int getPid() const;
+	unsigned int getId() const;
+	unsigned int getPid() const;
 
 	void setStartingTime(unsigned int startingTime);
 	void setProcessingTime(unsigned int processingTime);
 	void setMachineNumber(unsigned int machineNumber);
-	void setId(int id);
-	void setPid(int pid);
+	void setId(unsigned int id);
+	void setPid(unsigned int pid);
 
 	std::string toString();
 };

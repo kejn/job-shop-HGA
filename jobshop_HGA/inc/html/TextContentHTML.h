@@ -16,8 +16,11 @@ class TextContentHTML: public ContentHTML {
 protected:
 	std::string text;
 public:
-	TextContentHTML(const std::string& text);
+	TextContentHTML(const std::string& text) :
+			text(text) {}
 	virtual std::string toString();
+	virtual ~TextContentHTML() {
+	}
 };
 
 #endif /* HTML_TEXTCONTENTHTML_H_ */

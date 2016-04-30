@@ -5,8 +5,8 @@
  *      Author: Kamil
  */
 
-#ifndef TAGHTML_H_
-#define TAGHTML_H_
+#ifndef HTML_TAGCONTENTHTML_H_
+#define HTML_TAGCONTENTHTML_H_
 
 #include <map>
 #include <string>
@@ -37,4 +37,4 @@ public:
 	virtual ~TagContentHTML();
 };
 
-#endif /* TAGHTML_H_ */
+#endif /* HTML_TAGCONTENTHTML_H_ */

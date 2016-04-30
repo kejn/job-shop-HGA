@@ -8,9 +8,9 @@
 #include <string>
 #include <vector>
 
-#include "files/files.h"
 #include "Gene.h"
 #include "Oper.h"
+#include "util/files.h"
 
 #ifndef GANTT_H_
 #define GANTT_H_
@@ -24,9 +24,8 @@ class Gantt {
 	unsigned int totNOper;
 	std::vector<std::vector<Oper> > operations;
 	std::vector<std::vector<Oper> > machines;
-	static std::vector<std::string> colors;
 
-	std::vector<Gene> chromosome;
+	static std::vector<std::string> colors;
 
 	std::string getRandomColor();
 	std::string getColor(unsigned int index);
@@ -34,7 +33,6 @@ public:
 	Gantt(unsigned int nJobs, unsigned int nMachines);
 
 	void addOperation(int i, const Oper &operation);
-
 	Oper nextOperationTo(unsigned int job, unsigned int operation)
 			throw (std::string);
 	Oper prevOperationTo(unsigned int job, unsigned int referenceOperation)
@@ -44,17 +42,15 @@ public:
 	void insertOnMachine(int machineIndex,
 			const std::vector<Oper>::iterator &iterator,
 			const Oper & operation);
+	void clearMachines();
 
 	void printJobs();
 	void printMachines();
-	void printChromosome();
-	void printJobsHTML(std::string fileName = GENERATED_FOLDER + "jobs.html");
 	void printMachinesHTML(
 			std::string fileName = GENERATED_FOLDER + "machines.html");
 
 	std::vector<unsigned int> randomJobOrder();
 
-	std::vector<Gene>& getChromosome();
 	std::vector<std::vector<Oper> >& getMachines();
 	std::vector<std::vector<Oper> >& getOperations();
 

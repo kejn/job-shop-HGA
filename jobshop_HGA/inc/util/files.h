@@ -5,8 +5,8 @@
  *      Author: Kamil
  */
 
-#ifndef FILES_FILES_H_
-#define FILES_FILES_H_
+#ifndef UTIL_FILES_H_
+#define UTIL_FILES_H_
 
 #include <ios>
 #include <fstream>
@@ -23,4 +23,4 @@ void copyFile(const std::string sourceFileName,
 
 void createDirectory(std::string directoryName);
 
-#endif /* FILES_FILES_H_ */
+#endif /* UTIL_FILES_H_ */

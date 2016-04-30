@@ -29,11 +29,11 @@ unsigned int Oper::getCompletitionTime() const {
 	return (startingTime + processingTime);
 }
 
-int Oper::getId() const {
+unsigned int Oper::getId() const {
 	return (id);
 }
 
-void Oper::setId(int id) {
+void Oper::setId(unsigned int id) {
 	this->id = id;
 }
 
@@ -45,11 +45,11 @@ void Oper::setMachineNumber(unsigned int machineNumber) {
 	this->machineNumber = machineNumber;
 }
 
-int Oper::getPid() const {
+unsigned int Oper::getPid() const {
 	return (pid);
 }
 
-void Oper::setPid(int pid) {
+void Oper::setPid(unsigned int pid) {
 	this->pid = pid;
 }
 

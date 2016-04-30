@@ -1,4 +1,6 @@
 #include <algorithm>
+#include <cstdlib>
+#include <ctime>
 #include <fstream>
 #include <iostream>
 #include <iterator>
@@ -9,19 +11,29 @@
 #include "../inc/Gantt.h"
 #include "../inc/Gene.h"
 #include "../inc/Oper.h"
-#include "../inc/files/files.h"
+#include "../inc/util/files.h"
 
 using namespace std;
 using RevOperIt = std::reverse_iterator<std::vector<Oper>::iterator>;
 
 Gantt loadOperationsFromFile(fstream &file) throw (string);
-void initPopGen(Gantt &ganttInfo);
+
+vector<Gene> initPopGen(Gantt &ganttInfo);
+void decode(const vector<Gene> &chromosome, Gantt &ganttInfo);
+
+unsigned int calculateT0(Gantt& ganttInfo, unsigned int jNum,
+		unsigned int oNum);
+unsigned int calculateT1(const vector<Oper> & machine);
+unsigned int compareT0withT1(unsigned int t0, unsigned int t1);
 RevOperIt whereCanIFit(const Oper & operation, RevOperIt rIter,
 		const RevOperIt rEnd, unsigned int t0);
+void printChromosome(const vector<Gene> &chromosome);
 
 static const string BENCHMARK_FILE_PATH = RESOURCE_FOLDER + "bench_js.txt";
 
 int main() throw (string) {
+	srand(time(nullptr));
+
 	fstream file;
 	try {
 		openFile(file, BENCHMARK_FILE_PATH, ios::in);
@@ -35,8 +47,9 @@ int main() throw (string) {
 	Gantt ganttInfo = loadOperationsFromFile(file); // [1]
 	file.close();
 
-	initPopGen(ganttInfo);
+	vector<Gene> chromosome = initPopGen(ganttInfo);
 	ganttInfo.printMachinesHTML();
+
 	system("generated\\machines.html");
 
 	return (0);
@@ -81,7 +94,7 @@ Gantt loadOperationsFromFile(fstream &file) throw (string) {
 	return (ganttInfo);
 }
 
-void initPopGen(Gantt &ganttInfo) {
+vector<Gene> initPopGen(Gantt &ganttInfo) {
 	cout << "initPopGen(), tot_noper: " << ganttInfo.getTotNOper() << endl;
 
 	// [2] losowanie kolejnosci zadan
@@ -91,34 +104,26 @@ void initPopGen(Gantt &ganttInfo) {
 	copy(sequence.begin(), sequence.end(), ostream_iterator<int>(cout, " "));
 	cout << endl;
 
+	vector<Gene> chromosome(ganttInfo.getTotNOper());
+
 	unsigned int operCount = 0, oper = 0;								// [3]
 	while (operCount < ganttInfo.getTotNOper()) { 						// [4]
-		for (unsigned int i : sequence) {								// [5]
+		for (unsigned int jobIndex : sequence) {						// [5]
 			vector<Oper> M(ganttInfo.getNMachines());					// [6]
 			vector<unsigned int> T(ganttInfo.getNMachines());			// [7]
 			unsigned int t0, t1;										// [8]
 
-			try {														//[9-13]
-				Oper prevOper = ganttInfo.prevOperationTo(i, oper);
-				t0 = prevOper.getCompletitionTime();
-			} catch (const string &message) {
-//				cerr << message << "(job: " << i << ", oper: " << oper << ")\n";
-				t0 = 0;
-			}
+			t0 = calculateT0(ganttInfo, jobIndex, oper);
 
 			for (unsigned int k = 0; k < ganttInfo.getNMachines(); ++k) {// [14]
 				vector<Oper> & machineK = ganttInfo.getMachines()[k];
-				Oper operInfo(ganttInfo.getOperations()[i][oper]);
+				Oper operInfo(ganttInfo.getOperations()[jobIndex][oper]);
 				operInfo.setMachineNumber(k);
 				// [15] Oper::getProcessingTime()
 
-				if (machineK.empty()) {								 // [16-20]
-					t1 = 0;
-				} else {
-					t1 = machineK.back().getCompletitionTime();
-				}
+				t1 = calculateT1(machineK);							 // [16-20]
 
-				if (t1 <= t0) {										// [21-27]
+				if (t1 <= t0) {										 // [21-27]
 					operInfo.setStartingTime(t0);
 				} else {
 					RevOperIt iter = whereCanIFit(operInfo, machineK.rbegin(),
@@ -148,13 +153,44 @@ void initPopGen(Gantt &ganttInfo) {
 
 			ganttInfo.insertOnMachine(minCK, iter, M[minCK]);
 
-			ganttInfo.getChromosome().push_back(Gene(minCK, i, oper));	// [30]
+			chromosome.push_back(Gene(minCK, jobIndex, oper));			// [30]
 			++operCount;												// [31]
 		} // end for (unsigned int i : sequence)
 		++oper;
 	}
-	ganttInfo.printMachines();
-	ganttInfo.printChromosome();
+	return (chromosome);
+}
+
+void decode(const vector<Gene> &chromosome, Gantt& ganttInfo) {
+	ganttInfo.clearMachines();
+	for (const Gene & gene : chromosome) {
+		unsigned int jNum = gene.getJobNumber();
+		unsigned int oNum = gene.getOperationNumber();
+		unsigned int mNum = gene.getMachineNumber();
+
+		vector<Oper> & machine = ganttInfo.getMachines()[mNum];
+
+		Oper operInfo = ganttInfo.getOperations()[jNum][oNum];
+		operInfo.setMachineNumber(mNum);
+
+		unsigned int t0, t1;
+
+		t0 = calculateT0(ganttInfo, jNum, oNum);
+		t1 = calculateT1(machine);
+
+		if (t1 <= t0) {
+			operInfo.setStartingTime(t0);
+		} else {
+			RevOperIt iter = whereCanIFit(operInfo, machine.rbegin(),
+					machine.rend(), t0);
+			if (iter != machine.rend()) {
+				operInfo.setStartingTime((*iter).getCompletitionTime());
+			} else {
+				operInfo.setStartingTime(t1);
+			}
+		}
+		machine.push_back(operInfo);
+	}
 }
 
 /**
@@ -182,10 +218,44 @@ RevOperIt whereCanIFit(const Oper & operation, RevOperIt rIter,
 		if (currentOperEnds < t0) {
 			rIter = rEnd;
 			break;
-		} else if(p <= (nextOperStarts - currentOperEnds)) {
+		} else if (p <= (nextOperStarts - currentOperEnds)) {
 			canFit.push_back(rIter);
 		}
 	}
 
 	return (canFit.empty() ? rIter : canFit.back());
 }
+
+/*
+ * t0 calculation rule (hGA).
+ */
+inline unsigned int calculateT0(Gantt& ganttInfo, unsigned int jNum,
+		unsigned int oNum) {
+	unsigned int t0;
+	try {
+		Oper prevOper = ganttInfo.prevOperationTo(jNum, oNum);
+		t0 = prevOper.getCompletitionTime();
+	} catch (const string &message) {
+		t0 = 0;
+	}
+	return (t0);
+}
+
+inline unsigned int calculateT1(const vector<Oper>& machine) {
+	unsigned int t1;
+	if (machine.empty()) {
+		t1 = 0;
+	} else {
+		t1 = machine.back().getCompletitionTime();
+	}
+	return (t1);
+}
+
+void printChromosome(const vector<Gene> &chromosome) {
+	for (const Gene &gene : chromosome) {
+		gene.print();
+		cout << "-";
+	}
+	cout << endl;
+}
+

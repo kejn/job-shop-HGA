@@ -5,8 +5,8 @@
  *      Author: Kamil
  */
 
-#ifndef PAGEHTML_H_
-#define PAGEHTML_H_
+#ifndef HTML_PAGEHTML_H_
+#define HTML_PAGEHTML_H_
 
 #include <string>
 
@@ -17,12 +17,13 @@ class PageHTML: public ContentHTML {
 	TagContentHTML _body;
 public:
 	PageHTML() :
-			_head("head"), _body("body") {
-	}
+			_head("head"), _body("body") {}
 
 	enum Section {
-		HEAD, BODY
+		HEAD,
+		BODY
 	};
+
 	void add(const PageHTML::Section& section,
 			ContentHTML * const & childElement);
 
@@ -36,4 +37,4 @@ public:
 	}
 };
 
-#endif /* PAGEHTML_H_ */
+#endif /* HTML_PAGEHTML_H_ */

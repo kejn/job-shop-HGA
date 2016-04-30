@@ -7,10 +7,6 @@
 
 #include "../../inc/html/TextContentHTML.h"
 
-TextContentHTML::TextContentHTML(const std::string& text) {
-	this->text = text;
-}
-
 std::string TextContentHTML::toString() {
 	return (text);
 }

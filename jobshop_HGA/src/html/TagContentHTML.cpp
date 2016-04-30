@@ -15,7 +15,7 @@
 using namespace std;
 
 void TagContentHTML::addParam(const string& param, const string& value) {
-	params.insert(pair<string,string>(param,value));
+	params.insert(pair<string, string>(param, value));
 }
 
 void TagContentHTML::addChild(ContentHTML * const & childElement) {
@@ -25,14 +25,14 @@ void TagContentHTML::addChild(ContentHTML * const & childElement) {
 std::string TagContentHTML::toString() {
 	stringstream ss;
 	ss << "<" << name;
-	for(const auto & param : params) {
+	for (const auto & param : params) {
 		ss << " " << param.first << "=\"" << param.second << "\"";
 	}
-	if(children.empty() && name.compare("body") && name.compare("head")) {
+	if (children.empty() && name.compare("body") && name.compare("head")) {
 		ss << " />\n";
 	} else {
 		ss << ">";
-		for(const auto & childElement : children) {
+		for (const auto & childElement : children) {
 			ss << '\n' << childElement->toString();
 		}
 		ss << "	</" << name << ">";
@@ -42,7 +42,9 @@ std::string TagContentHTML::toString() {
 
 TagContentHTML::~TagContentHTML() {
 	vector<ContentHTML*>::iterator iter = children.begin();
-	for(; iter != children.end(); ++iter) {
-		delete *iter;
+	for (; iter != children.end(); ++iter) {
+		if (*iter != nullptr) {
+			delete *iter;
+		}
 	}
 }

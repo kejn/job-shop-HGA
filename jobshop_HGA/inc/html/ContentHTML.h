@@ -5,14 +5,14 @@
  *      Author: Kamil
  */
 
-#ifndef CONTENTHTML_H_
-#define CONTENTHTML_H_
+#ifndef HTML_CONTENTHTML_H_
+#define HTML_CONTENTHTML_H_
 
 #include <string>
 
 class ContentHTML {
-//protected:
-//	ContentHTML(){}
+protected:
+	ContentHTML(){}
 public:
 	virtual std::string toString() = 0;
 	virtual ~ContentHTML(){}
