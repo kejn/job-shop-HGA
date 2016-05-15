@@ -121,7 +121,7 @@ void Gantt::printMachinesHTML(std::string fileName) {
 	createDirectory(GENERATED_FOLDER);
 	fstream outputFile;
 	try {
-		openFile(outputFile, fileName, ios::out);
+		openFile(outputFile, GENERATED_FOLDER + fileName, ios::out);
 	} catch (const string &message) {
 		cerr << message << endl;
 		return;

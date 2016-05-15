@@ -47,7 +47,7 @@ public:
 	void printJobs();
 	void printMachines();
 	void printMachinesHTML(
-			std::string fileName = GENERATED_FOLDER + "machines.html");
+			std::string fileName = "machines.html");
 
 	std::vector<unsigned int> randomJobOrder();
 

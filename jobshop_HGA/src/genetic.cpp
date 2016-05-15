@@ -47,6 +47,11 @@ int main() throw (string) {
 	Gantt ganttInfo = loadOperationsFromFile(file); // [1]
 	file.close();
 
+	ganttInfo.getMachines() = ganttInfo.getOperations();
+	ganttInfo.printMachinesHTML("jobs.html");
+
+	ganttInfo.clearMachines();
+
 	vector<Gene> chromosome = initPopGen(ganttInfo);
 	ganttInfo.printMachinesHTML();
 
