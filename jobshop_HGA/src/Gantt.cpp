@@ -25,49 +25,53 @@ using namespace stringUtil;
 
 vector<string> Gantt::colors;
 
-void Gantt::addOperation(int i, const Oper &operation) {
+void Gantt::addOperation(uint i, const Oper &operation) {
 	operations[i].push_back(operation);
 	++totNOper;
 }
 
-Oper Gantt::nextOperationTo(unsigned int job, unsigned int operation)
+Oper Gantt::nextOperationTo(uint job, uint operation)
 		throw (string) {
 	if ((job >= nJobs) || (operation >= operations[job].size() - 1)) {
 		throw string("next operation: operation not found.");
 	}
-	return (operations[job][operation + 1]);
+	return operations[job][operation + 1];
 }
 
-Oper Gantt::prevOperationTo(unsigned int job, unsigned int referenceOperation)
+Oper Gantt::prevOperationTo(uint job, uint referenceOperation)
 		throw (string) {
 	if ((job >= nJobs) || (referenceOperation == 0)) {
 		throw string("prev operation: operation not found.");
 	}
-	return (operations[job][referenceOperation - 1]);
+	return operations[job][referenceOperation - 1];
 }
 
-void Gantt::addOnMachine(int i, const Oper &operation) {
+void Gantt::addOnMachine(uint i, const Oper &operation) {
 	machines[i].push_back(operation);
 }
 
 void Gantt::printJobs() {
 	cout << "Gantt::printJobs()" << endl;
-	for (unsigned int i = 0; i < operations.size(); ++i) {
-		cout << "job" << i << '\t';
-		for (unsigned int j = 0; j < operations[i].size(); ++j) {
-			cout << setw(4) << 'M' << setw(2) << setfill('0')
-					<< operations[i][j].getMachineNumber() << setw(3)
-					<< setfill(' ') << operations[i][j].getProcessingTime()
-					<< ' ' << flush;
+	for (uint i = 0; i < operations.size(); ++i) {
+		cout << "job" << i << endl;
+		for (uint j = 0; j < operations[i].size(); ++j) {
+			cout << "operation" << j << endl;
+			for(const auto & entry : operations[i][j].getProcessingTimes()) {
+				cout << setw(4) << 'M' << setw(2) << setfill('0')
+						<< entry.first << setw(3)
+						<< setfill(' ') << entry.second
+						<< ' ' << flush;
+			}
+			cout << endl;
 		}
 		cout << endl;
 	}
 }
 
 void Gantt::printMachines() {
-	for (unsigned int i = 0; i < machines.size(); ++i) {
+	for (uint i = 0; i < machines.size(); ++i) {
 		cout << "Machine" << i << '\t';
-		for (unsigned int j = 0; j < machines[i].size(); ++j) {
+		for (uint j = 0; j < machines[i].size(); ++j) {
 			cout << setw(4) << 'J' << setw(2) << setfill('0')
 					<< machines[i][j].getPid() << setfill(' ') << '('
 					<< machines[i][j].getId() << ')' << flush;
@@ -77,25 +81,25 @@ void Gantt::printMachines() {
 }
 
 std::vector<std::vector<Oper> >& Gantt::getMachines() {
-	return (machines);
+	return machines;
 }
 
 std::vector<std::vector<Oper> >& Gantt::getOperations() {
-	return (operations);
+	return operations;
 }
 
-unsigned int Gantt::getNJobs() const {
-	return (nJobs);
+uint Gantt::getNJobs() const {
+	return nJobs;
 }
 
-unsigned int Gantt::getNMachines() const {
-	return (nMachines);
+uint Gantt::getNMachines() const {
+	return nMachines;
 }
 
-void Gantt::insertOnMachine(int machineIndex,
+void Gantt::insertOnMachine(uint machineIndex,
 		const std::vector<Oper>::iterator &iterator, const Oper &operation) {
 	machines[machineIndex].insert(iterator, operation);
-	operations[operation.getPid()][operation.getId()] = operation;
+//	operations[operation.getPid()][operation.getId()] = operation;
 }
 
 string Gantt::getRandomColor() {
@@ -104,20 +108,20 @@ string Gantt::getRandomColor() {
 	for (int i = 0; i < 6; ++i) {
 		color += letters[rand() % 10];
 	}
-	return (color);
+	return color;
 }
 
-string Gantt::getColor(unsigned int index) {
+string Gantt::getColor(uint index) {
 	if (index >= Gantt::colors.size()) {
 		Gantt::colors.resize(index + 1);
 	}
 	if (Gantt::colors[index].empty()) {
 		Gantt::colors[index] = getRandomColor();
 	}
-	return (Gantt::colors[index]);
+	return Gantt::colors[index];
 }
 
-void Gantt::printMachinesHTML(std::string fileName) {
+void Gantt::printMachinesHTML(string fileName) {
 	createDirectory(GENERATED_FOLDER);
 	fstream outputFile;
 	try {
@@ -137,7 +141,7 @@ void Gantt::printMachinesHTML(std::string fileName) {
 	htmlPage.addScript(scriptFileName);
 
 	TagContentHTML* div = new TagContentHTML("div");
-	for (unsigned int i = 0; i < machines.size(); ++i) {
+	for (uint i = 0; i < machines.size(); ++i) {
 		TagContentHTML* table = new TagContentHTML("table");
 		TagContentHTML* tr = new TagContentHTML("tr");
 		TagContentHTML* td = new TagContentHTML("td");
@@ -148,10 +152,10 @@ void Gantt::printMachinesHTML(std::string fileName) {
 		td->addChild(machineNo);
 
 		tr->addChild(td);
-		for (unsigned int j = 0; j < machines[i].size(); ++j) {
-			unsigned int sCurr = machines[i][j].getStartingTime();
+		for (uint j = 0; j < machines[i].size(); ++j) {
+			uint sCurr = machines[i][j].getStartingTime();
 			if (j > 0) {
-				unsigned int cPrev = machines[i][j - 1].getCompletitionTime();
+				uint cPrev = machines[i][j - 1].getCompletitionTime();
 				if (cPrev < sCurr) {
 					TagContentHTML* tdOperation = new TagContentHTML("td");
 					string style("width: ");
@@ -189,7 +193,7 @@ void Gantt::printMachinesHTML(std::string fileName) {
 	TagContentHTML* table = new TagContentHTML("table");
 	TagContentHTML* tr = new TagContentHTML("tr");
 
-	for (unsigned int i = 0; i < colors.size(); ++i) {
+	for (uint i = 0; i < colors.size(); ++i) {
 		string color(getColor(i));
 
 		TagContentHTML* td = new TagContentHTML("td");
@@ -231,19 +235,19 @@ void Gantt::clearMachines() {
 	}
 }
 
-unsigned int Gantt::getTotNOper() const {
-	return (totNOper);
+uint Gantt::getTotNOper() const {
+	return totNOper;
 }
 
-vector<unsigned int> Gantt::randomJobOrder() {
-	vector<unsigned int> sequence(nJobs);
+vector<uint> Gantt::randomJobOrder() {
+	vector<uint> sequence(nJobs);
 	int n = 0;
-	generate(sequence.begin(), sequence.end(), [&n] {return (n++);});
+	generate(sequence.begin(), sequence.end(), [&n] {return n++;});
 	random_shuffle(sequence.begin(), sequence.end());
-	return (sequence);
+	return sequence;
 }
 
-Gantt::Gantt(unsigned int nJobs, unsigned int nMachines) {
+Gantt::Gantt(uint nJobs, uint nMachines) {
 	this->nJobs = nJobs;
 	this->nMachines = nMachines;
 	totNOper = 0;
@@ -251,7 +255,6 @@ Gantt::Gantt(unsigned int nJobs, unsigned int nMachines) {
 	machines = std::vector<std::vector<Oper>>(nMachines);
 	Gantt::colors.reserve(nJobs);
 
-	srand(time(nullptr));
 	Gantt::colors = {
 		"BlueViolet",
 		"Crimson",

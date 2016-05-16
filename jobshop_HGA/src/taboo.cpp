@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cmath>
 #include <cstdlib>
 #include <ctime>
 #include <fstream>
@@ -9,58 +10,58 @@
 #include <vector>
 
 #include "../inc/Gantt.h"
-#include "../inc/Gene.h"
 #include "../inc/Oper.h"
 #include "../inc/util/files.h"
 
 using namespace std;
 using RevOperIt = std::reverse_iterator<std::vector<Oper>::iterator>;
 
-Gantt loadOperationsFromFile(fstream &file) throw (string);
+Gantt loadOperationsFromTaillardFile(fstream &file) throw (string);
+Gantt loadOperationsFromKacemFile(fstream &file) throw (string);
 
-vector<Gene> initPopGen(Gantt &ganttInfo);
-void decode(const vector<Gene> &chromosome, Gantt &ganttInfo);
+void initPopGen(Gantt &ganttInfo);
 
 unsigned int calculateT0(Gantt& ganttInfo, unsigned int jNum,
 		unsigned int oNum);
 unsigned int calculateT1(const vector<Oper> & machine);
-unsigned int compareT0withT1(unsigned int t0, unsigned int t1);
 RevOperIt whereCanIFit(const Oper & operation, RevOperIt rIter,
 		const RevOperIt rEnd, unsigned int t0);
-void printChromosome(const vector<Gene> &chromosome);
 
 static const string BENCHMARK_FILE_PATH = RESOURCE_FOLDER + "bench_js.txt";
+static const string BENCHMARK_FILE_PATH2 = RESOURCE_FOLDER
+		+ "kacem2002a-PFJS.txt";
 
 int main() throw (string) {
 	srand(time(nullptr));
 
 	fstream file;
 	try {
-		openFile(file, BENCHMARK_FILE_PATH, ios::in);
+		openFile(file, BENCHMARK_FILE_PATH2, ios::in);
 	} catch (const string &message) {
 		cerr << message << endl;
 		if (file.is_open()) {
 			file.close();
 		}
-		return (1);
+		return 1;
 	}
-	Gantt ganttInfo = loadOperationsFromFile(file); // [1]
+	Gantt ganttInfo = loadOperationsFromKacemFile(file); // [1]
 	file.close();
+	ganttInfo.printJobs();
 
 	ganttInfo.getMachines() = ganttInfo.getOperations();
 	ganttInfo.printMachinesHTML("jobs.html");
 
 	ganttInfo.clearMachines();
 
-	vector<Gene> chromosome = initPopGen(ganttInfo);
+	initPopGen(ganttInfo);
 	ganttInfo.printMachinesHTML();
 
 	system("generated\\machines.html");
 
-	return (0);
+	return 0;
 }
 
-Gantt loadOperationsFromFile(fstream &file) throw (string) {
+Gantt loadOperationsFromTaillardFile(fstream &file) throw (string) {
 	int numberOfJobs;
 	int numberOfMachines;
 
@@ -83,7 +84,7 @@ Gantt loadOperationsFromFile(fstream &file) throw (string) {
 			file >> machineNumber >> processingTime;
 
 			operation.setMachineNumber(machineNumber);
-			operation.setProcessingTime(processingTime);
+			operation.setProcessingTime(processingTime, machineNumber);
 			operation.setPid(jobIndex);
 			operation.setId(machineIndex);
 
@@ -96,34 +97,82 @@ Gantt loadOperationsFromFile(fstream &file) throw (string) {
 			ganttInfo.addOperation(jobIndex, operation);
 		}
 	}
-	return (ganttInfo);
+	return ganttInfo;
 }
 
-vector<Gene> initPopGen(Gantt &ganttInfo) {
+Gantt loadOperationsFromKacemFile(fstream &file) throw (string) {
+	int numberOfJobs;
+	int numberOfMachines;
+
+	file.ignore(numeric_limits<streamsize>::max(), 'k');
+	file.ignore(numeric_limits<streamsize>::max(), '\n');
+
+	if (file.bad()) {
+		throw "Can't read from file anymore.";
+	}
+
+	file >> numberOfJobs >> numberOfMachines;
+	Gantt ganttInfo(numberOfJobs, numberOfMachines);
+
+	cout << "numberOfJobs: " << numberOfJobs << ", numberOfMachines: "
+			<< numberOfMachines << endl;
+	for (int jobIndex = 0; jobIndex < numberOfJobs; ++jobIndex) {
+		int jobNumber;
+		int numberOfOperations;
+		file >> jobNumber >> numberOfOperations;
+		for (int operationIndex = 0; operationIndex < numberOfOperations;
+				++operationIndex) {
+			Oper operation;
+			for (int machineIndex = 0; machineIndex < numberOfMachines;
+					++machineIndex) {
+				uint processingTime;
+				string next;
+
+				file >> skipws >> next;
+				if (next == "X") {
+					continue;
+				}
+				processingTime = (uint) atoi(next.c_str());
+
+				operation.setMachineNumber(machineIndex);
+				operation.setProcessingTime(processingTime, machineIndex);
+				operation.setPid(jobNumber);
+				operation.setId(operationIndex);
+			}
+			ganttInfo.addOperation(jobIndex, operation);
+		}
+	}
+	return ganttInfo;
+}
+
+void initPopGen(Gantt &ganttInfo) {
 	cout << "initPopGen(), tot_noper: " << ganttInfo.getTotNOper() << endl;
 
 	// [2] losowanie kolejnosci zadan
-	vector<unsigned int> sequence = ganttInfo.randomJobOrder();
+	vector<uint> sequence = ganttInfo.randomJobOrder();
 
 	cout << "initial job order: ";
 	copy(sequence.begin(), sequence.end(), ostream_iterator<int>(cout, " "));
 	cout << endl;
 
-	vector<Gene> chromosome(ganttInfo.getTotNOper());
-
-	unsigned int operCount = 0, oper = 0;								// [3]
+	uint operCount = 0, oper = 0;								// [3]
 	while (operCount < ganttInfo.getTotNOper()) { 						// [4]
-		for (unsigned int jobIndex : sequence) {						// [5]
-			vector<Oper> M(ganttInfo.getNMachines());					// [6]
-			vector<unsigned int> T(ganttInfo.getNMachines());			// [7]
-			unsigned int t0, t1;										// [8]
+		for (uint jobIndex : sequence) {						// [5]
+			const map<uint,uint> & pTimes = ganttInfo.getOperations()[jobIndex][oper].getProcessingTimes();
+			vector<Oper> M(pTimes.size());					// [6]
+			vector<uint> T(ganttInfo.getNMachines());			// [7]
+			uint t0, t1;										// [8]
 
 			t0 = calculateT0(ganttInfo, jobIndex, oper);
 
-			for (unsigned int k = 0; k < ganttInfo.getNMachines(); ++k) {// [14]
-				vector<Oper> & machineK = ganttInfo.getMachines()[k];
-				Oper operInfo(ganttInfo.getOperations()[jobIndex][oper]);
-				operInfo.setMachineNumber(k);
+			for(const auto &entry : pTimes) {							// [14]
+				uint key = entry.first;
+
+				cout << key << endl;
+
+				vector<Oper> & machineK = ganttInfo.getMachines()[key];
+				Oper & operInfo = ganttInfo.getOperations()[jobIndex][oper];
+				operInfo.setMachineNumber(key);
 				// [15] Oper::getProcessingTime()
 
 				t1 = calculateT1(machineK);							 // [16-20]
@@ -140,8 +189,8 @@ vector<Gene> initPopGen(Gantt &ganttInfo) {
 					}
 				}
 
-				T[k] = operInfo.getCompletitionTime();
-				M[k] = operInfo;
+				T[key] = operInfo.getCompletitionTime();
+				M[key] = operInfo;
 			} // end for
 
 			// [29]
@@ -158,44 +207,11 @@ vector<Gene> initPopGen(Gantt &ganttInfo) {
 
 			ganttInfo.insertOnMachine(minCK, iter, M[minCK]);
 
-			chromosome.push_back(Gene(minCK, jobIndex, oper));			// [30]
 			++operCount;												// [31]
 		} // end for (unsigned int i : sequence)
 		++oper;
 	}
-	return (chromosome);
-}
-
-void decode(const vector<Gene> &chromosome, Gantt& ganttInfo) {
-	ganttInfo.clearMachines();
-	for (const Gene & gene : chromosome) {
-		unsigned int jNum = gene.getJobNumber();
-		unsigned int oNum = gene.getOperationNumber();
-		unsigned int mNum = gene.getMachineNumber();
-
-		vector<Oper> & machine = ganttInfo.getMachines()[mNum];
-
-		Oper operInfo = ganttInfo.getOperations()[jNum][oNum];
-		operInfo.setMachineNumber(mNum);
-
-		unsigned int t0, t1;
-
-		t0 = calculateT0(ganttInfo, jNum, oNum);
-		t1 = calculateT1(machine);
-
-		if (t1 <= t0) {
-			operInfo.setStartingTime(t0);
-		} else {
-			RevOperIt iter = whereCanIFit(operInfo, machine.rbegin(),
-					machine.rend(), t0);
-			if (iter != machine.rend()) {
-				operInfo.setStartingTime((*iter).getCompletitionTime());
-			} else {
-				operInfo.setStartingTime(t1);
-			}
-		}
-		machine.push_back(operInfo);
-	}
+	return;
 }
 
 /**
@@ -228,7 +244,7 @@ RevOperIt whereCanIFit(const Oper & operation, RevOperIt rIter,
 		}
 	}
 
-	return (canFit.empty() ? rIter : canFit.back());
+	return canFit.empty() ? rIter : canFit.back();
 }
 
 /*
@@ -243,7 +259,7 @@ inline unsigned int calculateT0(Gantt& ganttInfo, unsigned int jNum,
 	} catch (const string &message) {
 		t0 = 0;
 	}
-	return (t0);
+	return t0;
 }
 
 inline unsigned int calculateT1(const vector<Oper>& machine) {
@@ -253,14 +269,5 @@ inline unsigned int calculateT1(const vector<Oper>& machine) {
 	} else {
 		t1 = machine.back().getCompletitionTime();
 	}
-	return (t1);
+	return t1;
 }
-
-void printChromosome(const vector<Gene> &chromosome) {
-	for (const Gene &gene : chromosome) {
-		gene.print();
-		cout << "-";
-	}
-	cout << endl;
-}
-

@@ -6,10 +6,16 @@
  */
 
 #include "../inc/Oper.h"
-#include <sstream>
 
-Oper::Oper() {
-	startingTime = processingTime = 0;
+#include <iostream>
+#include <sstream>
+#include <utility>
+
+using namespace std;
+
+Oper::Oper() :
+		processingTime() {
+	startingTime = 0;
 	machineNumber = pid = id = -1;
 }
 Oper::Oper(const Oper &other) {
@@ -22,60 +28,82 @@ const Oper &Oper::operator=(const Oper &other) {
 	machineNumber = other.machineNumber;
 	id = other.id;
 	pid = other.pid;
-	return (*this);
+	return *this;
 }
 
-unsigned int Oper::getCompletitionTime() const {
-	return (startingTime + processingTime);
+uint Oper::getCompletitionTime() const {
+	return (startingTime + processingTime.at(machineNumber));
 }
 
-unsigned int Oper::getId() const {
-	return (id);
+uint Oper::getId() const {
+	return id;
 }
 
-void Oper::setId(unsigned int id) {
+void Oper::setId(uint id) {
 	this->id = id;
 }
 
-unsigned int Oper::getMachineNumber() const {
-	return (machineNumber);
+uint Oper::getMachineNumber() const {
+	return machineNumber;
 }
 
-void Oper::setMachineNumber(unsigned int machineNumber) {
+/**
+ * Use after operation initialization when using Taillard examples
+ * (flexible job shop with identical machines).
+ */
+void Oper::changeMachineNumber(uint machineNumber) {
+	try {
+		processingTime.at(machineNumber);
+	} catch (const std::out_of_range & e) {
+		setProcessingTime(getProcessingTime(), machineNumber);
+	}
 	this->machineNumber = machineNumber;
 }
 
-unsigned int Oper::getPid() const {
-	return (pid);
+void Oper::setMachineNumber(uint machineNumber) {
+	this->machineNumber = machineNumber;
 }
 
-void Oper::setPid(unsigned int pid) {
+uint Oper::getPid() const {
+	return pid;
+}
+
+void Oper::setPid(uint pid) {
 	this->pid = pid;
 }
 
-unsigned int Oper::getProcessingTime() const {
-	return (processingTime);
+uint Oper::getProcessingTime() const {
+	return processingTime.at(machineNumber);
 }
 
-void Oper::setProcessingTime(unsigned int processingTime) {
+void Oper::setProcessingTimes(map<uint, uint> processingTime) {
 	this->processingTime = processingTime;
 }
 
-unsigned int Oper::getStartingTime() const {
-	return (startingTime);
+void Oper::setProcessingTime(uint processingTime, uint atMachine) {
+	this->processingTime.insert(pair<uint, uint>(atMachine, processingTime));
 }
 
-void Oper::setStartingTime(unsigned int startingTime) {
+uint Oper::getStartingTime() const {
+	return startingTime;
+}
+
+void Oper::setStartingTime(uint startingTime) {
 	this->startingTime = startingTime;
 }
 
 bool Oper::isFirstInJob() {
-	return (id == 0);
+	return id == 0;
 }
 
 std::string Oper::toString() {
 	std::stringstream ss;
 	ss << "[pid,id]=[" << pid << "," << id << "], (s,p,c)=(" << startingTime
-			<< "," << processingTime << "," << getCompletitionTime() << ")";
-	return (ss.str());
+			<< "," << getProcessingTime() << "," << getCompletitionTime()
+			<< ")";
+	return ss.str();
+}
+
+const std::map<uint, uint> &Oper::getProcessingTimes() const {
+	return processingTime;
 }

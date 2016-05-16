@@ -13,11 +13,11 @@
 #include "TagContentHTML.h"
 
 class PageHTML: public ContentHTML {
-	TagContentHTML _head;
-	TagContentHTML _body;
+	TagContentHTML head;
+	TagContentHTML body;
 public:
 	PageHTML() :
-			_head("head"), _body("body") {}
+			head("head"), body("body") {}
 
 	enum Section {
 		HEAD,

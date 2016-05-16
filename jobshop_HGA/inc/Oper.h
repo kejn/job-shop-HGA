@@ -8,37 +8,42 @@
 #ifndef OPER_H_
 #define OPER_H_
 
+#include <map>
 #include <string>
 
-class Oper {
-	unsigned int startingTime;
-	unsigned int processingTime;
-	unsigned int machineNumber;
+using uint = unsigned int;
 
-	unsigned int id;
-	unsigned int pid;
+class Oper {
+	uint startingTime;
+	std::map<uint, uint> processingTime;
+	uint machineNumber;
+
+	uint id;
+	uint pid;
 public:
 	Oper();
 	Oper(const Oper &other);
 
 	bool isFirstInJob();
 	const Oper &operator=(const Oper &other);
-	unsigned int getCompletitionTime() const;
+	uint getCompletitionTime() const;
 
-	unsigned int getStartingTime() const;
-	unsigned int getProcessingTime() const;
-	unsigned int getMachineNumber() const;
-	unsigned int getId() const;
-	unsigned int getPid() const;
+	uint getStartingTime() const;
+	uint getProcessingTime() const;
+	const std::map<uint, uint> &getProcessingTimes() const;
+	uint getMachineNumber() const;
+	uint getId() const;
+	uint getPid() const;
 
-	void setStartingTime(unsigned int startingTime);
-	void setProcessingTime(unsigned int processingTime);
-	void setMachineNumber(unsigned int machineNumber);
-	void setId(unsigned int id);
-	void setPid(unsigned int pid);
+	void setStartingTime(uint startingTime);
+	void setProcessingTime(uint processingTime, uint atMachine);
+	void setProcessingTimes(std::map<uint, uint> processingTime);
+	void changeMachineNumber(uint machineNumber);
+	void setMachineNumber(uint machineNumber);
+	void setId(uint id);
+	void setPid(uint pid);
 
 	std::string toString();
 };
-
 
 #endif /* OPER_H_ */

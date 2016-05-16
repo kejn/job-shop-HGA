@@ -7,7 +7,6 @@
 
 #include "../../inc/html/TagContentHTML.h"
 
-#include <iostream>
 #include <iterator>
 #include <sstream>
 #include <utility>
@@ -37,7 +36,7 @@ std::string TagContentHTML::toString() {
 		}
 		ss << "	</" << name << ">";
 	}
-	return (ss.str());
+	return ss.str();
 }
 
 TagContentHTML::~TagContentHTML() {

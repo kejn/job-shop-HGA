@@ -8,7 +8,6 @@
 #ifndef UTIL_FILES_H_
 #define UTIL_FILES_H_
 
-#include <ios>
 #include <fstream>
 #include <string>
 

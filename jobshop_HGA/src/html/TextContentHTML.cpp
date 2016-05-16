@@ -8,5 +8,5 @@
 #include "../../inc/html/TextContentHTML.h"
 
 std::string TextContentHTML::toString() {
-	return (text);
+	return text;
 }

@@ -6,18 +6,21 @@
  */
 
 #include "../../inc/html/PageHTML.h"
-#include "../../inc/html/TextContentHTML.h"
 
 #include <sstream>
+#include <string>
+#include <vector>
+
+#include "../../inc/html/TextContentHTML.h"
 
 using namespace std;
 
 void PageHTML::add(const PageHTML::Section& section,
 		ContentHTML * const & childElement) {
 	if (section == Section::HEAD) {
-		_head.addChild(childElement);
+		head.addChild(childElement);
 	} else if (section == Section::BODY) {
-		_body.addChild(childElement);
+		body.addChild(childElement);
 	}
 }
 
@@ -49,13 +52,13 @@ void PageHTML::addScript(string url) {
 	add(Section::HEAD, scriptTag);
 }
 
-std::string PageHTML::toString() {
+string PageHTML::toString() {
 	stringstream ss;
 	ss << "<!doctype html>\n";
 	ss << "<html>\n";
-	ss << _head.toString() << endl;
-	ss << _body.toString() << endl;
+	ss << head.toString() << endl;
+	ss << body.toString() << endl;
 	ss << "</html>" << endl;
 
-	return (ss.str());
+	return ss.str();
 }
