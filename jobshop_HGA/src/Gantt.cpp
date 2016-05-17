@@ -25,6 +25,8 @@ using namespace stringUtil;
 
 vector<string> Gantt::colors;
 
+const uint HTML_SCALE = 1;
+
 void Gantt::addOperation(uint i, const Oper &operation) {
 	operations[i].push_back(operation);
 	++totNOper;
@@ -53,9 +55,11 @@ void Gantt::addOnMachine(uint i, const Oper &operation) {
 void Gantt::printJobs() {
 	cout << "Gantt::printJobs()" << endl;
 	for (uint i = 0; i < operations.size(); ++i) {
-		cout << "job" << i << endl;
 		for (uint j = 0; j < operations[i].size(); ++j) {
-			cout << "operation" << j << endl;
+			if (j==0) {
+				cout << "job" << operations[i][0].getPid() << endl;
+			}
+			cout << "operation" << operations[i][j].getId() << endl;
 			for(const auto & entry : operations[i][j].getProcessingTimes()) {
 				cout << setw(4) << 'M' << setw(2) << setfill('0')
 						<< entry.first << setw(3)
@@ -99,7 +103,7 @@ uint Gantt::getNMachines() const {
 void Gantt::insertOnMachine(uint machineIndex,
 		const std::vector<Oper>::iterator &iterator, const Oper &operation) {
 	machines[machineIndex].insert(iterator, operation);
-//	operations[operation.getPid()][operation.getId()] = operation;
+	operations[operation.getPid()][operation.getId()] = operation;
 }
 
 string Gantt::getRandomColor() {
@@ -159,20 +163,20 @@ void Gantt::printMachinesHTML(string fileName) {
 				if (cPrev < sCurr) {
 					TagContentHTML* tdOperation = new TagContentHTML("td");
 					string style("width: ");
-					style += toString(sCurr - cPrev - 1) + "px;";
+					style += toString(HTML_SCALE*(sCurr - cPrev) - 1) + "px;";
 					tdOperation->addParam("style", style);
 					tr->addChild(tdOperation);
 				}
 			} else if (sCurr > 0) {
 				TagContentHTML* tdOperation = new TagContentHTML("td");
 				string style("width: ");
-				style += toString(sCurr - 1) + "px;";
+				style += toString(HTML_SCALE*sCurr - 1) + "px;";
 				tdOperation->addParam("style", style);
 				tr->addChild(tdOperation);
 			}
 			TagContentHTML* tdOperation = new TagContentHTML("td");
 			string style = "width: "
-					+ toString(machines[i][j].getProcessingTime() - 1) + "px;"
+					+ toString(HTML_SCALE*machines[i][j].getProcessingTime() - 1) + "px;"
 					+ "background-color: " + getColor(machines[i][j].getPid())
 					+ ";";
 			tdOperation->addParam("style", style);
@@ -193,7 +197,7 @@ void Gantt::printMachinesHTML(string fileName) {
 	TagContentHTML* table = new TagContentHTML("table");
 	TagContentHTML* tr = new TagContentHTML("tr");
 
-	for (uint i = 0; i < colors.size(); ++i) {
+	for (uint i = 0; i < nJobs; ++i) {
 		string color(getColor(i));
 
 		TagContentHTML* td = new TagContentHTML("td");
@@ -202,6 +206,8 @@ void Gantt::printMachinesHTML(string fileName) {
 		td->addParam("style", style);
 
 		string jobNumber = "job" + toString(i);
+		string cMax = "cMax: " + toString(operations[i].back().getCompletitionTime());
+		td->addParam("title", cMax);
 		td->addParam("class", jobNumber);
 		td->addParam("onmouseover", "mOver('" + jobNumber + "')");
 		td->addParam("onmouseout", "mOut()");

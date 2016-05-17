@@ -1,12 +1,13 @@
 #include <algorithm>
-#include <cmath>
 #include <cstdlib>
 #include <ctime>
 #include <fstream>
 #include <iostream>
 #include <iterator>
 #include <limits>
+#include <map>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "../inc/Gantt.h"
@@ -36,7 +37,7 @@ int main() throw (string) {
 
 	fstream file;
 	try {
-		openFile(file, BENCHMARK_FILE_PATH2, ios::in);
+		openFile(file, BENCHMARK_FILE_PATH, ios::in);
 	} catch (const string &message) {
 		cerr << message << endl;
 		if (file.is_open()) {
@@ -44,14 +45,15 @@ int main() throw (string) {
 		}
 		return 1;
 	}
-	Gantt ganttInfo = loadOperationsFromKacemFile(file); // [1]
+//	Gantt ganttInfo = loadOperationsFromKacemFile(file); // [1]
+	Gantt ganttInfo = loadOperationsFromTaillardFile(file); // [1]
 	file.close();
 	ganttInfo.printJobs();
 
-	ganttInfo.getMachines() = ganttInfo.getOperations();
-	ganttInfo.printMachinesHTML("jobs.html");
-
-	ganttInfo.clearMachines();
+//	ganttInfo.getMachines() = ganttInfo.getOperations();
+//	ganttInfo.printMachinesHTML("jobs.html");
+//
+//	ganttInfo.clearMachines();
 
 	initPopGen(ganttInfo);
 	ganttInfo.printMachinesHTML();
@@ -83,8 +85,8 @@ Gantt loadOperationsFromTaillardFile(fstream &file) throw (string) {
 
 			file >> machineNumber >> processingTime;
 
-			operation.setMachineNumber(machineNumber);
-			operation.setProcessingTime(processingTime, machineNumber);
+			operation.setMachineNumber(machineNumber-1);
+			operation.setProcessingTime(processingTime, machineNumber-1);
 			operation.setPid(jobIndex);
 			operation.setId(machineIndex);
 
@@ -136,7 +138,7 @@ Gantt loadOperationsFromKacemFile(fstream &file) throw (string) {
 
 				operation.setMachineNumber(machineIndex);
 				operation.setProcessingTime(processingTime, machineIndex);
-				operation.setPid(jobNumber);
+				operation.setPid(jobNumber-1);
 				operation.setId(operationIndex);
 			}
 			ganttInfo.addOperation(jobIndex, operation);
@@ -156,19 +158,23 @@ void initPopGen(Gantt &ganttInfo) {
 	cout << endl;
 
 	uint operCount = 0, oper = 0;								// [3]
-	while (operCount < ganttInfo.getTotNOper()) { 						// [4]
+	while (operCount < ganttInfo.getTotNOper()) { 				// [4]
 		for (uint jobIndex : sequence) {						// [5]
-			const map<uint,uint> & pTimes = ganttInfo.getOperations()[jobIndex][oper].getProcessingTimes();
-			vector<Oper> M(pTimes.size());					// [6]
-			vector<uint> T(ganttInfo.getNMachines());			// [7]
+			if(oper >= ganttInfo.getOperations()[jobIndex].size()) {
+				continue;
+			}
+			const map<uint, uint> & pTimes =
+					ganttInfo.getOperations()[jobIndex][oper].getProcessingTimes();
+			map<uint, Oper> M;					// [6]
+			map<uint, uint> T;					// [7]
 			uint t0, t1;										// [8]
 
 			t0 = calculateT0(ganttInfo, jobIndex, oper);
 
-			for(const auto &entry : pTimes) {							// [14]
+			for (const auto &entry : pTimes) {							// [14]
 				uint key = entry.first;
 
-				cout << key << endl;
+//				cout << key << endl;
 
 				vector<Oper> & machineK = ganttInfo.getMachines()[key];
 				Oper & operInfo = ganttInfo.getOperations()[jobIndex][oper];
@@ -189,23 +195,25 @@ void initPopGen(Gantt &ganttInfo) {
 					}
 				}
 
-				T[key] = operInfo.getCompletitionTime();
-				M[key] = operInfo;
+				T.insert(make_pair(key, operInfo.getCompletitionTime()));
+				M.insert(make_pair(key, operInfo));
 			} // end for
 
 			// [29]
-			vector<unsigned int>::iterator minC = min_element(T.begin(),
-					T.end());
-			unsigned int minCK = distance(T.begin(), minC);
+			pair<uint,uint> minC = *min_element(T.begin(), T.end(),
+					[](pair<uint,uint> l, pair<uint,uint> r) {
+						return l.second < r.second;
+					});
+			uint minCK = minC.first;
 			vector<Oper>::iterator iter =
 					ganttInfo.getMachines()[minCK].begin();
 			for (; iter != ganttInfo.getMachines()[minCK].end(); ++iter) {
-				if (M[minCK].getStartingTime() < iter->getCompletitionTime()) {
+				if (M.at(minCK).getStartingTime() < iter->getCompletitionTime()) {
 					break;
 				}
 			}
 
-			ganttInfo.insertOnMachine(minCK, iter, M[minCK]);
+			ganttInfo.insertOnMachine(minCK, iter, M.at(minCK));
 
 			++operCount;												// [31]
 		} // end for (unsigned int i : sequence)
