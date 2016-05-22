@@ -16,7 +16,7 @@ using namespace std;
 Oper::Oper() :
 		processingTime() {
 	startingTime = 0;
-	machineNumber = indexOnMachine = pid = id = -1;
+	machineNumber = pid = id = -1;
 }
 Oper::Oper(const Oper &other) {
 	*this = other;
@@ -28,7 +28,6 @@ const Oper &Oper::operator=(const Oper &other) {
 	machineNumber = other.machineNumber;
 	id = other.id;
 	pid = other.pid;
-	indexOnMachine = other.indexOnMachine;
 	return *this;
 }
 
@@ -47,19 +46,6 @@ void Oper::setId(uint id) {
 uint Oper::getMachineNumber() const {
 	return machineNumber;
 }
-
-///**
-// * Use after operation initialization when using Taillard examples
-// * (flexible job shop with identical machines).
-// */
-//void Oper::changeMachineNumber(uint machineNumber) {
-//	try {
-//		processingTime.at(machineNumber);
-//	} catch (const std::out_of_range & e) {
-//		setProcessingTime(getProcessingTime(), machineNumber);
-//	}
-//	this->machineNumber = machineNumber;
-//}
 
 void Oper::setMachineNumber(uint machineNumber) {
 	this->machineNumber = machineNumber;
@@ -107,12 +93,4 @@ std::string Oper::toString() const {
 
 const std::map<uint, uint> &Oper::getProcessingTimes() const {
 	return processingTime;
-}
-
-uint Oper::getIndexOnMachine() const {
-	return indexOnMachine;
-}
-
-void Oper::setIndexOnMachine(uint indexOnMachine) {
-	this->indexOnMachine = indexOnMachine;
 }

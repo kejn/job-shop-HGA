@@ -17,7 +17,6 @@ class Oper {
 	uint startingTime;
 	std::map<uint, uint> processingTime;
 	uint machineNumber;
-	uint indexOnMachine;
 
 	uint id;
 	uint pid;
@@ -35,16 +34,13 @@ public:
 	uint getMachineNumber() const;
 	uint getId() const;
 	uint getPid() const;
-	uint getIndexOnMachine() const;
 
 	void setStartingTime(uint startingTime);
 	void setProcessingTime(uint processingTime, uint atMachine);
 	void setProcessingTimes(std::map<uint, uint> processingTime);
-//	void changeMachineNumber(uint machineNumber);
 	void setMachineNumber(uint machineNumber);
 	void setId(uint id);
 	void setPid(uint pid);
-	void setIndexOnMachine(uint positionOnMachine);
 
 	std::string toString() const;
 };

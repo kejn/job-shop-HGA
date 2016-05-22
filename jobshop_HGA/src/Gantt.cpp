@@ -109,8 +109,6 @@ uint Gantt::getNMachines() const {
 
 void Gantt::insertOnMachine(uint machineIndex,
 		const std::vector<Oper>::iterator &iterator, Oper operation) {
-	vector<Oper>::iterator begin = machines[machineIndex].begin();
-	operation.setIndexOnMachine(distance(begin, iterator));
 	machines[machineIndex].insert(iterator, operation);
 	operations[operation.getPid()][operation.getId()] = operation;
 }
@@ -330,8 +328,15 @@ vector<Oper> criticalPath(const Gantt & gantt, int machineIndex, int opIndex) {
 				uint job = operation.getPid();
 				uint referenceOperation = operation.getId();
 				Oper prevInJob = gantt.prevOperationTo(job, referenceOperation);
+
 				uint newMachineIndex = prevInJob.getMachineNumber();
-				uint indexOnNewMachine = prevInJob.getIndexOnMachine();
+				vector<Oper> & newMachine =
+						const_cast<vector<Oper>&>(gantt.getMachines()[newMachineIndex]);
+				vector<Oper>::iterator iter = find_if(newMachine.begin(),
+						newMachine.end(), [&](const Oper &o) {
+							return o.toString() == prevInJob.toString();
+						});
+				uint indexOnNewMachine = distance(newMachine.begin(), iter);
 
 				path = criticalPath(gantt, newMachineIndex, indexOnNewMachine);
 			} catch (const string & message) {
