@@ -15,6 +15,7 @@
 #include "../inc/util/files.h"
 
 using namespace std;
+
 using RevOperIt = std::reverse_iterator<std::vector<Oper>::iterator>;
 
 Gantt loadOperationsFromTaillardFile(fstream &file) throw (string);
@@ -28,9 +29,13 @@ unsigned int calculateT1(const vector<Oper> & machine);
 RevOperIt whereCanIFit(const Oper & operation, RevOperIt rIter,
 		const RevOperIt rEnd, unsigned int t0);
 
-static const string BENCHMARK_FILE_PATH = RESOURCE_FOLDER + "bench_js.txt";
-static const string BENCHMARK_FILE_PATH2 = RESOURCE_FOLDER
-		+ "kacem2002a-PFJS.txt";
+const string BENCHMARK_FILE_PATH = RESOURCE_FOLDER + "bench_js.txt";
+const string BENCHMARK_FILE_PATH2 = RESOURCE_FOLDER + "kacem2002a-PFJS.txt";
+
+const uint HTML_SCALE = 1;
+
+const uint TABOO_MAX = 7;
+const uint BACKTRACK_MAX = 5;
 
 int main() throw (string) {
 	srand(time(nullptr));
@@ -48,12 +53,7 @@ int main() throw (string) {
 //	Gantt ganttInfo = loadOperationsFromKacemFile(file); // [1]
 	Gantt ganttInfo = loadOperationsFromTaillardFile(file); // [1]
 	file.close();
-	ganttInfo.printJobs();
-
-//	ganttInfo.getMachines() = ganttInfo.getOperations();
-//	ganttInfo.printMachinesHTML("jobs.html");
-//
-//	ganttInfo.clearMachines();
+	TabooTools taboo(TABOO_MAX, BACKTRACK_MAX);
 
 	initPopGen(ganttInfo);
 	ganttInfo.printMachinesHTML();
@@ -75,7 +75,7 @@ Gantt loadOperationsFromTaillardFile(fstream &file) throw (string) {
 	}
 
 	file >> numberOfJobs >> numberOfMachines;
-	Gantt ganttInfo(numberOfJobs, numberOfMachines);
+	Gantt ganttInfo(numberOfJobs, numberOfMachines, HTML_SCALE);
 
 	for (int jobIndex = 0; jobIndex < numberOfJobs; ++jobIndex) {
 		for (int machineIndex = 0; machineIndex < numberOfMachines;
@@ -85,8 +85,8 @@ Gantt loadOperationsFromTaillardFile(fstream &file) throw (string) {
 
 			file >> machineNumber >> processingTime;
 
-			operation.setMachineNumber(machineNumber-1);
-			operation.setProcessingTime(processingTime, machineNumber-1);
+			operation.setMachineNumber(machineNumber - 1);
+			operation.setProcessingTime(processingTime, machineNumber - 1);
 			operation.setPid(jobIndex);
 			operation.setId(machineIndex);
 
@@ -114,7 +114,7 @@ Gantt loadOperationsFromKacemFile(fstream &file) throw (string) {
 	}
 
 	file >> numberOfJobs >> numberOfMachines;
-	Gantt ganttInfo(numberOfJobs, numberOfMachines);
+	Gantt ganttInfo(numberOfJobs, numberOfMachines, HTML_SCALE);
 
 	cout << "numberOfJobs: " << numberOfJobs << ", numberOfMachines: "
 			<< numberOfMachines << endl;
@@ -138,7 +138,7 @@ Gantt loadOperationsFromKacemFile(fstream &file) throw (string) {
 
 				operation.setMachineNumber(machineIndex);
 				operation.setProcessingTime(processingTime, machineIndex);
-				operation.setPid(jobNumber-1);
+				operation.setPid(jobNumber - 1);
 				operation.setId(operationIndex);
 			}
 			ganttInfo.addOperation(jobIndex, operation);
@@ -160,7 +160,7 @@ void initPopGen(Gantt &ganttInfo) {
 	uint operCount = 0, oper = 0;								// [3]
 	while (operCount < ganttInfo.getTotNOper()) { 				// [4]
 		for (uint jobIndex : sequence) {						// [5]
-			if(oper >= ganttInfo.getOperations()[jobIndex].size()) {
+			if (oper >= ganttInfo.getOperations()[jobIndex].size()) {
 				continue;
 			}
 			const map<uint, uint> & pTimes =
@@ -173,8 +173,6 @@ void initPopGen(Gantt &ganttInfo) {
 
 			for (const auto &entry : pTimes) {							// [14]
 				uint key = entry.first;
-
-//				cout << key << endl;
 
 				vector<Oper> & machineK = ganttInfo.getMachines()[key];
 				Oper & operInfo = ganttInfo.getOperations()[jobIndex][oper];
@@ -200,7 +198,7 @@ void initPopGen(Gantt &ganttInfo) {
 			} // end for
 
 			// [29]
-			pair<uint,uint> minC = *min_element(T.begin(), T.end(),
+			pair<uint, uint> minC = *min_element(T.begin(), T.end(),
 					[](pair<uint,uint> l, pair<uint,uint> r) {
 						return l.second < r.second;
 					});
@@ -208,7 +206,8 @@ void initPopGen(Gantt &ganttInfo) {
 			vector<Oper>::iterator iter =
 					ganttInfo.getMachines()[minCK].begin();
 			for (; iter != ganttInfo.getMachines()[minCK].end(); ++iter) {
-				if (M.at(minCK).getStartingTime() < iter->getCompletitionTime()) {
+				if (M.at(minCK).getStartingTime()
+						< iter->getCompletitionTime()) {
 					break;
 				}
 			}
@@ -258,9 +257,8 @@ RevOperIt whereCanIFit(const Oper & operation, RevOperIt rIter,
 /*
  * t0 calculation rule (hGA).
  */
-inline unsigned int calculateT0(Gantt& ganttInfo, unsigned int jNum,
-		unsigned int oNum) {
-	unsigned int t0;
+inline uint calculateT0(Gantt& ganttInfo, uint jNum, uint oNum) {
+	uint t0;
 	try {
 		Oper prevOper = ganttInfo.prevOperationTo(jNum, oNum);
 		t0 = prevOper.getCompletitionTime();
@@ -270,8 +268,8 @@ inline unsigned int calculateT0(Gantt& ganttInfo, unsigned int jNum,
 	return t0;
 }
 
-inline unsigned int calculateT1(const vector<Oper>& machine) {
-	unsigned int t1;
+inline uint calculateT1(const vector<Oper>& machine) {
+	uint t1;
 	if (machine.empty()) {
 		t1 = 0;
 	} else {

@@ -9,15 +9,17 @@
 
 #include <algorithm>
 #include <cstdlib>
-#include <ctime>
 #include <fstream>
 #include <initializer_list>
 #include <iomanip>
 #include <iostream>
+#include <map>
+#include <utility>
 
 #include "../inc/html/PageHTML.h"
 #include "../inc/html/TagContentHTML.h"
 #include "../inc/html/TextContentHTML.h"
+#include "../inc/util/files.h"
 #include "../inc/util/stringUtil.h"
 
 using namespace std;
@@ -25,22 +27,19 @@ using namespace stringUtil;
 
 vector<string> Gantt::colors;
 
-const uint HTML_SCALE = 1;
-
 void Gantt::addOperation(uint i, const Oper &operation) {
 	operations[i].push_back(operation);
 	++totNOper;
 }
 
-Oper Gantt::nextOperationTo(uint job, uint operation)
-		throw (string) {
+Oper Gantt::nextOperationTo(uint job, uint operation) const throw (string) {
 	if ((job >= nJobs) || (operation >= operations[job].size() - 1)) {
 		throw string("next operation: operation not found.");
 	}
 	return operations[job][operation + 1];
 }
 
-Oper Gantt::prevOperationTo(uint job, uint referenceOperation)
+Oper Gantt::prevOperationTo(uint job, uint referenceOperation) const
 		throw (string) {
 	if ((job >= nJobs) || (referenceOperation == 0)) {
 		throw string("prev operation: operation not found.");
@@ -49,6 +48,7 @@ Oper Gantt::prevOperationTo(uint job, uint referenceOperation)
 }
 
 void Gantt::addOnMachine(uint i, const Oper &operation) {
+
 	machines[i].push_back(operation);
 }
 
@@ -56,15 +56,14 @@ void Gantt::printJobs() {
 	cout << "Gantt::printJobs()" << endl;
 	for (uint i = 0; i < operations.size(); ++i) {
 		for (uint j = 0; j < operations[i].size(); ++j) {
-			if (j==0) {
+			if (j == 0) {
 				cout << "job" << operations[i][0].getPid() << endl;
 			}
 			cout << "operation" << operations[i][j].getId() << endl;
-			for(const auto & entry : operations[i][j].getProcessingTimes()) {
-				cout << setw(4) << 'M' << setw(2) << setfill('0')
-						<< entry.first << setw(3)
-						<< setfill(' ') << entry.second
-						<< ' ' << flush;
+			for (const auto & entry : operations[i][j].getProcessingTimes()) {
+				cout << setw(4) << 'M' << setw(2) << setfill('0') << entry.first
+						<< setw(3) << setfill(' ') << entry.second << ' '
+						<< flush;
 			}
 			cout << endl;
 		}
@@ -88,7 +87,15 @@ std::vector<std::vector<Oper> >& Gantt::getMachines() {
 	return machines;
 }
 
+const std::vector<std::vector<Oper> >& Gantt::getMachines() const {
+	return machines;
+}
+
 std::vector<std::vector<Oper> >& Gantt::getOperations() {
+	return operations;
+}
+
+const std::vector<std::vector<Oper> >& Gantt::getOperations() const {
 	return operations;
 }
 
@@ -101,7 +108,9 @@ uint Gantt::getNMachines() const {
 }
 
 void Gantt::insertOnMachine(uint machineIndex,
-		const std::vector<Oper>::iterator &iterator, const Oper &operation) {
+		const std::vector<Oper>::iterator &iterator, Oper operation) {
+	vector<Oper>::iterator begin = machines[machineIndex].begin();
+	operation.setIndexOnMachine(distance(begin, iterator));
 	machines[machineIndex].insert(iterator, operation);
 	operations[operation.getPid()][operation.getId()] = operation;
 }
@@ -135,6 +144,8 @@ void Gantt::printMachinesHTML(string fileName) {
 		return;
 	}
 
+	vector<Oper> path = criticalPath(*this);
+
 	const string stylesFileName = "css/gantt_styles.css";
 	const string scriptFileName = "js/hover_functions.js";
 
@@ -163,27 +174,45 @@ void Gantt::printMachinesHTML(string fileName) {
 				if (cPrev < sCurr) {
 					TagContentHTML* tdOperation = new TagContentHTML("td");
 					string style("width: ");
-					style += toString(HTML_SCALE*(sCurr - cPrev) - 1) + "px;";
+					style += toString(HTML_SCALE * (sCurr - cPrev) - 1) + "px;";
+
 					tdOperation->addParam("style", style);
 					tr->addChild(tdOperation);
 				}
 			} else if (sCurr > 0) {
 				TagContentHTML* tdOperation = new TagContentHTML("td");
 				string style("width: ");
-				style += toString(HTML_SCALE*sCurr - 1) + "px;";
+				style += toString(HTML_SCALE * sCurr - 1) + "px;";
+
 				tdOperation->addParam("style", style);
 				tr->addChild(tdOperation);
 			}
 			TagContentHTML* tdOperation = new TagContentHTML("td");
 			string style = "width: "
-					+ toString(HTML_SCALE*machines[i][j].getProcessingTime() - 1) + "px;"
-					+ "background-color: " + getColor(machines[i][j].getPid())
-					+ ";";
+					+ toString(
+							HTML_SCALE * machines[i][j].getProcessingTime() - 1)
+					+ "px;" + "background-color: "
+					+ getColor(machines[i][j].getPid()) + ";";
+
+			vector<Oper>::iterator found = find_if(path.begin(), path.end(),
+					[=](const Oper &o) {
+						return o.toString() == machines[i][j].toString();
+					});
+			if (found != path.end()) {
+				style += " border-top: 2px black ridge;";
+				style += " border-bottom: 2px black ridge;";
+			}
+
 			tdOperation->addParam("style", style);
 			tdOperation->addParam("title", machines[i][j].toString());
 
 			string jobNumber = "job" + toString(machines[i][j].getPid());
-			tdOperation->addParam("class", jobNumber);
+			if (found != path.end()) {
+				tdOperation->addParam("class", jobNumber + " cpath");
+				tdOperation->addParam("onclick", "cpath()");
+			} else {
+				tdOperation->addParam("class", jobNumber);
+			}
 			tdOperation->addParam("onmouseover", "mOver('" + jobNumber + "')");
 			tdOperation->addParam("onmouseout", "mOut()");
 			tr->addChild(tdOperation);
@@ -206,7 +235,8 @@ void Gantt::printMachinesHTML(string fileName) {
 		td->addParam("style", style);
 
 		string jobNumber = "job" + toString(i);
-		string cMax = "cMax: " + toString(operations[i].back().getCompletitionTime());
+		string cMax = "cMax: "
+				+ toString(operations[i].back().getCompletitionTime());
 		td->addParam("title", cMax);
 		td->addParam("class", jobNumber);
 		td->addParam("onmouseover", "mOver('" + jobNumber + "')");
@@ -236,7 +266,7 @@ void Gantt::printMachinesHTML(string fileName) {
 }
 
 void Gantt::clearMachines() {
-	for(auto & machine : machines) {
+	for (auto & machine : machines) {
 		machine.clear();
 	}
 }
@@ -253,7 +283,8 @@ vector<uint> Gantt::randomJobOrder() {
 	return sequence;
 }
 
-Gantt::Gantt(uint nJobs, uint nMachines) {
+Gantt::Gantt(uint nJobs, uint nMachines, uint htmlScale) :
+		HTML_SCALE(htmlScale) {
 	this->nJobs = nJobs;
 	this->nMachines = nMachines;
 	totNOper = 0;
@@ -274,4 +305,54 @@ Gantt::Gantt(uint nJobs, uint nMachines) {
 		"MediumVioletRed",
 		"DeepSkyBlue"
 	};
+}
+
+vector<Oper> criticalPath(const Gantt & gantt, int machineIndex, int opIndex) {
+
+	vector<Oper> path;
+
+	if (machineIndex == -1 || opIndex == -1) {
+		machineIndex = cMax(gantt).second;
+		opIndex = gantt.getMachines()[machineIndex].size() - 1;
+		return criticalPath(gantt, machineIndex, opIndex);
+	}
+
+	if (opIndex > 0) {
+		Oper operation = gantt.getMachines()[machineIndex][opIndex];
+		Oper prevOnMachine = gantt.getMachines()[machineIndex][opIndex - 1];
+		uint starting = operation.getStartingTime();
+		uint completitionMachine = prevOnMachine.getCompletitionTime();
+
+		if (starting == completitionMachine) {
+			path = criticalPath(gantt, machineIndex, opIndex - 1);
+		} else {
+			try {
+				uint job = operation.getPid();
+				uint referenceOperation = operation.getId();
+				Oper prevInJob = gantt.prevOperationTo(job, referenceOperation);
+				uint newMachineIndex = prevInJob.getMachineNumber();
+				uint indexOnNewMachine = prevInJob.getIndexOnMachine();
+
+				path = criticalPath(gantt, newMachineIndex, indexOnNewMachine);
+			} catch (const string & message) {
+				cerr << message << endl;
+			}
+		}
+	}
+	path.push_back(gantt.getMachines()[machineIndex][opIndex]);
+	return path;
+}
+
+pair<uint, uint> cMax(const Gantt& gantt) {
+	uint cMax = 0;
+	uint machineIndex = 0;
+
+	for (uint i = 0; i < gantt.getNMachines(); ++i) {
+		uint c = gantt.getMachines()[i].back().getCompletitionTime();
+		if (c > cMax) {
+			cMax = c;
+			machineIndex = i;
+		}
+	}
+	return make_pair(cMax, machineIndex);
 }
