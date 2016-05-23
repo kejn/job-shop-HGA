@@ -56,9 +56,11 @@ int main() throw (string) {
 	TabooTools taboo(TABOO_MAX, BACKTRACK_MAX);
 
 	initPopGen(ganttInfo);
-	for(const auto & op : criticalPath(ganttInfo)) {
-		cout << op.toString() << endl;
-	}
+
+	vector<Oper> cPath = criticalPath(ganttInfo);
+	taboo.setUpBlocks(cPath);
+	taboo.printBlocks();
+
 	ganttInfo.printMachinesHTML();
 
 	system("generated\\machines.html");
