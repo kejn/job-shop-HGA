@@ -63,6 +63,7 @@ private:
 	void setMovesBasedOnBlocks() throw (std::string);
 	void setBestGantt(const Gantt &bestGantt);
 
+	MovesMap withoutTabooMoves();
 	MovesMap forbiddenMoves();
 	void forbiddenProfitable(MovesMap & forbiddenMoves);
 	uint makeMove(Gantt &permutation, const Move &move) throw (std::string);

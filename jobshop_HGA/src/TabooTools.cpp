@@ -77,9 +77,45 @@ TabooTools TabooTools::create(const Gantt &ganttInfo, uint tabooListCapacity,
 }
 
 void TabooTools::nspAlgorithm() {
-	MovesMap fMoves = forbiddenMoves();
-	MovesMap fProfitable;
-	makeMove(bestGantt, *(moves.begin()));
+	MovesMap fProfitable = forbiddenMoves();
+	cout << "FORBIDDEN PROFITABLE" << endl;
+	forbiddenProfitable(fProfitable);
+
+	MovesMap withoutTaboo = withoutTabooMoves();
+
+	MovesMap allProfitable(withoutTaboo);
+	allProfitable.insert(fProfitable.begin(), fProfitable.end());
+
+	cout << "NSP" << endl;
+	Move bestMove;
+	if (!allProfitable.empty()) {
+		uint bestCmax = cMax(bestGantt.getMachines()).first * 2; // *2 in case there was no profitable move
+
+		MovesMap::iterator iter = allProfitable.begin();
+		const MovesMap::iterator endIter = allProfitable.end();
+
+		for (;iter != endIter; ++iter) {
+			Gantt bestCopy(bestGantt);
+			uint cMax = makeMove(bestCopy, *iter);
+			if (cMax < bestCmax) {
+				bestCmax = cMax;
+				bestMove = *iter;
+			}
+		}
+	} else if (moves.size() == 1) {
+		bestMove = *(moves.begin());
+	} else {
+		uint i=0;
+		while(!withoutTabooMoves().empty()) {
+			tabooList.push_back(tabooList.last());
+			if(++i % 100000) {
+				cerr << "possible ERROR NSP line 111" << endl;
+			}
+		}
+		bestMove = *withoutTabooMoves().begin();
+	}
+	makeMove(bestGantt, bestMove);
+	tabooList.push_back(make_pair(bestMove.second, bestMove.first));
 
 	/**
 	 * tu skoñczy³em: odrzuæ ruchy FN i jeœli {U,FP} nie jest pusty wybierz
@@ -87,6 +123,29 @@ void TabooTools::nspAlgorithm() {
 	 * 				  jeœli jest tylko jeden ruch to go wybierz.
 	 * 				  przeciwnie wybierz najstarszy...itp
 	 */
+}
+
+MovesMap TabooTools::withoutTabooMoves() {
+	MovesMap withoutTabooMoves = moves;
+	MovesMap::iterator iter = withoutTabooMoves.begin();
+	MovesMap::iterator endIter = withoutTabooMoves.end();
+
+	while (iter != endIter) {
+		bool erase = false;
+		for (uint i = 0; i < tabooList.size(); ++i) {
+			if ((tabooList[i].first == iter->first)
+					&& (tabooList[i].second == iter->second)) {
+				erase = true;
+				break;
+			}
+		}
+		if (erase) {
+			withoutTabooMoves.erase(iter++);
+		} else {
+			++iter;
+		}
+	}
+	return withoutTabooMoves;
 }
 
 MovesMap TabooTools::forbiddenMoves() {
@@ -145,6 +204,10 @@ uint TabooTools::makeMove(Gantt &gantt, const Move &move) throw (string) {
 	iter_swap(firstIter, secondIter);
 
 	repairPermutation(gantt, firstIter);
+
+	uint cmax = cMax(gantt.getMachines()).first;
+
+	cout << "cmax: " << cmax << endl;
 
 	return cMax(gantt.getMachines()).first;
 }
