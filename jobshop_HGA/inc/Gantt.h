@@ -15,16 +15,18 @@
 #define GANTT_H_
 
 using uint = unsigned int;
+using Permutation = std::vector<std::vector<Oper> >;
 
 /**
  * Gantt chart of nJobs on nMachines with altogether totNOper number of operations.
  */
 class Gantt {
 	uint nJobs;
-	uint nMachines;
 	uint totNOper;
-	std::vector<std::vector<Oper> > operations;
-	std::vector<std::vector<Oper> > machines;
+	Permutation operations;
+
+	uint nMachines;
+	Permutation machines;
 
 	static std::vector<std::string> colors;
 
@@ -32,6 +34,7 @@ class Gantt {
 	std::string getColor(uint index);
 	const uint HTML_SCALE;
 public:
+	Gantt(uint htmlScale = 1) :HTML_SCALE(htmlScale){ nJobs = 0; totNOper = 0; nMachines = 0; }
 	Gantt(uint nJobs, uint nMachines, uint htmlScale = 1);
 
 	void addOperation(uint i, const Oper &operation);
@@ -50,22 +53,34 @@ public:
 
 	std::vector<uint> randomJobOrder();
 
-	std::vector<std::vector<Oper> >& getMachines();
-	const std::vector<std::vector<Oper> >& getMachines() const;
-	std::vector<std::vector<Oper> >& getOperations();
-	const std::vector<std::vector<Oper> >& getOperations() const;
+	Permutation& getMachines();
+	const Permutation& getMachines() const;
+	Permutation& getOperations();
+	const Permutation& getOperations() const;
 
 	uint getNJobs() const;
 	uint getNMachines() const;
 	uint getTotNOper() const;
+
+	Gantt& operator=(const Gantt& other) {
+		nJobs = other.nJobs;
+		totNOper = other.totNOper;
+		operations = other.operations;
+
+		nMachines = other.nMachines;
+		machines = other.machines;
+
+		return *this;
+	}
 };
 
 std::vector<Oper> criticalPath(const Gantt & gantt,
 		int machineIndex = -1, int opIndex = -1);
 
 /**
+ * Calculates cMax of a feasible Permutation.
  * First: cMax value, Second: machineIndex
  */
-std::pair<uint, uint> cMax(const Gantt & gantt);
+std::pair<uint, uint> cMax(const Permutation &permutation);
 
 #endif /* GANTT_H_ */

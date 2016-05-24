@@ -22,7 +22,7 @@ Oper::Oper(const Oper &other) {
 	*this = other;
 }
 
-const Oper &Oper::operator=(const Oper &other) {
+Oper &Oper::operator=(const Oper &other) {
 	startingTime = other.startingTime;
 	processingTime = other.processingTime;
 	machineNumber = other.machineNumber;
@@ -93,4 +93,12 @@ std::string Oper::toString() const {
 
 const std::map<uint, uint> &Oper::getProcessingTimes() const {
 	return processingTime;
+}
+
+bool operator <(const Oper& _1, const Oper& _2) {
+	return (_1.getPid() * 31 + _1.getId()) < (_2.getPid() * 31 + _2.getId());
+}
+
+bool operator==(const Oper& _1, const Oper& _2) {
+	return (_1.getPid() == _2.getPid()) && (_1.getId() == _2.getId());
 }

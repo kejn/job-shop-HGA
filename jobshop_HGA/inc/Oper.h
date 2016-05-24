@@ -25,7 +25,7 @@ public:
 	Oper(const Oper &other);
 
 	bool isFirstInJob();
-	const Oper &operator=(const Oper &other);
+	Oper &operator=(const Oper &other);
 	uint getCompletitionTime() const;
 
 	uint getStartingTime() const;
@@ -44,5 +44,8 @@ public:
 
 	std::string toString() const;
 };
+
+bool operator<(const Oper &_1, const Oper &_2);
+bool operator==(const Oper& _1, const Oper& _2);
 
 #endif /* OPER_H_ */

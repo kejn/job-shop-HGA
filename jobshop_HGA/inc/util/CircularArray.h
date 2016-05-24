@@ -11,6 +11,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #include "stringUtil.h"
 
@@ -20,14 +21,14 @@ template<typename T>
 class CircularArray {
 	uint maxCapacity;
 	uint beginIndex;
-	uint size;
+	uint arraySize;
 	std::vector<T> array;
 public:
 	CircularArray(uint capacity = 0) : //FIXME
 			array(capacity) {
 		this->maxCapacity = capacity;
 		beginIndex = 0;
-		size = 0;
+		arraySize = 0;
 	}
 
 	CircularArray(const CircularArray<T> &other) : CircularArray(other.maxCapacity){
@@ -36,25 +37,25 @@ public:
 
 	const CircularArray<T> &operator =(const CircularArray<T> &other) {
 		beginIndex = other.beginIndex;
-		size = other.size;
+		arraySize = other.arraySize;
 		array = other.array;
 		return (*this);
 	}
 
 	const T &operator[](uint index) const {
-		if (index >= size) {
+		if (index >= arraySize) {
 			std::string message = "index out of bounds. index["
 					+ stringUtil::toString(index) + "], size["
-					+ stringUtil::toString(size) + "]";
+					+ stringUtil::toString(arraySize) + "]";
 			throw std::out_of_range(message);
 		}
 		return array[(beginIndex + index) % maxCapacity];
 	}
 
 	void push_back(const T & elem) {
-		array[(beginIndex+size) % maxCapacity] = elem;
-		if (size < maxCapacity) {
-			++size;
+		array[(beginIndex+arraySize) % maxCapacity] = elem;
+		if (arraySize < maxCapacity) {
+			++arraySize;
 		} else {
 			beginIndex = (beginIndex + 1) % maxCapacity;
 		}
@@ -65,11 +66,15 @@ public:
 	}
 
 	const T &last() const{
-		return (*this)[size-1];
+		return (*this)[arraySize-1];
 	}
 
-	const uint capacity() const {
+	uint capacity() {
 		return maxCapacity;
+	}
+
+	uint size() {
+		return arraySize;
 	}
 
 };

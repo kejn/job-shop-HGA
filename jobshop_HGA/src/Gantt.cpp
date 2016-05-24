@@ -83,19 +83,19 @@ void Gantt::printMachines() {
 	}
 }
 
-std::vector<std::vector<Oper> >& Gantt::getMachines() {
+Permutation& Gantt::getMachines() {
 	return machines;
 }
 
-const std::vector<std::vector<Oper> >& Gantt::getMachines() const {
+const Permutation& Gantt::getMachines() const {
 	return machines;
 }
 
-std::vector<std::vector<Oper> >& Gantt::getOperations() {
+Permutation& Gantt::getOperations() {
 	return operations;
 }
 
-const std::vector<std::vector<Oper> >& Gantt::getOperations() const {
+const Permutation& Gantt::getOperations() const {
 	return operations;
 }
 
@@ -286,8 +286,8 @@ Gantt::Gantt(uint nJobs, uint nMachines, uint htmlScale) :
 	this->nJobs = nJobs;
 	this->nMachines = nMachines;
 	totNOper = 0;
-	operations = std::vector<std::vector<Oper>>(nJobs);
-	machines = std::vector<std::vector<Oper>>(nMachines);
+	operations = Permutation(nJobs);
+	machines = Permutation(nMachines);
 	Gantt::colors.reserve(nJobs);
 
 	Gantt::colors = {
@@ -310,7 +310,7 @@ vector<Oper> criticalPath(const Gantt & gantt, int machineIndex, int opIndex) {
 	vector<Oper> path;
 
 	if (machineIndex == -1 || opIndex == -1) {
-		machineIndex = cMax(gantt).second;
+		machineIndex = cMax(gantt.getMachines()).second;
 		opIndex = gantt.getMachines()[machineIndex].size() - 1;
 		return criticalPath(gantt, machineIndex, opIndex);
 	}
@@ -334,7 +334,7 @@ vector<Oper> criticalPath(const Gantt & gantt, int machineIndex, int opIndex) {
 						const_cast<vector<Oper>&>(gantt.getMachines()[newMachineIndex]);
 				vector<Oper>::iterator iter = find_if(newMachine.begin(),
 						newMachine.end(), [&](const Oper &o) {
-							return o.toString() == prevInJob.toString();
+							return o == prevInJob;
 						});
 				uint indexOnNewMachine = distance(newMachine.begin(), iter);
 
@@ -348,12 +348,12 @@ vector<Oper> criticalPath(const Gantt & gantt, int machineIndex, int opIndex) {
 	return path;
 }
 
-pair<uint, uint> cMax(const Gantt& gantt) {
+pair<uint, uint> cMax(const Permutation& permutation) {
 	uint cMax = 0;
 	uint machineIndex = 0;
 
-	for (uint i = 0; i < gantt.getNMachines(); ++i) {
-		uint c = gantt.getMachines()[i].back().getCompletitionTime();
+	for (uint i = 0; i < permutation.size(); ++i) {
+		uint c = permutation[i].back().getCompletitionTime();
 		if (c > cMax) {
 			cMax = c;
 			machineIndex = i;

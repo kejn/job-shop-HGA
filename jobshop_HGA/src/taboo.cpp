@@ -18,8 +18,8 @@ using namespace std;
 
 using RevOperIt = std::reverse_iterator<std::vector<Oper>::iterator>;
 
-Gantt loadOperationsFromTaillardFile(fstream &file) throw (string);
-Gantt loadOperationsFromKacemFile(fstream &file) throw (string);
+Gantt loadOperationsFromTaillardFile(fstream &file);
+Gantt loadOperationsFromKacemFile(fstream &file);
 
 void initPopGen(Gantt &ganttInfo);
 
@@ -53,22 +53,22 @@ int main() throw (string) {
 //	Gantt ganttInfo = loadOperationsFromKacemFile(file); // [1]
 	Gantt ganttInfo = loadOperationsFromTaillardFile(file); // [1]
 	file.close();
-	TabooTools taboo(TABOO_MAX, BACKTRACK_MAX);
 
 	initPopGen(ganttInfo);
 
-	vector<Oper> cPath = criticalPath(ganttInfo);
-	taboo.setUpBlocks(cPath);
-	taboo.printBlocks();
 
 	ganttInfo.printMachinesHTML();
+	TabooTools taboo = TabooTools::create(ganttInfo, TABOO_MAX, BACKTRACK_MAX);
+	taboo.nspAlgorithm();
+	ganttInfo = taboo.getBestGantt();
+	ganttInfo.printMachinesHTML("machines2.html");
 
 	system("generated\\machines.html");
 
 	return 0;
 }
 
-Gantt loadOperationsFromTaillardFile(fstream &file) throw (string) {
+Gantt loadOperationsFromTaillardFile(fstream &file) {
 	int numberOfJobs;
 	int numberOfMachines;
 
@@ -95,19 +95,13 @@ Gantt loadOperationsFromTaillardFile(fstream &file) throw (string) {
 			operation.setPid(jobIndex);
 			operation.setId(machineIndex);
 
-			if (!operation.isFirstInJob()) {
-				int startingTime = ganttInfo.prevOperationTo(jobIndex,
-						machineIndex).getCompletitionTime();
-				operation.setStartingTime(startingTime);
-			}
-
 			ganttInfo.addOperation(jobIndex, operation);
 		}
 	}
 	return ganttInfo;
 }
 
-Gantt loadOperationsFromKacemFile(fstream &file) throw (string) {
+Gantt loadOperationsFromKacemFile(fstream &file) {
 	int numberOfJobs;
 	int numberOfMachines;
 

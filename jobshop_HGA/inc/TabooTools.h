@@ -8,71 +8,70 @@
 #ifndef TABOOTOOLS_H_
 #define TABOOTOOLS_H_
 
-#include <iostream>
-#include <iterator>
 #include <map>
 #include <string>
 #include <utility>
 #include <vector>
 
+#include "Gantt.h"
 #include "Oper.h"
 #include "util/CircularArray.h"
 
 using Move = std::pair<Oper,Oper>;
 using MovesMap = std::map<Oper,Oper>;
-using Permutation = std::vector<std::vector<Oper> >;
-using BackTrackTriplet = std::pair<Permutation,std::pair<MovesMap,CircularArray<Move>>>;
+//using BackTrackTriplet = std::pair<Gantt,std::pair<MovesMap,CircularArray<Move>>>;
 
 class TabooTools {
+	struct BackTrackTriplet {
+		Gantt gantt;
+		MovesMap moves;
+		CircularArray<Move> tabooList;
+	};
 
-	std::vector<std::vector<Oper> > bestPermutation;
+	Gantt bestGantt;
 
 	CircularArray<Move> tabooList;
 	CircularArray<BackTrackTriplet> backJumpTrackList;
 	MovesMap moves;
-	std::vector<std::vector<Oper> > blocks;
+	Permutation blocks;
 public:
-	TabooTools(uint tabooListCapacity, uint backJumpTrackListCapacity) :
+	static TabooTools create(const Gantt &ganttInfo, uint tabooListCapacity,
+			uint backJumpTrackListCapacity);
+
+	void nspAlgorithm();
+
+	void printBlocks();
+	void printMoves();
+
+	Gantt & getBestGantt() {
+		return bestGantt;
+	}
+private:
+	TabooTools(const Gantt &ganttInfo, uint tabooListCapacity,
+			uint backJumpTrackListCapacity) :
 			tabooList(tabooListCapacity), backJumpTrackList(
 					backJumpTrackListCapacity) {
-	}
-	TabooTools(const TabooTools &other) :
-			tabooList(other.tabooList.capacity()), backJumpTrackList(
-					other.backJumpTrackList.capacity()) {
+		setUpBlocks(criticalPath(ganttInfo));
+		setMovesBasedOnBlocks();
+		setBestGantt(ganttInfo);
 	}
 
 	/**
 	 * Identifies blocks with size > 1 in critical path.
 	 */
-	void setUpBlocks(std::vector<Oper> &criticalPath) {
-		blocks.clear();
-		uint machineIndex = criticalPath.front().getMachineNumber();
+	void setUpBlocks(std::vector<Oper> criticalPath);
+	void setMovesBasedOnBlocks() throw (std::string);
+	void setBestGantt(const Gantt &bestGantt);
 
-		std::vector<Oper>::iterator first = criticalPath.begin();
-		std::vector<Oper>::iterator last = criticalPath.begin();
-		for (; last != criticalPath.end(); ++last) {
-			uint currentMachineIndex = last->getMachineNumber();
-			if (currentMachineIndex != machineIndex) {
-				if (distance(first, last) > 1) {
-					blocks.push_back(std::vector<Oper>(first, last));
-				}
-				first = last;
-				machineIndex = currentMachineIndex;
-			}
-		}
-		if (distance(first, last) > 1) {
-			blocks.push_back(std::vector<Oper>(first, last));
-		}
-	}
+	MovesMap forbiddenMoves();
+	void forbiddenProfitable(MovesMap & forbiddenMoves);
+	uint makeMove(Gantt &permutation, const Move &move) throw (std::string);
+	void repairPermutation(Gantt &gantt, std::vector<Oper>::iterator iter);
 
-	void printBlocks() {
-		for (uint i = 0; i < blocks.size(); ++i) {
-			for (uint j = 0; j < blocks[i].size(); ++j) {
-				std::cout << blocks[i][j].toString() << ' ';
-			}
-			std::cout << std::endl;
-		}
-	}
+	inline uint calculateT0(const Gantt & gantt, uint jNum, uint oNum);
+
+	inline uint calculateT1(const std::vector<Oper>& machine,
+			std::vector<Oper>::iterator iter);
 
 };
 
