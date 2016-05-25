@@ -8,10 +8,9 @@
 #ifndef UTIL_CIRCULARARRAY_H_
 #define UTIL_CIRCULARARRAY_H_
 
+#include <list>
 #include <stdexcept>
 #include <string>
-#include <vector>
-#include <algorithm>
 
 #include "stringUtil.h"
 
@@ -20,53 +19,51 @@ using uint = unsigned int;
 template<typename T>
 class CircularArray {
 	uint maxCapacity;
-	uint beginIndex;
-	uint arraySize;
-	std::vector<T> array;
+	std::list<T> array;
 public:
-	CircularArray(uint capacity = 0) : //FIXME
-			array(capacity) {
+	CircularArray(uint capacity = 0) {
 		this->maxCapacity = capacity;
-		beginIndex = 0;
-		arraySize = 0;
 	}
 
-	CircularArray(const CircularArray<T> &other) : CircularArray(other.maxCapacity){
+	CircularArray(const CircularArray<T> &other) :
+			CircularArray(other.maxCapacity) {
 		(*this) = other;
 	}
 
 	const CircularArray<T> &operator =(const CircularArray<T> &other) {
-		beginIndex = other.beginIndex;
-		arraySize = other.arraySize;
 		array = other.array;
 		return (*this);
 	}
 
-	const T &operator[](uint index) const {
-		if (index >= arraySize) {
+	const T &operator[](uint index) const throw (std::out_of_range) {
+		if ((index >= array.size()) || (index < 0)) {
 			std::string message = "index out of bounds. index["
 					+ stringUtil::toString(index) + "], size["
-					+ stringUtil::toString(arraySize) + "]";
+					+ stringUtil::toString(array.size()) + "]";
 			throw std::out_of_range(message);
 		}
-		return array[(beginIndex + index) % maxCapacity];
+		auto iter = array.begin();
+		for (; (index > 0) && (iter != array.end()); ++iter, --index);
+		return *iter;
 	}
 
 	void push_back(const T & elem) {
-		array[(beginIndex+arraySize) % maxCapacity] = elem;
-		if (arraySize < maxCapacity) {
-			++arraySize;
-		} else {
-			beginIndex = (beginIndex + 1) % maxCapacity;
+		array.push_back(elem);
+		if (array.size() > maxCapacity) {
+			array.pop_front();
 		}
 	}
 
-	const T &first() const {
-		return (*this)[beginIndex];
+	void pop_front() {
+		array.pop_front();
 	}
 
-	const T &last() const{
-		return (*this)[arraySize-1];
+	const T &first() const {
+		return array.front();
+	}
+
+	const T &last() const {
+		return array.back();
 	}
 
 	uint capacity() {
@@ -74,7 +71,11 @@ public:
 	}
 
 	uint size() {
-		return arraySize;
+		return array.size();
+	}
+
+	bool empty() {
+		return array.empty();
 	}
 
 };

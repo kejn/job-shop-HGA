@@ -33,7 +33,7 @@ void Gantt::addOperation(uint i, const Oper &operation) {
 }
 
 Oper Gantt::nextOperationTo(uint job, uint operation) const throw (string) {
-	if ((job >= nJobs) || (operation >= operations[job].size() - 1)) {
+	if ((job >= nJobs) || (operation >= operations[job].size() - 2)) {
 		throw string("next operation: operation not found.");
 	}
 	return operations[job][operation + 1];
@@ -143,6 +143,10 @@ void Gantt::printMachinesHTML(string fileName) {
 	}
 
 	vector<Oper> path = criticalPath(*this);
+//	cout << "PATH:" << endl;
+//	for(const auto & o : path) {
+//		cout << o.toString() << endl;
+//	}
 
 	const string stylesFileName = "css/gantt_styles.css";
 	const string scriptFileName = "js/hover_functions.js";

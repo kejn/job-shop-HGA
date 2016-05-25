@@ -37,8 +37,17 @@ const uint HTML_SCALE = 1;
 const uint TABOO_MAX = 7;
 const uint BACKTRACK_MAX = 5;
 
+void executionTimeMs(const clock_t &start, const clock_t &end) {
+	cout << "Executed in " << (double(end - start)) / CLOCKS_PER_SEC
+			<< " seconds" << endl;
+}
+
 int main() throw (string) {
 	srand(time(nullptr));
+
+//	std::ofstream out("out.txt");
+//	std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
+//	std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
 
 	fstream file;
 	try {
@@ -50,20 +59,31 @@ int main() throw (string) {
 		}
 		return 1;
 	}
+	clock_t startAll = clock();
 //	Gantt ganttInfo = loadOperationsFromKacemFile(file); // [1]
-	Gantt ganttInfo = loadOperationsFromTaillardFile(file); // [1]
+	for (uint i = 0; i < 80; ++i) {
+		clock_t start = clock();
+		Gantt ganttInfo = loadOperationsFromTaillardFile(file); // [1]
+
+		initPopGen(ganttInfo);
+//		ganttInfo.printMachinesHTML();
+
+		TabooTools taboo = TabooTools::create(ganttInfo, TABOO_MAX,
+				BACKTRACK_MAX);
+		taboo.tsAlgorithm();
+		ganttInfo = taboo.getBestGantt();
+
+		cout << "CMAX:" << cMax(ganttInfo.getMachines()).first << endl;
+
+		ganttInfo.printMachinesHTML(
+				"machines" + stringUtil::toString(i) + ".html");
+
+		executionTimeMs(start, clock());
+	}
+	cout << "Finished" << endl;
+	executionTimeMs(startAll, clock());
 	file.close();
-
-	initPopGen(ganttInfo);
-
-
-	ganttInfo.printMachinesHTML();
-	TabooTools taboo = TabooTools::create(ganttInfo, TABOO_MAX, BACKTRACK_MAX);
-	taboo.nspAlgorithm();
-	ganttInfo = taboo.getBestGantt();
-	ganttInfo.printMachinesHTML("machines2.html");
-
-	system("generated\\machines.html");
+//	system("generated\\machines.html");
 
 	return 0;
 }

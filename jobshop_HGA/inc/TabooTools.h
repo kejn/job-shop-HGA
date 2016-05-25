@@ -29,6 +29,7 @@ class TabooTools {
 	};
 
 	Gantt bestGantt;
+	Gantt currentGantt;
 
 	CircularArray<Move> tabooList;
 	CircularArray<BackTrackTriplet> backJumpTrackList;
@@ -38,7 +39,8 @@ public:
 	static TabooTools create(const Gantt &ganttInfo, uint tabooListCapacity,
 			uint backJumpTrackListCapacity);
 
-	void nspAlgorithm();
+	void tsAlgorithm();
+	void tsabAlgorithm();
 
 	void printBlocks();
 	void printMoves();
@@ -46,22 +48,32 @@ public:
 	Gantt & getBestGantt() {
 		return bestGantt;
 	}
+	void setBestGantt(Gantt & gantt) {
+		this->bestGantt = gantt;
+	}
+
+	Gantt & getCurrentGantt() {
+		return currentGantt;
+	}
+	void setCurrentGantt(Gantt & gantt) {
+		this->currentGantt = gantt;
+	}
 private:
 	TabooTools(const Gantt &ganttInfo, uint tabooListCapacity,
 			uint backJumpTrackListCapacity) :
 			tabooList(tabooListCapacity), backJumpTrackList(
 					backJumpTrackListCapacity) {
-		setUpBlocks(criticalPath(ganttInfo));
-		setMovesBasedOnBlocks();
-		setBestGantt(ganttInfo);
+		bestGantt = ganttInfo;
+		currentGantt = ganttInfo;
 	}
+
+	Move nspAlgorithm();
 
 	/**
 	 * Identifies blocks with size > 1 in critical path.
 	 */
 	void setUpBlocks(std::vector<Oper> criticalPath);
 	void setMovesBasedOnBlocks() throw (std::string);
-	void setBestGantt(const Gantt &bestGantt);
 
 	MovesMap withoutTabooMoves();
 	MovesMap forbiddenMoves();
@@ -75,5 +87,7 @@ private:
 			std::vector<Oper>::iterator iter);
 
 };
+
+const uint MAXITER = 5;
 
 #endif /* TABOOTOOLS_H_ */
