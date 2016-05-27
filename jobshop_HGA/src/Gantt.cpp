@@ -144,9 +144,12 @@ void Gantt::printMachinesHTML(string fileName) {
 
 	vector<Oper> path = criticalPath(*this);
 //	cout << "PATH:" << endl;
-//	for(const auto & o : path) {
-//		cout << o.toString() << endl;
-//	}
+	for (uint i=0; i < path.size(); ++i) {
+		if((i > 0) && path[i].getStartingTime() < path[i-1].getCompletitionTime()) {
+			cout << "!!\n" << path[i-1].toString() << endl
+					<< path[i].toString() << endl;
+		}
+	}
 
 	const string stylesFileName = "css/gantt_styles.css";
 	const string scriptFileName = "js/hover_functions.js";
@@ -319,10 +322,10 @@ vector<Oper> criticalPath(const Gantt & gantt, int machineIndex, int opIndex) {
 		return criticalPath(gantt, machineIndex, opIndex);
 	}
 
+	Oper operation = gantt.getMachines()[machineIndex][opIndex];
+	uint starting = operation.getStartingTime();
 	if (opIndex > 0) {
-		Oper operation = gantt.getMachines()[machineIndex][opIndex];
 		Oper prevOnMachine = gantt.getMachines()[machineIndex][opIndex - 1];
-		uint starting = operation.getStartingTime();
 		uint completitionMachine = prevOnMachine.getCompletitionTime();
 
 		if (starting == completitionMachine) {
@@ -346,6 +349,25 @@ vector<Oper> criticalPath(const Gantt & gantt, int machineIndex, int opIndex) {
 			} catch (const string & message) {
 				cerr << message << endl;
 			}
+		}
+	} else if (opIndex == 0) {
+		try {
+			uint job = operation.getPid();
+			uint referenceOperation = operation.getId();
+			Oper prevInJob = gantt.prevOperationTo(job, referenceOperation);
+
+			uint newMachineIndex = prevInJob.getMachineNumber();
+			vector<Oper> & newMachine =
+					const_cast<vector<Oper>&>(gantt.getMachines()[newMachineIndex]);
+			vector<Oper>::iterator iter = find_if(newMachine.begin(),
+					newMachine.end(), [&](const Oper &o) {
+						return o == prevInJob;
+					});
+			uint indexOnNewMachine = distance(newMachine.begin(), iter);
+
+			path = criticalPath(gantt, newMachineIndex, indexOnNewMachine);
+		} catch (const string & message) {
+//			cerr << message << endl;
 		}
 	}
 	path.push_back(gantt.getMachines()[machineIndex][opIndex]);

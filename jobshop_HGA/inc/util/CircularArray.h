@@ -8,6 +8,7 @@
 #ifndef UTIL_CIRCULARARRAY_H_
 #define UTIL_CIRCULARARRAY_H_
 
+#include <iostream>
 #include <list>
 #include <stdexcept>
 #include <string>
@@ -25,9 +26,9 @@ public:
 		this->maxCapacity = capacity;
 	}
 
-	CircularArray(const CircularArray<T> &other) :
-			CircularArray(other.maxCapacity) {
-		(*this) = other;
+	CircularArray(const CircularArray<T> &other) {
+		array = std::list<T>(other.array);
+		maxCapacity = other.maxCapacity;
 	}
 
 	const CircularArray<T> &operator =(const CircularArray<T> &other) {
@@ -36,10 +37,11 @@ public:
 	}
 
 	const T &operator[](uint index) const throw (std::out_of_range) {
-		if ((index >= array.size()) || (index < 0)) {
+		if (index >= array.size()) {
 			std::string message = "index out of bounds. index["
 					+ stringUtil::toString(index) + "], size["
 					+ stringUtil::toString(array.size()) + "]";
+			std::cerr << message << std::endl;
 			throw std::out_of_range(message);
 		}
 		auto iter = array.begin();
@@ -77,7 +79,6 @@ public:
 	bool empty() {
 		return array.empty();
 	}
-
 };
 
 #endif /* UTIL_CIRCULARARRAY_H_ */

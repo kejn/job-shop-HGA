@@ -7,6 +7,7 @@
 
 #include "../../inc/util/files.h"
 
+#include <bits/basic_ios.tcc>
 #include <cstdlib>
 #include <fstream>
 #include <iostream>
@@ -44,10 +45,7 @@ void createDirectory(std::string directoryName) {
 		}
 		directoryName[i] = '\\';
 		string newDirectory = directoryName.substr(0, i).c_str();
-		try {
-			cout << "Creating directory '" << newDirectory << "'..." << endl;
-			system(string("mkdir ").append(newDirectory).c_str());
-		} catch (...) {
-		}
+		cout << "Creating directory '" << newDirectory << "'..." << endl;
+		system(string("mkdir ").append(newDirectory).c_str());
 	}
 }

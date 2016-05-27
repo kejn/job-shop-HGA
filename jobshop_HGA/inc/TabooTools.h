@@ -79,6 +79,7 @@ private:
 	MovesMap forbiddenMoves();
 	void forbiddenProfitable(MovesMap & forbiddenMoves);
 	uint makeMove(Gantt &permutation, const Move &move) throw (std::string);
+	void repairPermutation(Gantt &gantt);
 	void repairPermutation(Gantt &gantt, std::vector<Oper>::iterator iter);
 
 	inline uint calculateT0(const Gantt & gantt, uint jNum, uint oNum);

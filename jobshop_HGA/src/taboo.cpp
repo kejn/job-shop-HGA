@@ -2,6 +2,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <iterator>
 #include <limits>
@@ -12,7 +13,9 @@
 
 #include "../inc/Gantt.h"
 #include "../inc/Oper.h"
+#include "../inc/TabooTools.h"
 #include "../inc/util/files.h"
+#include "../inc/util/stringUtil.h"
 
 using namespace std;
 
@@ -34,6 +37,8 @@ const string BENCHMARK_FILE_PATH2 = RESOURCE_FOLDER + "kacem2002a-PFJS.txt";
 
 const uint HTML_SCALE = 1;
 
+const uint N_INSTANCES = 80;
+
 const uint TABOO_MAX = 7;
 const uint BACKTRACK_MAX = 5;
 
@@ -45,7 +50,7 @@ void executionTimeMs(const clock_t &start, const clock_t &end) {
 int main() throw (string) {
 	srand(time(nullptr));
 
-//	std::ofstream out("out.txt");
+//	std::ofstream out("log.txt");
 //	std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
 //	std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
 
@@ -60,13 +65,14 @@ int main() throw (string) {
 		return 1;
 	}
 	clock_t startAll = clock();
-//	Gantt ganttInfo = loadOperationsFromKacemFile(file); // [1]
-	for (uint i = 0; i < 80; ++i) {
+	for (uint i = 0; i < N_INSTANCES; ++i) {
+		cout << "\n******* TAIL " << setfill('0') << setw(2) << i << endl
+				<< endl;
 		clock_t start = clock();
 		Gantt ganttInfo = loadOperationsFromTaillardFile(file); // [1]
+//		Gantt ganttInfo = loadOperationsFromKacemFile(file); // [1]
 
 		initPopGen(ganttInfo);
-//		ganttInfo.printMachinesHTML();
 
 		TabooTools taboo = TabooTools::create(ganttInfo, TABOO_MAX,
 				BACKTRACK_MAX);
@@ -78,9 +84,10 @@ int main() throw (string) {
 		ganttInfo.printMachinesHTML(
 				"machines" + stringUtil::toString(i) + ".html");
 
+		cout << endl;
 		executionTimeMs(start, clock());
 	}
-	cout << "Finished" << endl;
+	cout << "\n****************************\n\n" << "Finished" << endl;
 	executionTimeMs(startAll, clock());
 	file.close();
 //	system("generated\\machines.html");

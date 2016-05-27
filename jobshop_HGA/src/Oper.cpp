@@ -7,8 +7,10 @@
 
 #include "../inc/Oper.h"
 
+#include <cstdio>
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 #include <utility>
 
 using namespace std;
@@ -32,7 +34,15 @@ Oper &Oper::operator=(const Oper &other) {
 }
 
 uint Oper::getCompletitionTime() const {
-	return (startingTime + processingTime.at(machineNumber));
+	uint result;
+	try {
+		result = startingTime + processingTime.at(machineNumber);
+	} catch (const out_of_range & oor) {
+		cerr << "ERROR, tried to read " << machineNumber << " machine cTime" << endl;
+		result = -1;
+		getchar();
+	}
+	return result;
 }
 
 uint Oper::getId() const {
