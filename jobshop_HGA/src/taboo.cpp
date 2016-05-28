@@ -76,13 +76,14 @@ int main() throw (string) {
 
 		TabooTools taboo = TabooTools::create(ganttInfo, TABOO_MAX,
 				BACKTRACK_MAX);
-		taboo.tsAlgorithm();
+		taboo.tsabAlgorithm();
+//		getchar();
 		ganttInfo = taboo.getBestGantt();
 
 		cout << "CMAX:" << cMax(ganttInfo.getMachines()).first << endl;
 
-		ganttInfo.printMachinesHTML(
-				"machines" + stringUtil::toString(i) + ".html");
+//		ganttInfo.printMachinesHTML(
+//				"machines" + stringUtil::toString(i) + ".html");
 
 		cout << endl;
 		executionTimeMs(start, clock());

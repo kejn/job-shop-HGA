@@ -89,6 +89,6 @@ private:
 
 };
 
-const uint MAXITER = 5;
+const uint MAXITER = 10;
 
 #endif /* TABOOTOOLS_H_ */

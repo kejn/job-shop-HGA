@@ -15,9 +15,7 @@
 using namespace std;
 
 void TabooTools::setUpBlocks(vector<Oper> criticalPath) {
-	if (!blocks.empty()) {
-		blocks.clear();
-	}
+	blocks.clear();
 	uint machineIndex = criticalPath.front().getMachineNumber();
 
 	vector<Oper>::iterator first = criticalPath.begin();
@@ -48,8 +46,7 @@ void TabooTools::printBlocks() {
 }
 
 void TabooTools::setMovesBasedOnBlocks() throw (std::string) {
-	if (!moves.empty())
-		moves.clear();
+	moves.clear();
 	Permutation::iterator iter = blocks.begin();
 	for (; iter != blocks.end(); ++iter) {
 		Oper first = iter->front();
@@ -83,10 +80,10 @@ Move TabooTools::nspAlgorithm() {
 	forbiddenProfitable(fProfitable);
 
 	MovesMap withoutNonProfitableTaboo(withoutTabooMoves());
-	cout << "out" << flush;
+//	cout << "out" << flush;
 	withoutNonProfitableTaboo.insert(fProfitable.begin(), fProfitable.end());
 
-	cout << "Nsp" << flush;
+//	cout << "Nsp" << flush;
 	Move bestMove;
 	if (!withoutNonProfitableTaboo.empty()) {
 		// *10 to make sure that at least one is chosen
@@ -110,7 +107,7 @@ Move TabooTools::nspAlgorithm() {
 	} else if (moves.size() == 1) {
 		bestMove = *(moves.begin());
 	} else {
-		cout << "s(" << moves.size() << ')' << flush;
+//		cout << "s(" << moves.size() << ')' << flush;
 		while (moves.find(tabooList.first().first) == moves.end()) {
 			tabooList.push_back(tabooList.last());
 		}
@@ -121,9 +118,9 @@ Move TabooTools::nspAlgorithm() {
 }
 
 MovesMap TabooTools::withoutTabooMoves() {
-	cout << "Wt" << flush;
+//	cout << "Wt" << flush;
 	MovesMap withoutTabooMoves(moves);
-	cout << ";" << flush;
+//	cout << ";" << flush;
 
 	for (uint i = 0; i < tabooList.size(); ++i) {
 		try {
@@ -138,7 +135,7 @@ MovesMap TabooTools::withoutTabooMoves() {
 }
 
 MovesMap TabooTools::forbiddenMoves() {
-	cout << "Fm" << flush;
+//	cout << "Fm" << flush;
 	MovesMap forbiddenMoves;
 	for (uint i = 0; i < tabooList.size(); ++i) {
 		try {
@@ -153,7 +150,7 @@ MovesMap TabooTools::forbiddenMoves() {
 }
 
 void TabooTools::forbiddenProfitable(MovesMap & forbiddenMoves) {
-	cout << "Fp" << flush;
+//	cout << "Fp" << flush;
 	MovesMap::iterator iter = forbiddenMoves.begin();
 	const MovesMap::iterator endIter = forbiddenMoves.end();
 
@@ -286,7 +283,7 @@ void TabooTools::tsAlgorithm() {
 			cout << "STOP. bestGantt is OPTIMAL." << endl;
 			return;
 		}
-		cout << "N" << flush;
+//		cout << "N" << flush;
 		Move bestMove = nspAlgorithm();
 		cout << "." << flush;
 		makeMove(currentGantt, bestMove);
@@ -323,26 +320,34 @@ void TabooTools::tsabAlgorithm() {
 //		cout << "STEP 2." << endl;
 		Move bestMove = nspAlgorithm();
 //		cout << "NSP done" << endl;
-		if (save && (moves.size() > 1) && !skip) {
+//		cout << "Best move:" << flush;
+//		cout << bestMove.first.toString() << ", " << flush;
+//		cout << bestMove.second.toString() << endl;
+//		printMoves();
+		moves.erase(bestMove.first);
+		if (save && (moves.size() > 1)) {
 //			cout << "++bt " << flush;
 			BackTrackTriplet btt;
 			btt.gantt = currentGantt;
 			btt.moves = moves;
-			MovesMap::iterator it =
-					find_if(btt.moves.begin(), btt.moves.end(),
-							[&](const Move & m) {
-								return (m.first == bestMove.first) && (m.second == bestMove.second);
-							});
-			btt.moves.erase(it);
+//			MovesMap::iterator it =
+//					find_if(btt.moves.begin(), btt.moves.end(),
+//							[&](const Move & m) {
+//								return (m.first == bestMove.first) && (m.second == bestMove.second);
+//							});
+//			printMoves();
+//			if (it != btt.moves.end()) {
+//				cout << "erasing.." << flush;
+//				btt.moves.erase(it);
+//				cout << "erased!" << endl;
+//			}
 			btt.tabooList = tabooList;
 			backJumpTrackList.push_back(btt);
 
 //			cout << backJumpTrackList.size() << ' '
 //					<< backJumpTrackList.capacity() << endl;
 		}
-//		cout << "Best move:" << flush;
-//		cout << bestMove.first.toString() << ", " << flush;
-//		cout << bestMove.second.toString() << endl;
+		moves.insert(bestMove);
 		cout << "." << flush;
 		makeMove(currentGantt, bestMove);
 		tabooList.push_back(make_pair(bestMove.second, bestMove.first));
