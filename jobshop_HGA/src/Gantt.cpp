@@ -143,13 +143,6 @@ void Gantt::printMachinesHTML(string fileName) {
 	}
 
 	vector<Oper> path = criticalPath(*this);
-//	cout << "PATH:" << endl;
-	for (uint i=0; i < path.size(); ++i) {
-		if((i > 0) && path[i].getStartingTime() < path[i-1].getCompletitionTime()) {
-			cout << "!!\n" << path[i-1].toString() << endl
-					<< path[i].toString() << endl;
-		}
-	}
 
 	const string stylesFileName = "css/gantt_styles.css";
 	const string scriptFileName = "js/hover_functions.js";
@@ -164,11 +157,10 @@ void Gantt::printMachinesHTML(string fileName) {
 	for (uint i = 0; i < machines.size(); ++i) {
 		TagContentHTML* table = new TagContentHTML("table");
 		TagContentHTML* tr = new TagContentHTML("tr");
-		TagContentHTML* td = new TagContentHTML("td");
+		TagContentHTML* td = TagContentHTML::forTDEmptyOperation(100);
 
 		string machineLabel = "Machine " + toString(i);
 		TextContentHTML* machineNo = new TextContentHTML(machineLabel);
-		td->addParam("style", "width: 100px;");
 		td->addChild(machineNo);
 
 		tr->addChild(td);
@@ -177,54 +169,32 @@ void Gantt::printMachinesHTML(string fileName) {
 			if (j > 0) {
 				uint cPrev = machines[i][j - 1].getCompletitionTime();
 				if (cPrev < sCurr) {
-					TagContentHTML* tdOperation = new TagContentHTML("td");
-					string style("width: ");
-					style += toString(HTML_SCALE * (sCurr - cPrev) - 1) + "px;";
-
-					tdOperation->addParam("style", style);
+					uint width = HTML_SCALE * (sCurr - cPrev) - 1;
+					TagContentHTML* tdOperation =
+							TagContentHTML::forTDEmptyOperation(width);
 					tr->addChild(tdOperation);
 				}
 			} else if (sCurr > 0) {
-				TagContentHTML* tdOperation = new TagContentHTML("td");
-				string style("width: ");
-				style += toString(HTML_SCALE * sCurr - 1) + "px;";
-
-				tdOperation->addParam("style", style);
+				uint width = HTML_SCALE * sCurr - 1;
+				TagContentHTML* tdOperation =
+						TagContentHTML::forTDEmptyOperation(width);
 				tr->addChild(tdOperation);
 			}
-			TagContentHTML* tdOperation = new TagContentHTML("td");
-			string style = "width: "
-					+ toString(
-							HTML_SCALE * machines[i][j].getProcessingTime() - 1)
-					+ "px;" + "background-color: "
-					+ getColor(machines[i][j].getPid()) + ";";
-
-			vector<Oper>::iterator found = find_if(path.begin(), path.end(),
-					[=](const Oper &o) {
+			vector<Oper>::iterator foundInPath = find_if(path.begin(),
+					path.end(), [=](const Oper &o) {
 						return o.toString() == machines[i][j].toString();
 					});
-			if (found != path.end()) {
-				style += " border-top: 2px black ridge;";
-				style += " border-bottom: 2px black ridge;";
-			}
-
-			tdOperation->addParam("style", style);
-			tdOperation->addParam("title", machines[i][j].toString());
-
-			string jobNumber = "job" + toString(machines[i][j].getPid());
-			if (found != path.end()) {
-				tdOperation->addParam("class", jobNumber + " cpath");
-				tdOperation->addParam("onclick", "cpath()");
-			} else {
-				tdOperation->addParam("class", jobNumber);
-			}
-			tdOperation->addParam("onmouseover", "mOver('" + jobNumber + "')");
-			tdOperation->addParam("onmouseout", "mOut()");
+			TagContentHTML* tdOperation = TagContentHTML::forTDOperation(
+					machines[i][j], getColor(machines[i][j].getPid()),
+					HTML_SCALE, (foundInPath != path.end()));
 			tr->addChild(tdOperation);
 		}
 		table->addChild(tr);
 		div->addChild(table);
 	}
+	string bodyWidth = "width: "
+			+ toString(HTML_SCALE * cMax(machines).first + 150) + "px;";
+	div->addParam("style", bodyWidth);
 	htmlPage.add(PageHTML::Section::BODY, div);
 
 	div = new TagContentHTML("div");
@@ -233,25 +203,13 @@ void Gantt::printMachinesHTML(string fileName) {
 
 	for (uint i = 0; i < nJobs; ++i) {
 		string color(getColor(i));
-
-		TagContentHTML* td = new TagContentHTML("td");
-		string style = "text-align: center; width: 50px; background-color: "
-				+ getColor(i) + ";";
-		td->addParam("style", style);
-
-		string jobNumber = "job" + toString(i);
-		string cMax = "cMax: "
-				+ toString(operations[i].back().getCompletitionTime());
-		td->addParam("title", cMax);
-		td->addParam("class", jobNumber);
-		td->addParam("onmouseover", "mOver('" + jobNumber + "')");
-		td->addParam("onmouseout", "mOut()");
-		td->addChild(new TextContentHTML("Job " + toString(i)));
-
+		uint cMax = operations[i].back().getCompletitionTime();
+		TagContentHTML* td = TagContentHTML::forTDJobLegend(i, color, cMax);
 		tr->addChild(td);
 	}
 	table->addChild(tr);
 	div->addChild(table);
+	div->addParam("style", bodyWidth);
 	htmlPage.add(PageHTML::Section::BODY, div);
 
 	outputFile << htmlPage.toString();

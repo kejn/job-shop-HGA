@@ -35,6 +35,8 @@ class TabooTools {
 	CircularArray<BackTrackTriplet> backJumpTrackList;
 	MovesMap moves;
 	Permutation blocks;
+
+	const uint MAXITER;
 public:
 	static TabooTools create(const Gantt &ganttInfo, uint tabooListCapacity,
 			uint backJumpTrackListCapacity);
@@ -62,7 +64,8 @@ private:
 	TabooTools(const Gantt &ganttInfo, uint tabooListCapacity,
 			uint backJumpTrackListCapacity) :
 			tabooList(tabooListCapacity), backJumpTrackList(
-					backJumpTrackListCapacity) {
+					backJumpTrackListCapacity), MAXITER(
+					backJumpTrackListCapacity * 2) {
 		bestGantt = ganttInfo;
 		currentGantt = ganttInfo;
 	}
@@ -88,7 +91,5 @@ private:
 			std::vector<Oper>::iterator iter);
 
 };
-
-const uint MAXITER = 10;
 
 #endif /* TABOOTOOLS_H_ */

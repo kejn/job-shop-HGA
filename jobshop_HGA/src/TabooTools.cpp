@@ -52,12 +52,16 @@ void TabooTools::setMovesBasedOnBlocks() throw (std::string) {
 		Oper first = iter->front();
 		if (first.getStartingTime() > 0) {
 			Oper second = iter->begin()[1];
-			moves.insert(make_pair(first, second));
+			if (first.getPid() != second.getPid()) {
+				moves.insert(make_pair(first, second));
+			}
 		}
 		if ((iter + 1) != blocks.end()) {
 			Oper secondToLast = iter->rbegin()[1];
 			Oper last = iter->back();
-			moves.insert(make_pair(secondToLast, last));
+			if (secondToLast.getPid() != last.getPid()) {
+				moves.insert(make_pair(secondToLast, last));
+			}
 		}
 	}
 }
@@ -80,10 +84,8 @@ Move TabooTools::nspAlgorithm() {
 	forbiddenProfitable(fProfitable);
 
 	MovesMap withoutNonProfitableTaboo(withoutTabooMoves());
-//	cout << "out" << flush;
 	withoutNonProfitableTaboo.insert(fProfitable.begin(), fProfitable.end());
 
-//	cout << "Nsp" << flush;
 	Move bestMove;
 	if (!withoutNonProfitableTaboo.empty()) {
 		// *10 to make sure that at least one is chosen
@@ -107,7 +109,6 @@ Move TabooTools::nspAlgorithm() {
 	} else if (moves.size() == 1) {
 		bestMove = *(moves.begin());
 	} else {
-//		cout << "s(" << moves.size() << ')' << flush;
 		while (moves.find(tabooList.first().first) == moves.end()) {
 			tabooList.push_back(tabooList.last());
 		}
@@ -118,9 +119,7 @@ Move TabooTools::nspAlgorithm() {
 }
 
 MovesMap TabooTools::withoutTabooMoves() {
-//	cout << "Wt" << flush;
 	MovesMap withoutTabooMoves(moves);
-//	cout << ";" << flush;
 
 	for (uint i = 0; i < tabooList.size(); ++i) {
 		try {
@@ -135,7 +134,6 @@ MovesMap TabooTools::withoutTabooMoves() {
 }
 
 MovesMap TabooTools::forbiddenMoves() {
-//	cout << "Fm" << flush;
 	MovesMap forbiddenMoves;
 	for (uint i = 0; i < tabooList.size(); ++i) {
 		try {
@@ -150,7 +148,6 @@ MovesMap TabooTools::forbiddenMoves() {
 }
 
 void TabooTools::forbiddenProfitable(MovesMap & forbiddenMoves) {
-//	cout << "Fp" << flush;
 	MovesMap::iterator iter = forbiddenMoves.begin();
 	const MovesMap::iterator endIter = forbiddenMoves.end();
 
@@ -165,11 +162,13 @@ void TabooTools::forbiddenProfitable(MovesMap & forbiddenMoves) {
 			Oper prevToSecond = currentGantt.prevOperationTo(jobIx, operIx);
 
 			if (prevToSecond.getCompletitionTime() >= first.getStartingTime()) {
-				forbiddenMoves.erase(iter);
+				forbiddenMoves.erase(iter++);
+			} else {
+				++iter;
 			}
 		} catch (const string & message) {
+			++iter;
 		}
-		++iter;
 	}
 }
 
@@ -178,9 +177,6 @@ uint TabooTools::makeMove(Gantt &gantt, const Move &move) throw (string) {
 		throw string("You can't move operations of different machines");
 	}
 	uint machineIndex = move.first.getMachineNumber();
-
-//	cout << "Moving " << move.first.toString() << " and "
-//			<< move.second.toString() << endl;
 
 	vector<Oper>::iterator firstIter = find(
 			gantt.getMachines()[machineIndex].begin(),
@@ -198,12 +194,8 @@ uint TabooTools::makeMove(Gantt &gantt, const Move &move) throw (string) {
 
 	iter_swap(firstIter, secondIter);
 
-//	cout << "Moved. Repairing..." << endl;
-
 	repairPermutation(gantt);
 	uint cmax = cMax(gantt.getMachines()).first;
-
-//	cout << "...repaired. cmax: " << cmax << endl;
 
 	return cmax;
 }
@@ -218,12 +210,11 @@ void TabooTools::repairPermutation(Gantt &gantt) {
 	}
 
 	vector<uint> indexUpdated(gantt.getNMachines(), 0);
-
 	uint operationsScheduled = 0;
 
 	while (operationsScheduled < gantt.getTotNOper()) {
-		for (uint k = 0; k < machines.size(); ++k) {
-			uint l = indexUpdated[k];
+		for (uint l, k = 0; k < machines.size(); ++k) {
+			l = indexUpdated[k];
 			if (l < machines[k].size()) {
 
 				uint jobNumber = machines[k][l].getPid();
@@ -232,7 +223,7 @@ void TabooTools::repairPermutation(Gantt &gantt) {
 				if (!operationsUpdated[jobNumber][operationId]) {
 					continue;
 				}
-				operationsUpdated[jobNumber][operationId + 1] = true;
+				operationsUpdated[jobNumber][operationId + 1] = 1;
 				++indexUpdated[k];
 				++operationsScheduled;
 
@@ -283,7 +274,6 @@ void TabooTools::tsAlgorithm() {
 			cout << "STOP. bestGantt is OPTIMAL." << endl;
 			return;
 		}
-//		cout << "N" << flush;
 		Move bestMove = nspAlgorithm();
 		cout << "." << flush;
 		makeMove(currentGantt, bestMove);
@@ -301,75 +291,56 @@ void TabooTools::tsAlgorithm() {
 
 void TabooTools::tsabAlgorithm() {
 	uint iter = 0;
+	uint maxiter = MAXITER;
 	bool save = true;
 	bool skip = false;
 
+	uint bestCmax = cMax(bestGantt.getMachines()).first;
+
 	do {
 		if (!skip) {
-//			cout << "STEP 1." << endl;
 			++iter;
 			setUpBlocks(criticalPath(currentGantt));
 			setMovesBasedOnBlocks();
 
 			if (moves.empty()) {
-				cout << "STOP. bestGantt is OPTIMAL." << endl;
+				cout << "\nSTOP. bestGantt is OPTIMAL." << endl;
 				return;
 			}
 		}
+		skip = false;
 
-//		cout << "STEP 2." << endl;
 		Move bestMove = nspAlgorithm();
-//		cout << "NSP done" << endl;
-//		cout << "Best move:" << flush;
-//		cout << bestMove.first.toString() << ", " << flush;
-//		cout << bestMove.second.toString() << endl;
-//		printMoves();
 		moves.erase(bestMove.first);
 		if (save && (moves.size() > 1)) {
-//			cout << "++bt " << flush;
 			BackTrackTriplet btt;
 			btt.gantt = currentGantt;
 			btt.moves = moves;
-//			MovesMap::iterator it =
-//					find_if(btt.moves.begin(), btt.moves.end(),
-//							[&](const Move & m) {
-//								return (m.first == bestMove.first) && (m.second == bestMove.second);
-//							});
-//			printMoves();
-//			if (it != btt.moves.end()) {
-//				cout << "erasing.." << flush;
-//				btt.moves.erase(it);
-//				cout << "erased!" << endl;
-//			}
 			btt.tabooList = tabooList;
 			backJumpTrackList.push_back(btt);
-
-//			cout << backJumpTrackList.size() << ' '
-//					<< backJumpTrackList.capacity() << endl;
 		}
 		moves.insert(bestMove);
-		cout << "." << flush;
+		save = false;
+
 		makeMove(currentGantt, bestMove);
 		tabooList.push_back(make_pair(bestMove.second, bestMove.first));
-		save = false;
-		skip = false;
 
-//		cout << "STEP 3." << endl;
-		if (cMax(currentGantt.getMachines()).first
-				< cMax(bestGantt.getMachines()).first) {
-			cout << "I" << flush;
+		uint currentCmax = cMax(currentGantt.getMachines()).first;
+		if (currentCmax < bestCmax) {
+			cout << "I(" << currentCmax << ")" << flush;
 			bestGantt = currentGantt;
+			bestCmax = currentCmax;
 			save = true;
 			iter = 0;
+		} else {
+			cout << "." << flush;
 		}
 
-//		cout << "STEP 4." << endl;
-		if (iter <= MAXITER) {
+		if (iter <= maxiter) {
 			continue;
 		}
-//		cout << "STEP 5." << endl;
+
 		if (!backJumpTrackList.empty()) {
-//			cout << "--bt " << flush;
 			currentGantt = Gantt(backJumpTrackList.first().gantt);
 
 			moves = MovesMap(backJumpTrackList.first().moves);
@@ -377,14 +348,13 @@ void TabooTools::tsabAlgorithm() {
 					backJumpTrackList.first().tabooList);
 			backJumpTrackList.pop_front();
 
-//			cout << backJumpTrackList.size() << ' '
-//					<< backJumpTrackList.capacity() << endl;
-
 			iter = 1;
 			save = true;
 			skip = true;
+			maxiter = MAXITER
+					- (backJumpTrackList.capacity() - backJumpTrackList.size()
+							- 1);
 		}
-	} while (iter <= MAXITER);
-	cout << "STOP. iter > MAXITER." << endl;
-
+	} while (iter <= maxiter);
+	cout << "\nSTOP. iter > MAXITER." << endl;
 }

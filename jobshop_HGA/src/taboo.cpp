@@ -77,13 +77,12 @@ int main() throw (string) {
 		TabooTools taboo = TabooTools::create(ganttInfo, TABOO_MAX,
 				BACKTRACK_MAX);
 		taboo.tsabAlgorithm();
-//		getchar();
 		ganttInfo = taboo.getBestGantt();
 
 		cout << "CMAX:" << cMax(ganttInfo.getMachines()).first << endl;
 
-//		ganttInfo.printMachinesHTML(
-//				"machines" + stringUtil::toString(i) + ".html");
+		ganttInfo.printMachinesHTML(
+				"machines" + stringUtil::toString(i) + ".html");
 
 		cout << endl;
 		executionTimeMs(start, clock());
@@ -93,6 +92,7 @@ int main() throw (string) {
 	file.close();
 //	system("generated\\machines.html");
 
+//	std::cout.rdbuf(coutbuf);
 	return 0;
 }
 
@@ -179,7 +179,6 @@ void initPopGen(Gantt &ganttInfo) {
 
 	// [2] losowanie kolejnosci zadan
 	vector<uint> sequence = ganttInfo.randomJobOrder();
-
 	cout << "initial job order: ";
 	copy(sequence.begin(), sequence.end(), ostream_iterator<int>(cout, " "));
 	cout << endl;
