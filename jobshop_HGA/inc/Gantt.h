@@ -28,13 +28,17 @@ class Gantt {
 	uint nMachines;
 	Permutation machines;
 
+	Oper breakdown;
+
 	static std::vector<std::string> colors;
 
 	std::string getRandomColor();
 	std::string getColor(uint index);
 	const uint HTML_SCALE;
 public:
-	Gantt(uint htmlScale = 1) :HTML_SCALE(htmlScale){ nJobs = 0; totNOper = 0; nMachines = 0; }
+	Gantt(uint htmlScale = 1) : HTML_SCALE(htmlScale){
+		nJobs = 0; totNOper = 0; nMachines = 0;
+	}
 	Gantt(uint nJobs, uint nMachines, uint htmlScale = 1);
 
 	void addOperation(uint i, const Oper &operation);
@@ -58,6 +62,10 @@ public:
 	Permutation& getOperations();
 	const Permutation& getOperations() const;
 
+	const Oper & getBreakdown() const throw(std::string);
+	void setBreakdown(Oper breakdown);
+	void resetBuffers();
+
 	uint getNJobs() const;
 	uint getNMachines() const;
 	uint getTotNOper() const;
@@ -69,6 +77,8 @@ public:
 
 		nMachines = other.nMachines;
 		machines = other.machines;
+
+		breakdown = other.breakdown;
 
 		return *this;
 	}
@@ -82,5 +92,7 @@ std::vector<Oper> criticalPath(const Gantt & gantt,
  * First: cMax value, Second: machineIndex
  */
 std::pair<uint, uint> cMax(const Permutation &permutation);
+
+Oper generateBreakdown(uint start, uint duration, uint machine);
 
 #endif /* GANTT_H_ */

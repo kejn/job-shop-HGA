@@ -184,6 +184,7 @@ void Gantt::printMachinesHTML(string fileName) {
 					path.end(), [=](const Oper &o) {
 						return o.toString() == machines[i][j].toString();
 					});
+
 			TagContentHTML* tdOperation = TagContentHTML::forTDOperation(
 					machines[i][j], getColor(machines[i][j].getPid()),
 					HTML_SCALE, (foundInPath != path.end()));
@@ -231,6 +232,30 @@ void Gantt::printMachinesHTML(string fileName) {
 void Gantt::clearMachines() {
 	for (auto & machine : machines) {
 		machine.clear();
+	}
+}
+
+const Oper& Gantt::getBreakdown() const throw (string) {
+	if (breakdown.getId() + 1 == 0) {
+		throw string("breakdown was not set!");
+	}
+	return breakdown;
+}
+
+void Gantt::setBreakdown(Oper breakdown) {
+	this->breakdown = breakdown;
+}
+
+void Gantt::resetBuffers() {
+	for (uint i = 0; i < nMachines; ++i) {
+		for (uint j = 0; j < machines[i].size(); ++j) {
+			machines[i][j].setBuffer(0);
+		}
+	}
+	for (uint i = 0; i < nJobs; ++i) {
+		for (uint j = 0; j < operations[i].size(); ++j) {
+			operations[i][j].setBuffer(0);
+		}
 	}
 }
 
@@ -344,4 +369,14 @@ pair<uint, uint> cMax(const Permutation& permutation) {
 		}
 	}
 	return make_pair(cMax, machineIndex);
+}
+
+Oper generateBreakdown(uint start, uint duration, uint machine) {
+	Oper breakdown;
+	breakdown.setId(-2);
+	breakdown.setMachineNumber(machine);
+	breakdown.setStartingTime(start);
+	breakdown.setProcessingTime(duration, machine);
+
+	return breakdown;
 }

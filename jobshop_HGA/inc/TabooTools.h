@@ -19,7 +19,6 @@
 
 using Move = std::pair<Oper,Oper>;
 using MovesMap = std::map<Oper,Oper>;
-//using BackTrackTriplet = std::pair<Gantt,std::pair<MovesMap,CircularArray<Move>>>;
 
 class TabooTools {
 	struct BackTrackTriplet {
@@ -83,13 +82,13 @@ private:
 	void forbiddenProfitable(MovesMap & forbiddenMoves);
 	uint makeMove(Gantt &permutation, const Move &move) throw (std::string);
 	void repairPermutation(Gantt &gantt);
-	void repairPermutation(Gantt &gantt, std::vector<Oper>::iterator iter);
-
-	inline uint calculateT0(const Gantt & gantt, uint jNum, uint oNum);
-
-	inline uint calculateT1(const std::vector<Oper>& machine,
-			std::vector<Oper>::iterator iter);
 
 };
+uint calculateT0(const Gantt & gantt, uint jNum, uint oNum);
+
+uint calculateT1(const std::vector<Oper>& machine,
+		std::vector<Oper>::iterator iter);
+
+bool applyBreakdown(uint startTime, Oper & oper, const Oper &breakdown);
 
 #endif /* TABOOTOOLS_H_ */

@@ -17,9 +17,10 @@ using namespace std;
 
 Oper::Oper() :
 		processingTime() {
-	startingTime = 0;
+	startingTime = buffer = 0;
 	machineNumber = pid = id = -1;
 }
+
 Oper::Oper(const Oper &other) {
 	*this = other;
 }
@@ -30,13 +31,14 @@ Oper &Oper::operator=(const Oper &other) {
 	machineNumber = other.machineNumber;
 	id = other.id;
 	pid = other.pid;
+	buffer = other.buffer;
 	return *this;
 }
 
 uint Oper::getCompletitionTime() const {
 	uint result;
 	try {
-		result = startingTime + processingTime.at(machineNumber);
+		result = startingTime + getProcessingTime();
 	} catch (const out_of_range & oor) {
 		cerr << "ERROR, tried to read " << machineNumber << " machine cTime" << endl;
 		result = -1;
@@ -70,7 +72,7 @@ void Oper::setPid(uint pid) {
 }
 
 uint Oper::getProcessingTime() const {
-	return processingTime.at(machineNumber);
+	return processingTime.at(machineNumber) + buffer;
 }
 
 void Oper::setProcessingTimes(map<uint, uint> processingTime) {
@@ -78,7 +80,8 @@ void Oper::setProcessingTimes(map<uint, uint> processingTime) {
 }
 
 void Oper::setProcessingTime(uint processingTime, uint atMachine) {
-	this->processingTime.insert(pair<uint, uint>(atMachine, processingTime));
+//	this->processingTime.insert(pair<uint, uint>(atMachine, processingTime));
+	this->processingTime[atMachine] = processingTime;
 }
 
 uint Oper::getStartingTime() const {
@@ -111,4 +114,8 @@ bool operator <(const Oper& _1, const Oper& _2) {
 
 bool operator==(const Oper& _1, const Oper& _2) {
 	return (_1.getPid() == _2.getPid()) && (_1.getId() == _2.getId());
+}
+
+void Oper::setBuffer(uint buffer) {
+	this->buffer = buffer;
 }

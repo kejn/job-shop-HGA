@@ -14,6 +14,7 @@
 #include "../inc/Gantt.h"
 #include "../inc/Oper.h"
 #include "../inc/TabooTools.h"
+#include "../inc/util/CircularArray.h"
 #include "../inc/util/files.h"
 #include "../inc/util/stringUtil.h"
 
@@ -26,9 +27,6 @@ Gantt loadOperationsFromKacemFile(fstream &file);
 
 void initPopGen(Gantt &ganttInfo);
 
-unsigned int calculateT0(Gantt& ganttInfo, unsigned int jNum,
-		unsigned int oNum);
-unsigned int calculateT1(const vector<Oper> & machine);
 RevOperIt whereCanIFit(const Oper & operation, RevOperIt rIter,
 		const RevOperIt rEnd, unsigned int t0);
 
@@ -37,7 +35,7 @@ const string BENCHMARK_FILE_PATH2 = RESOURCE_FOLDER + "kacem2002a-PFJS.txt";
 
 const uint HTML_SCALE = 1;
 
-const uint N_INSTANCES = 80;
+const uint N_INSTANCES = 1;
 
 const uint TABOO_MAX = 7;
 const uint BACKTRACK_MAX = 5;
@@ -72,7 +70,13 @@ int main() throw (string) {
 		Gantt ganttInfo = loadOperationsFromTaillardFile(file); // [1]
 //		Gantt ganttInfo = loadOperationsFromKacemFile(file); // [1]
 
+		Oper breakdown = generateBreakdown(5, 2, 7);
+		ganttInfo.setBreakdown(breakdown);
+
 		initPopGen(ganttInfo);
+
+		ganttInfo.printMachinesHTML(
+				"machines" + stringUtil::toString(i) + ".html");
 
 		TabooTools taboo = TabooTools::create(ganttInfo, TABOO_MAX,
 				BACKTRACK_MAX);
@@ -81,8 +85,8 @@ int main() throw (string) {
 
 		cout << "CMAX:" << cMax(ganttInfo.getMachines()).first << endl;
 
-		ganttInfo.printMachinesHTML(
-				"machines" + stringUtil::toString(i) + ".html");
+//		ganttInfo.printMachinesHTML(
+//				"machines" + stringUtil::toString(i) + ".html");
 
 		cout << endl;
 		executionTimeMs(start, clock());
@@ -201,21 +205,28 @@ void initPopGen(Gantt &ganttInfo) {
 				uint key = entry.first;
 
 				vector<Oper> & machineK = ganttInfo.getMachines()[key];
-				Oper & operInfo = ganttInfo.getOperations()[jobIndex][oper];
+				Oper operInfo = ganttInfo.getOperations()[jobIndex][oper];
 				operInfo.setMachineNumber(key);
-				// [15] Oper::getProcessingTime()
 
-				t1 = calculateT1(machineK);							 // [16-20]
+				t1 = calculateT1(machineK, machineK.end());			// [16-20]
 
-				if (t1 <= t0) {										 // [21-27]
-					operInfo.setStartingTime(t0);
-				} else {
-					RevOperIt iter = whereCanIFit(operInfo, machineK.rbegin(),
-							machineK.rend(), t0);
-					if (iter != machineK.rend()) {
-						operInfo.setStartingTime((*iter).getCompletitionTime());
+				bool result = applyBreakdown(max(t0,t1), operInfo,
+						ganttInfo.getBreakdown());
+
+//				cout << "result:" << operInfo.toString() << endl;
+
+				if (!result) {
+					if (t1 <= t0) {									// [21-27]
+						operInfo.setStartingTime(t0);
 					} else {
-						operInfo.setStartingTime(t1);
+						RevOperIt iter = whereCanIFit(operInfo,
+								machineK.rbegin(), machineK.rend(), t0);
+						if (iter != machineK.rend()) {
+							operInfo.setStartingTime(
+									(*iter).getCompletitionTime());
+						} else {
+							operInfo.setStartingTime(t1);
+						}
 					}
 				}
 
@@ -238,6 +249,7 @@ void initPopGen(Gantt &ganttInfo) {
 				}
 			}
 
+//			cout << "Chosen " << minCK << ' ' << M.at(minCK).toString() << endl << endl;
 			ganttInfo.insertOnMachine(minCK, iter, M.at(minCK));
 
 			++operCount;												// [31]
@@ -280,26 +292,26 @@ RevOperIt whereCanIFit(const Oper & operation, RevOperIt rIter,
 	return canFit.empty() ? rIter : canFit.back();
 }
 
-/*
- * t0 calculation rule (hGA).
- */
-inline uint calculateT0(Gantt& ganttInfo, uint jNum, uint oNum) {
-	uint t0;
-	try {
-		Oper prevOper = ganttInfo.prevOperationTo(jNum, oNum);
-		t0 = prevOper.getCompletitionTime();
-	} catch (const string &message) {
-		t0 = 0;
-	}
-	return t0;
-}
-
-inline uint calculateT1(const vector<Oper>& machine) {
-	uint t1;
-	if (machine.empty()) {
-		t1 = 0;
-	} else {
-		t1 = machine.back().getCompletitionTime();
-	}
-	return t1;
-}
+///*
+// * t0 calculation rule (hGA).
+// */
+//inline uint calculateT0(Gantt& ganttInfo, uint jNum, uint oNum) {
+//	uint t0;
+//	try {
+//		Oper prevOper = ganttInfo.prevOperationTo(jNum, oNum);
+//		t0 = prevOper.getCompletitionTime();
+//	} catch (const string &message) {
+//		t0 = 0;
+//	}
+//	return t0;
+//}
+//
+//inline uint calculateT1(const vector<Oper>& machine) {
+//	uint t1;
+//	if (machine.empty()) {
+//		t1 = 0;
+//	} else {
+//		t1 = machine.back().getCompletitionTime();
+//	}
+//	return t1;
+//}

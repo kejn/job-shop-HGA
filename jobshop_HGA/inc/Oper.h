@@ -18,6 +18,8 @@ class Oper {
 	std::map<uint, uint> processingTime;
 	uint machineNumber;
 
+	uint buffer;
+
 	uint id;
 	uint pid;
 public:
@@ -41,6 +43,8 @@ public:
 	void setMachineNumber(uint machineNumber);
 	void setId(uint id);
 	void setPid(uint pid);
+
+	void setBuffer(uint buffer);
 
 	std::string toString() const;
 };

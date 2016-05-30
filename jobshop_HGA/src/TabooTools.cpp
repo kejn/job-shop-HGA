@@ -201,6 +201,7 @@ uint TabooTools::makeMove(Gantt &gantt, const Move &move) throw (string) {
 }
 
 void TabooTools::repairPermutation(Gantt &gantt) {
+	gantt.resetBuffers();
 	Permutation & machines = gantt.getMachines();
 
 	vector<vector<bool> > operationsUpdated(gantt.getNJobs());
@@ -231,15 +232,20 @@ void TabooTools::repairPermutation(Gantt &gantt) {
 						calculateT0(gantt, jobNumber, operationId),
 						calculateT1(machines[k], machines[k].begin() + l));
 
-				machines[k][l].setStartingTime(startingTime);
+				bool result = applyBreakdown(startingTime, machines[k][l],
+						gantt.getBreakdown());
+
+				if (!result) {
+					machines[k][l].setStartingTime(startingTime);
+				}
 				gantt.getOperations()[jobNumber][operationId].setStartingTime(
-						startingTime);
+						machines[k][l].getStartingTime());
 			}
 		}
 	}
 }
 
-uint TabooTools::calculateT0(const Gantt & gantt, uint jNum, uint oNum) {
+inline uint calculateT0(const Gantt & gantt, uint jNum, uint oNum) {
 	uint t0;
 	try {
 		Oper prevOper = gantt.prevOperationTo(jNum, oNum);
@@ -250,11 +256,11 @@ uint TabooTools::calculateT0(const Gantt & gantt, uint jNum, uint oNum) {
 	return t0;
 }
 
-uint TabooTools::calculateT1(const vector<Oper>& machine,
+inline uint calculateT1(const vector<Oper>& machine,
 		vector<Oper>::iterator iter) {
 	uint t1;
 
-	if (iter == machine.begin()) {
+	if (machine.empty() || (iter == machine.begin())) {
 		t1 = 0;
 	} else {
 		t1 = (iter - 1)->getCompletitionTime();
@@ -357,4 +363,37 @@ void TabooTools::tsabAlgorithm() {
 		}
 	} while (iter <= maxiter);
 	cout << "\nSTOP. iter > MAXITER." << endl;
+}
+
+bool applyBreakdown(uint startTime, Oper &oper, const Oper& breakdown) {
+	uint procTime = oper.getProcessingTime();
+	uint compTime = startTime + procTime;
+	if (oper.getMachineNumber() == breakdown.getMachineNumber()) {
+		uint bStart = breakdown.getStartingTime();
+		uint bEnd = breakdown.getCompletitionTime();
+		bool breakdownWhileProcessing = (bStart >= startTime)
+				&& (bStart < compTime);
+		bool breakdownNotFinished = (bStart < startTime) && (bEnd > startTime);
+
+		if (breakdownNotFinished && breakdownWhileProcessing) {
+			cout << "Cos nie tak..." << breakdownWhileProcessing << ' '
+					<< breakdownNotFinished << endl;
+		}
+
+		if (breakdownWhileProcessing) {
+//			cout << "Proc was: " << procTime;
+//			procTime += breakdown.getProcessingTime();
+//			cout << " , now: " << procTime << endl;
+			oper.setBuffer(breakdown.getProcessingTime());
+//			oper.setProcessingTime(procTime, breakdown.getMachineNumber());
+		}
+		if (breakdownNotFinished) {
+//			cout << "Start was: " << startTime;
+			startTime += (bEnd - startTime);
+//			cout << " , now: " << startTime << endl;
+			oper.setStartingTime(startTime);
+			return true;
+		}
+	}
+	return false;
 }
