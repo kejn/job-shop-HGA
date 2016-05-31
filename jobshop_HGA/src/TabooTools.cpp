@@ -371,9 +371,9 @@ bool applyBreakdown(uint startTime, Oper &oper, const Oper& breakdown) {
 	if (oper.getMachineNumber() == breakdown.getMachineNumber()) {
 		uint bStart = breakdown.getStartingTime();
 		uint bEnd = breakdown.getCompletitionTime();
-		bool breakdownWhileProcessing = (bStart >= startTime)
-				&& (bStart < compTime);
-		bool breakdownNotFinished = (bStart < startTime) && (bEnd > startTime);
+		bool breakdownWhileProcessing = whileProcessing(bStart, startTime,
+				compTime);
+		bool breakdownNotFinished = notFinished(bStart,bEnd,startTime);
 
 		if (breakdownNotFinished && breakdownWhileProcessing) {
 			cout << "Cos nie tak..." << breakdownWhileProcessing << ' '
@@ -381,19 +381,25 @@ bool applyBreakdown(uint startTime, Oper &oper, const Oper& breakdown) {
 		}
 
 		if (breakdownWhileProcessing) {
-//			cout << "Proc was: " << procTime;
-//			procTime += breakdown.getProcessingTime();
-//			cout << " , now: " << procTime << endl;
 			oper.setBuffer(breakdown.getProcessingTime());
-//			oper.setProcessingTime(procTime, breakdown.getMachineNumber());
 		}
 		if (breakdownNotFinished) {
-//			cout << "Start was: " << startTime;
 			startTime += (bEnd - startTime);
-//			cout << " , now: " << startTime << endl;
 			oper.setStartingTime(startTime);
 			return true;
 		}
 	}
 	return false;
+}
+
+inline bool whileProcessing(uint breakdownStartTime, uint opStartTime,
+		uint opCompTime) {
+	return (breakdownStartTime > opStartTime)
+			&& (breakdownStartTime < opCompTime);
+}
+
+inline bool notFinished(uint breakdownStartTime, uint breakdownEndTime,
+		uint opStartTime) {
+	return (breakdownStartTime <= opStartTime)
+			&& (breakdownEndTime > opStartTime);
 }

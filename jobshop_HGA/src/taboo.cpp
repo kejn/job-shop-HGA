@@ -70,7 +70,7 @@ int main() throw (string) {
 		Gantt ganttInfo = loadOperationsFromTaillardFile(file); // [1]
 //		Gantt ganttInfo = loadOperationsFromKacemFile(file); // [1]
 
-		Oper breakdown = generateBreakdown(5, 2, 7);
+		Oper breakdown = generateBreakdown(500, 200, 7);
 		ganttInfo.setBreakdown(breakdown);
 
 		initPopGen(ganttInfo);
@@ -210,7 +210,7 @@ void initPopGen(Gantt &ganttInfo) {
 
 				t1 = calculateT1(machineK, machineK.end());			// [16-20]
 
-				bool result = applyBreakdown(max(t0,t1), operInfo,
+				bool result = applyBreakdown(max(t0, t1), operInfo,
 						ganttInfo.getBreakdown());
 
 //				cout << "result:" << operInfo.toString() << endl;

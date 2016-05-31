@@ -119,3 +119,7 @@ bool operator==(const Oper& _1, const Oper& _2) {
 void Oper::setBuffer(uint buffer) {
 	this->buffer = buffer;
 }
+
+uint Oper::getBuffer() const {
+	return buffer;
+}

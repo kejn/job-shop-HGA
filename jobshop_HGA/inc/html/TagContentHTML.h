@@ -40,7 +40,7 @@ public:
 	static TagContentHTML * forTDEmptyOperation(uint width);
 	static TagContentHTML * forTDOperation(Oper oper, std::string bgColor,
 			uint htmlScale, bool inCriticalPath = false);
-	static TagContentHTML * forTDJobLegend(uint jobNumber, std::string bgColor, uint cMax);
+	static TagContentHTML * forTDJobLegend(uint jobNumber, std::string bgColor, uint cMax, std::string text="");
 
 	void addParam(const std::string &param, const std::string &value);
 	void addChild(ContentHTML * const & childElement);

@@ -37,6 +37,8 @@ public:
 	uint getId() const;
 	uint getPid() const;
 
+	uint getBuffer() const;
+
 	void setStartingTime(uint startingTime);
 	void setProcessingTime(uint processingTime, uint atMachine);
 	void setProcessingTimes(std::map<uint, uint> processingTime);

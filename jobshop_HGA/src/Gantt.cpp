@@ -143,6 +143,12 @@ void Gantt::printMachinesHTML(string fileName) {
 	}
 
 	vector<Oper> path = criticalPath(*this);
+	for (uint i = 1; i < path.size(); ++i) {
+		if (path[i].getStartingTime() < path[i - 1].getCompletitionTime()) {
+			cout << path[i - 1].toString() << endl << path[i].toString()
+					<< endl;
+		}
+	}
 
 	const string stylesFileName = "css/gantt_styles.css";
 	const string scriptFileName = "js/hover_functions.js";
@@ -152,6 +158,8 @@ void Gantt::printMachinesHTML(string fileName) {
 	htmlPage.addTitle("Machines");
 	htmlPage.addStyle(stylesFileName);
 	htmlPage.addScript(scriptFileName);
+
+	Oper breakdown = this->breakdown;
 
 	TagContentHTML* div = new TagContentHTML("div");
 	for (uint i = 0; i < machines.size(); ++i) {
@@ -166,18 +174,32 @@ void Gantt::printMachinesHTML(string fileName) {
 		tr->addChild(td);
 		for (uint j = 0; j < machines[i].size(); ++j) {
 			uint sCurr = machines[i][j].getStartingTime();
+
+			uint bStart = breakdown.getStartingTime();
+			uint bEnd = breakdown.getCompletitionTime();
+			uint compTime = machines[i][j].getCompletitionTime()
+					- machines[i][j].getBuffer();
+
 			if (j > 0) {
 				uint cPrev = machines[i][j - 1].getCompletitionTime();
 				if (cPrev < sCurr) {
 					uint width = HTML_SCALE * (sCurr - cPrev) - 1;
+					if ((bEnd == sCurr) && (i == breakdown.getMachineNumber())) {
+						width -= (bEnd - bStart);
+					}
 					TagContentHTML* tdOperation =
 							TagContentHTML::forTDEmptyOperation(width);
+					tdOperation->addParam("name", "1");
 					tr->addChild(tdOperation);
 				}
 			} else if (sCurr > 0) {
 				uint width = HTML_SCALE * sCurr - 1;
+				if ((bEnd == sCurr)  && (i == breakdown.getMachineNumber())) {
+					width -= (bEnd - bStart);
+				}
 				TagContentHTML* tdOperation =
 						TagContentHTML::forTDEmptyOperation(width);
+				tdOperation->addParam("name", "2");
 				tr->addChild(tdOperation);
 			}
 			vector<Oper>::iterator foundInPath = find_if(path.begin(),
@@ -185,10 +207,44 @@ void Gantt::printMachinesHTML(string fileName) {
 						return o.toString() == machines[i][j].toString();
 					});
 
-			TagContentHTML* tdOperation = TagContentHTML::forTDOperation(
-					machines[i][j], getColor(machines[i][j].getPid()),
-					HTML_SCALE, (foundInPath != path.end()));
+			TagContentHTML* tdOperation = nullptr;
+			TagContentHTML* tdPrevOp = nullptr;
+			TagContentHTML* tdNextOp = nullptr;
+
+			tdOperation = TagContentHTML::forTDOperation(machines[i][j],
+					getColor(machines[i][j].getPid()), HTML_SCALE,
+					(foundInPath != path.end()));
+
+			if (i == breakdown.getMachineNumber()) {
+				if (whileProcessing(bStart, sCurr, compTime)) {
+					string opColor = getColor(machines[i][j].getPid());
+
+					Oper op1 = machines[i][j];
+					op1.setBuffer(0);
+					op1.setProcessingTime(bStart - sCurr, i);
+
+					Oper op2 = machines[i][j];
+					op2.setProcessingTime(
+							compTime + machines[i][j].getBuffer() - bEnd, i);
+					op2.setStartingTime(bEnd);
+					op2.setBuffer(0);
+
+					tdPrevOp = TagContentHTML::forTDOperation(op1, opColor,
+							HTML_SCALE, (foundInPath != path.end()));
+					tdNextOp = TagContentHTML::forTDOperation(op2, opColor,
+							HTML_SCALE, (foundInPath != path.end()));
+
+					delete tdOperation;
+					tdOperation = TagContentHTML::forTDOperation(breakdown,
+							"red", HTML_SCALE, (foundInPath != path.end()));
+				} else if (bEnd == sCurr) {
+					tdPrevOp = TagContentHTML::forTDOperation(breakdown, "red",
+							HTML_SCALE, (foundInPath != path.end()));
+				}
+			}
+			tr->addChild(tdPrevOp);
 			tr->addChild(tdOperation);
+			tr->addChild(tdNextOp);
 		}
 		table->addChild(tr);
 		div->addChild(table);
@@ -208,6 +264,9 @@ void Gantt::printMachinesHTML(string fileName) {
 		TagContentHTML* td = TagContentHTML::forTDJobLegend(i, color, cMax);
 		tr->addChild(td);
 	}
+	TagContentHTML* td = TagContentHTML::forTDJobLegend(-1, "red", -1,
+			"Breakdown");
+	tr->addChild(td);
 	table->addChild(tr);
 	div->addChild(table);
 	div->addParam("style", bodyWidth);

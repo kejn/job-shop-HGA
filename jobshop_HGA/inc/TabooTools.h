@@ -91,4 +91,7 @@ uint calculateT1(const std::vector<Oper>& machine,
 
 bool applyBreakdown(uint startTime, Oper & oper, const Oper &breakdown);
 
+bool whileProcessing(uint breakdownStartTime, uint opStartTime, uint opCompTime);
+bool notFinished(uint breakdownStartTime, uint breakdownEndTime, uint opStartTime);
+
 #endif /* TABOOTOOLS_H_ */

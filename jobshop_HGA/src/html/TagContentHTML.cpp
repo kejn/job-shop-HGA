@@ -21,6 +21,9 @@ void TagContentHTML::addParam(const string& param, const string& value) {
 }
 
 void TagContentHTML::addChild(ContentHTML * const & childElement) {
+	if (childElement == nullptr) {
+		return;
+	}
 	children.push_back(childElement);
 }
 
@@ -90,7 +93,7 @@ TagContentHTML* TagContentHTML::forTDEmptyOperation(uint width) {
 }
 
 TagContentHTML* TagContentHTML::forTDJobLegend(uint jobNumber,
-		std::string bgColor, uint cMax) {
+		std::string bgColor, uint cMax, std::string text) {
 	TagContentHTML *td = new TagContentHTML("td");
 	string style = "text-align: center; width: 100px; background-color: "
 			+ bgColor + ";";
@@ -102,7 +105,13 @@ TagContentHTML* TagContentHTML::forTDJobLegend(uint jobNumber,
 	td->addParam("class", jobNumberClass);
 	td->addParam("onmouseover", "mOver('" + jobNumberClass + "')");
 	td->addParam("onmouseout", "mOut()");
-	td->addChild(new TextContentHTML("Job " + stringUtil::toString(jobNumber)));
+
+	if (text.empty()) {
+		td->addChild(
+				new TextContentHTML("Job " + stringUtil::toString(jobNumber)));
+	} else {
+		td->addChild(new TextContentHTML(text));
+	}
 
 	return td;
 }
