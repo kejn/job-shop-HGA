@@ -70,13 +70,13 @@ int main() throw (string) {
 		Gantt ganttInfo = loadOperationsFromTaillardFile(file); // [1]
 //		Gantt ganttInfo = loadOperationsFromKacemFile(file); // [1]
 
-		Oper breakdown = generateBreakdown(500, 200, 7);
+		Oper breakdown = generateBreakdown(50, 100, 6);
 		ganttInfo.setBreakdown(breakdown);
 
 		initPopGen(ganttInfo);
 
-		ganttInfo.printMachinesHTML(
-				"machines" + stringUtil::toString(i) + ".html");
+//		ganttInfo.printMachinesHTML(
+//				"machines" + stringUtil::toString(i) + ".html");
 
 		TabooTools taboo = TabooTools::create(ganttInfo, TABOO_MAX,
 				BACKTRACK_MAX);
@@ -85,8 +85,9 @@ int main() throw (string) {
 
 		cout << "CMAX:" << cMax(ganttInfo.getMachines()).first << endl;
 
-//		ganttInfo.printMachinesHTML(
-//				"machines" + stringUtil::toString(i) + ".html");
+//		ganttInfo.printMachines();
+		ganttInfo.printMachinesHTML(
+				"machines" + stringUtil::toString(i) + ".html");
 
 		cout << endl;
 		executionTimeMs(start, clock());
@@ -183,6 +184,7 @@ void initPopGen(Gantt &ganttInfo) {
 
 	// [2] losowanie kolejnosci zadan
 	vector<uint> sequence = ganttInfo.randomJobOrder();
+//	{3, 6, 4, 9, 1, 11, 13, 14, 12, 0, 5, 7, 2, 8, 10};
 	cout << "initial job order: ";
 	copy(sequence.begin(), sequence.end(), ostream_iterator<int>(cout, " "));
 	cout << endl;

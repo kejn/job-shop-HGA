@@ -75,9 +75,10 @@ void Gantt::printMachines() {
 	for (uint i = 0; i < machines.size(); ++i) {
 		cout << "Machine" << i << '\t';
 		for (uint j = 0; j < machines[i].size(); ++j) {
-			cout << setw(4) << 'J' << setw(2) << setfill('0')
-					<< machines[i][j].getPid() << setfill(' ') << '('
-					<< machines[i][j].getId() << ')' << flush;
+//			cout << setw(4) << 'J' << setw(2) << setfill('0')
+//					<< machines[i][j].getPid() << setfill(' ') << '('
+//					<< machines[i][j].getId() << ')' << flush;
+			cout << machines[i][j].toString() << '\t' << flush;
 		}
 		cout << endl;
 	}
@@ -185,21 +186,19 @@ void Gantt::printMachinesHTML(string fileName) {
 				if (cPrev < sCurr) {
 					uint width = HTML_SCALE * (sCurr - cPrev) - 1;
 					if ((bEnd == sCurr) && (i == breakdown.getMachineNumber())) {
-						width -= (bEnd - bStart);
+						width -= HTML_SCALE *(bEnd - bStart);
 					}
 					TagContentHTML* tdOperation =
 							TagContentHTML::forTDEmptyOperation(width);
-					tdOperation->addParam("name", "1");
 					tr->addChild(tdOperation);
 				}
 			} else if (sCurr > 0) {
 				uint width = HTML_SCALE * sCurr - 1;
 				if ((bEnd == sCurr)  && (i == breakdown.getMachineNumber())) {
-					width -= (bEnd - bStart);
+					width -= HTML_SCALE *(bEnd - bStart);
 				}
 				TagContentHTML* tdOperation =
 						TagContentHTML::forTDEmptyOperation(width);
-				tdOperation->addParam("name", "2");
 				tr->addChild(tdOperation);
 			}
 			vector<Oper>::iterator foundInPath = find_if(path.begin(),
@@ -305,19 +304,6 @@ void Gantt::setBreakdown(Oper breakdown) {
 	this->breakdown = breakdown;
 }
 
-void Gantt::resetBuffers() {
-	for (uint i = 0; i < nMachines; ++i) {
-		for (uint j = 0; j < machines[i].size(); ++j) {
-			machines[i][j].setBuffer(0);
-		}
-	}
-	for (uint i = 0; i < nJobs; ++i) {
-		for (uint j = 0; j < operations[i].size(); ++j) {
-			operations[i][j].setBuffer(0);
-		}
-	}
-}
-
 uint Gantt::getTotNOper() const {
 	return totNOper;
 }
@@ -389,7 +375,7 @@ vector<Oper> criticalPath(const Gantt & gantt, int machineIndex, int opIndex) {
 
 				path = criticalPath(gantt, newMachineIndex, indexOnNewMachine);
 			} catch (const string & message) {
-				cerr << message << endl;
+//				cerr << message << endl;
 			}
 		}
 	} else if (opIndex == 0) {

@@ -64,7 +64,6 @@ public:
 
 	const Oper & getBreakdown() const throw(std::string);
 	void setBreakdown(Oper breakdown);
-	void resetBuffers();
 
 	uint getNJobs() const;
 	uint getNMachines() const;

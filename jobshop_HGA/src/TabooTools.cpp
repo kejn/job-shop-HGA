@@ -201,7 +201,6 @@ uint TabooTools::makeMove(Gantt &gantt, const Move &move) throw (string) {
 }
 
 void TabooTools::repairPermutation(Gantt &gantt) {
-	gantt.resetBuffers();
 	Permutation & machines = gantt.getMachines();
 
 	vector<vector<bool> > operationsUpdated(gantt.getNJobs());
@@ -368,6 +367,7 @@ void TabooTools::tsabAlgorithm() {
 bool applyBreakdown(uint startTime, Oper &oper, const Oper& breakdown) {
 	uint procTime = oper.getProcessingTime();
 	uint compTime = startTime + procTime;
+	oper.setBuffer(0);
 	if (oper.getMachineNumber() == breakdown.getMachineNumber()) {
 		uint bStart = breakdown.getStartingTime();
 		uint bEnd = breakdown.getCompletitionTime();
