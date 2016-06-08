@@ -1,0 +1,23 @@
+body,div,table,tr,td {
+	margin: 0px;
+	padding: 0px;
+}
+
+div {
+	width: 6000px;
+}
+
+table {
+	border-spacing: 0px;
+	padding: 2px;
+}
+
+td {
+	border-right: 1px black solid;
+}
+
+/* breakdown */
+td.job4294967295 {
+	color: white;
+	background-image: linear-gradient(to left, black, red, black); 
+}

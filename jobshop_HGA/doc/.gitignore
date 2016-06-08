@@ -1,0 +1,9 @@
+# Latex editor files
+*.log
+*.lof
+*.lot
+*.aux
+*.bbl
+*.blg
+*.gz
+*.toc

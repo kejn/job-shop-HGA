@@ -95,7 +95,7 @@ int main() throw (string) {
 	cout << "\n****************************\n\n" << "Finished" << endl;
 	executionTimeMs(startAll, clock());
 	file.close();
-//	system("generated\\machines.html");
+	system("generated\\machines0.html");
 
 //	std::cout.rdbuf(coutbuf);
 	return 0;
