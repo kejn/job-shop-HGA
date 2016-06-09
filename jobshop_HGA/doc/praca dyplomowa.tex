@@ -135,7 +135,7 @@ W pracy założono realizację celów wymienionych poniżej.
 \end{enumerate}
 \section*{Zakres pracy}
 W rozdziale \ref{ch_lit_rev}. przeanalizowano dotychczasowe osiągnięcia w tematyce korygowania harmonogramów. Wydzielono w nim sekcje, które opisują różne podejścia w kontekście różnych zakłóceń, wymuszających potrzebę korygowania harmonogramów.\\\\
-Rozdział \ref{ch_problem_def}. przedstawia sformułowanie wybranego problemu, który jest analizowany w dalszej części pracy - Elastycznego Problemu Gniazdowego. Opisano w nim kryteria oraz ograniczenia, które wynikają ze specyfiki problemu.\\\\
+Rozdział \ref{ch_problem_def}. przedstawia sformułowanie wybranego problemu, który jest analizowany w~dalszej części pracy - Elastycznego Problemu Gniazdowego. Opisano w nim kryteria oraz ograniczenia, które wynikają ze specyfiki problemu.\\\\
 Wybrane rozwiązania, czyli algorytmy, które zastosowano w badaniach opisano w rozdziale \ref{ch_algorithm}. Można tam znaleźć opis modelu danych, na którym operowano, strategii wyznaczania rozwiązania początkowego i w końcu głównego algorytmu oraz modyfikacji, które należy w nim wykonać, aby dostosować go do uwzględnienia awarii maszyn.\\\\
 Ostatni, rozdział \ref{ch_experiments}. zawiera wyniki eksperymentów, które przeprowadzono z wykorzystaniem zaimplementowanych algorytmów.\\\\
 Dodatek \ref{ch_code_snippets}. zawiera kod źródłowy stworzonej biblioteki, z której korzystano do generowania wykresów Gantt'a otrzymanych w rozdziale \ref{ch_experiments}. rozwiązań.
@@ -158,17 +158,17 @@ W \cite{DTLBO} autorzy proponują optymalizację dyskretną opartą na uczeniu z
     \item zmienny czas przetwarzania zadań,
     \item zmienny czas finalizacji zadania (np. stygnięcie rozgrzanego elementu).
 \end{itemize}
-Odnośnie awarii maszyn, zakłada się tutaj, że nie wiemy kiedy występują, ani jak długo trwają. Ponadto, zadanie przerwane przez taką awarię, po jej usunięciu jest kontynuowane od momentu jego przerwania. W zależności od tego czy dana operacja została zakończona przed wystąpieniem awarii, przerwana przez awarię lub miała się dopiero wykonać, zostaje przypisana do odpowiedniej grupy. Wszystkie przerwane zadania pozostają na swoich maszynach, a  kolejne zadania są przesuwane w czasie, w zależności od oszacowania czasu naprawy usterki. W przypadku nadejścia nowego zadania stosuje się reaktywne procedury, które odpowiednio plasują je w harmonogramie. Poza sytuacjami wystąpienia zakłóceń nie jest dopuszczalne przerywanie zadań, a kolejne operacje danego zadania nie mogą się na siebie nakładać. Poza fazami nauczania i uczenia, charakterystycznymi dla TLBO wykorzystano tutaj również iteracyjny algorytm zachłanny (IG) w celu przyspieszenia procesu ewolucji. Celem porównania wybranej przez autorów metody w zależności od jej parametryzacji, skonstruowano sześć wariantów TLBO, spośród których wyłoniono najlepszy i wykorzystano do konstrukcji kolejnych czterech wariantów DTLBO. Ponownie w testach wybrano najwydajniejszy wariant i ostatecznie porównano go z algorytmami:
+Odnośnie awarii maszyn, zakłada się tutaj, że nie wiemy kiedy występują, ani jak długo trwają. Ponadto, zadanie przerwane przez taką awarię, po jej usunięciu jest kontynuowane od momentu jego przerwania. W zależności od tego czy dana operacja została zakończona przed wystąpieniem awarii, przerwana przez awarię lub miała się dopiero wykonać, zostaje przypisana do odpowiedniej grupy. Wszystkie przerwane zadania pozostają na~swoich maszynach, a  kolejne zadania są przesuwane w czasie, w zależności od~oszacowania czasu naprawy usterki. W przypadku nadejścia nowego zadania stosuje się reaktywne procedury, które odpowiednio plasują je w harmonogramie. Poza sytuacjami wystąpienia zakłóceń nie jest dopuszczalne przerywanie zadań, a kolejne operacje danego zadania nie mogą się na siebie nakładać. Poza fazami nauczania i uczenia, charakterystycznymi dla TLBO wykorzystano tutaj również iteracyjny algorytm zachłanny (IG) w celu przyspieszenia procesu ewolucji. Celem porównania wybranej przez autorów metody w zależności od~jej parametryzacji, skonstruowano sześć wariantów TLBO, spośród których wyłoniono najlepszy i wykorzystano do konstrukcji kolejnych czterech wariantów DTLBO. Ponownie w~testach wybrano najwydajniejszy wariant i ostatecznie porównano go z algorytmami:
 \begin{itemize}
     \item hGA - hybrydowy algorytm genetyczny,
     \item IG - iteracyjny algorytm zachłanny,
     \item ILS - iteracyjny algorytm poszukiwań lokalnych,
     \item PSO - optymalizacja rojem cząstek.
 \end{itemize}
-Wyniki zestawiono na podstawie testów na 90 instancjach Taillard'a z modelem zakłóceń zapożyczonym z \cite{Katragjini2013}. Jako kryterium porównawcze zastosowano względne odchylenie procentowe (\emph{RPD - Relative prcentage deviation}) od najlepszego wyniku dla danej instancji. Z uwagi na wykorzystany w funkcji celu współczynnik kary, wyniki podzielono na 3 kategorie, w których współczynniki kary wynosiły odpowiednio 0.1, 0.5 oraz 0.9. We wszystkich przypadkach algorytm DTLBO pozwolił uzystać autorom najlepsze wyniki, niestety jednak kosztem znacząco wyższej złożoności obliczeniowej (średnie $RPD = 18,79$, podczas gdy ILS uzyskało wynik $RPD = 1,29$).
+Wyniki zestawiono na podstawie testów na 90 instancjach Taillard'a z modelem zakłóceń zapożyczonym z \cite{Katragjini2013}. Jako kryterium porównawcze zastosowano względne odchylenie procentowe (\emph{RPD - Relative prcentage deviation}) od najlepszego wyniku dla danej instancji. Z~uwagi na wykorzystany w funkcji celu współczynnik kary, wyniki podzielono na 3 kategorie, w których współczynniki kary wynosiły odpowiednio 0.1, 0.5 oraz 0.9. We wszystkich przypadkach algorytm DTLBO pozwolił uzystać autorom najlepsze wyniki, niestety jednak kosztem znacząco wyższej złożoności obliczeniowej (średnie $RPD = 18,79$, podczas gdy ILS uzyskało wynik $RPD = 1,29$).
 %
 \section[Podejście ewolucyjne w harmonogramowaniu  proaktywnym]{Podejście ewolucyjne w harmonogramowaniu\\ proaktywnym}
-Kolejna pozycja literaturowa \cite{KBEPS} rozważa harmonogramowanie proaktywne w odpowiedzi na losowe (stochastyczne) awarie maszyn w pogarszających się środowiskach produkcyjnych, gdzie właściwy czas przetwarzania zadania wydłuża się proporcjonalnie do używania maszyny i jej wieku. Zaznacza się tu istotność odporności rozwiązania (ang. \emph{solution robustness}), z uwagi na obszary, których problem ten dotyka. Może być to sytuacja, kiedy firmy udostępniają przez Internet swoje harmonogramy produkcji swoim dostawcom surowców, aby dostawy mogły się odbywać w filozofii Just In Time. Ma to również znaczenie, jeśli chcieć posługiwać się tymi odpornymi rozwiązaniami problemu do budowy wskaźnika wydajności z punktu widzenia kierownictwa i operatorów hal produkcyjnych. \mbox{Co również} istotne, zasugerowano że umożliwiłyby one wgląd w niedaleką przyszłość pozwalając tym samym na sugerowanie konkurencyjnych terminów dostaw dla klientów. Podobnie jak w przypadku \cite{DTLBO}, tutaj również analizowano problem przepływowy, bez możliwości bezpośredniego przerywania zadań, gdzie awarie maszyn występują zgodnie z pewnym rozkładem prawdopodobieństwa, z tym że w tym artykule ustalany jest on na podstawie statystycznych danych historycznych. Co odróżnia tą publikację od poprzedniej, jest uwzględnienie stopniowego pogarszania czasu przetwarzania operacji z uwagi na czas pracy i wiek maszyny oraz fakt, że reakcja na awarię maszyny jest natychmiastowa, przerwane zadanie musi zostać wykonane jeszcze raz (od samego początku) oraz, jeśli chodzi o aspekt starzenia się maszyn, po naprawie wszystkie uszeregowane zadania na naprawionej maszynie wykonują się w oryginalnie założonym przedziale czasu, bez pogorszenia wynikającego z opisanych wyżej przyczyn. Głównym wyznacznikiem jakości zbudowanego algorytmu (autorzy nazwali go ADK/SA-NSGA-II) była analiza wariancji (ANOVA). Jako punkt odniesienia przyjęto wielokryterialny algorytm ewolucyjny (MOEA/D, ang. \emph{Multi objective evolutionary algorithm}). W rezultacie rozwiązanie autorów uzyskało znacząco lepszą zbieżność dla mniejszych instancji (30-200 zadań), jednak powyżej tego pułapu (300-500 zadań) przegrało z konkurentem.  
+Kolejna pozycja literaturowa \cite{KBEPS} rozważa harmonogramowanie proaktywne w odpowiedzi na losowe (stochastyczne) awarie maszyn w pogarszających się środowiskach produkcyjnych, gdzie właściwy czas przetwarzania zadania wydłuża się proporcjonalnie do~używania maszyny i jej wieku. Zaznacza się tu istotność odporności rozwiązania (ang. \emph{solution robustness}), z uwagi na obszary, których problem ten dotyka. Może być to sytuacja, kiedy firmy udostępniają przez Internet swoje harmonogramy produkcji swoim dostawcom surowców, aby dostawy mogły się odbywać w filozofii Just In Time. Ma to również znaczenie, jeśli chcieć posługiwać się tymi odpornymi rozwiązaniami problemu do budowy wskaźnika wydajności z punktu widzenia kierownictwa i operatorów hal produkcyjnych. \mbox{Co również} istotne, zasugerowano że umożliwiłyby one wgląd w niedaleką przyszłość pozwalając tym samym na sugerowanie konkurencyjnych terminów dostaw dla klientów. Podobnie jak w przypadku \cite{DTLBO}, tutaj również analizowano problem przepływowy, bez możliwości bezpośredniego przerywania zadań, gdzie awarie maszyn występują zgodnie z pewnym rozkładem prawdopodobieństwa, z tym że w tym artykule ustalany jest on na podstawie statystycznych danych historycznych. Co odróżnia tą publikację od poprzedniej, jest uwzględnienie stopniowego pogarszania czasu przetwarzania operacji z uwagi na czas pracy i wiek maszyny oraz fakt, że reakcja na awarię maszyny jest natychmiastowa, przerwane zadanie musi zostać wykonane jeszcze raz (od samego początku) oraz, jeśli chodzi o aspekt starzenia się maszyn, po naprawie wszystkie uszeregowane zadania na naprawionej maszynie wykonują się w oryginalnie założonym przedziale czasu, bez pogorszenia wynikającego z opisanych wyżej przyczyn. Głównym wyznacznikiem jakości zbudowanego algorytmu (autorzy nazwali go ADK/SA-NSGA-II) była analiza wariancji (ANOVA). Jako punkt odniesienia przyjęto wielokryterialny algorytm ewolucyjny (MOEA/D, ang. \emph{Multi objective evolutionary algorithm}). W rezultacie rozwiązanie autorów uzyskało znacząco lepszą zbieżność dla mniejszych instancji (30-200 zadań), jednak powyżej tego pułapu (300-500 zadań) przegrało z konkurentem.  
 %
 \section{Wyznaczanie harmonogramów od nowa}
 Jeszcze inne podejście analizuje się w artykule \cite{EDSBCR}, gdzie proponuje się strategię sterowaną zdarzeniami, nie tyle korygując harmonogram, co za każdym razem tworząc go na nowo. Problem dotyczy harmonogramowania m identycznych równolegle pracujących maszyn z uwzględnieniem czasu przezbrojeń każdej z maszyn między wykonywanymi zadaniami przez pojedynczy serwer. W pracy podano definicję korygowania harmonogramów:
@@ -185,7 +185,7 @@ Wracając do tematyki problemu przedstawionego w artykule, ponieważ zakłada si
 Dopuszcza się przerywanie zadań. Stochastyczną awaryjność maszyn określają dwa współczynniki o rozkładzie wykładniczym: średni czas między awariami (MTBF, ang. \emph{Mean Time Between Failure}) oraz średni czas do wykonania naprawy (MTTR, ang. \emph{Mean time to repair}). Z uwagi na fakt większej złożoności obliczeniowej podczas wyznaczania harmonogramu za każdym razem od nowa w porównaniu z korygowaniem harmonogramu, przyjęto strategię kolejkowania nadchodzących zadań i układania harmonogramu jedynie dla części z nich. Autorzy wydzielili cztery zdarzenia, które powodują uruchomienie procedury ustalenia nowego harmonogramu:
 \begin{description}
     \item[Zdarzenie \#1: nadejście nowego zadania] -- w ten sposób system zapełnia pulę harmonogramowanych zadań aż do osiągnięcia zadanej górnej granicy liczby harmonogramowanych zadań.
-    \item[Zdarzenie \#2: awaria maszyny] -- zadanie które zostało przerwane zostaje dodane do puli zadań będących w harmonogramie i ustala się nowy harmonogram z pominięciem maszyny, która uległa awarii.
+    \item[Zdarzenie \#2: awaria maszyny] -- zadanie które zostało przerwane zostaje dodane do~puli zadań będących w harmonogramie i ustala się nowy harmonogram z pominięciem maszyny, która uległa awarii.
     \item[Zdarzenie \#3: naprawienie maszyny] -- ustala się nowy harmonogram dla zadań już uszeregowanych, ale których wykonywanie jeszcze się nie rozpoczęło - tym razem już z uwzględnieniem maszyny, która wcześniej uległa awarii.
     \item[Zdarzenie \#4] -- aktywuje się na koniec \textbf{zdarzenia \#1} oraz w momencie kiedy liczba zadań w puli tych już uszeregowanych na maszynach spada poniżej pewnej dolnej granicy. Powoduje uwolnienie z kolejki określonej liczby zadań i dodanie do zadań będących w puli już uszeregowanych zadań oraz wyznaczenie nowego harmonogramu.
 \end{description}
@@ -231,7 +231,7 @@ Odnośnie awaryjności maszyn, w pracy zakłada się, że tylko pracująca maszy
 Co zostało już zaznaczone we wcześniej wspomnianych tytułach, również autorzy pracy \cite{IPMRWJRD} zauważyli inne przyczyny potrzeby korygowania harmonogramów. Poza tymi związanymi z zasobami (awarie lub zawieszanie się maszyn, przestoje lub blokady linii produkcyjnej, opóźnienia w dostawach, itp.) istnieją również takie, które mają związek z samymi zadaniami wykonywanymi na maszynach (anulowanie lub nadejście nowych zadań, zmiany ich priorytetów, czasów obróbki, czy też potrzeba poprawek lub przeróbek). W takich sytuacjach należy znaleźć kompromis między wydajnością (koszty harmonogramowania) a~stabilnością (koszty zakłóceń). Koszty zakłóceń typowo mierzy się badając jak często oraz w jakim stopniu zmieniają się: kolejność wykonywanych zadań, czasy rozpoczęcia oraz zakończenia zadań, a także obciążenie maszyn w poprzednim oraz nowym harmonogramie. Natomiast koszty  harmonogramowania wyrażają się bardzo prosto, w całkowitym czasie wykonania harmonogramu. Artykuł skoncentrował się nie tyle na metodach wyznaczania harmonogramów (zastosowano tu prostą metodę planistyczną SPT), co na samym zagadnieniu zakłóceń wynikających z potrzeby ponownej obróbki przetwarzanych na maszynach elementów.
 %
 \section{Harmonogramowanie odporne}
-Artykuły \cite{RFJSRMB_ElMekkawy11} oraz \cite{RFJSRMB_Chen} poruszają interesujący temat alternatywnych rozwiązań w poszukiwaniu optymalnych harmonogramów. Odporne harmonogramowanie w problemach gniazdowych z uwzględnieniem losowych awarii maszyn \cite{RFJSRMB_ElMekkawy11} zostało tutaj zrealizowane z wykorzystaniem hybrydowego algorytmu genetycznego. Odporność algorytmu polega na tym, że generowane harmonogramy nie są tak ciasno upakowane, jak te które otrzymuje się szeregując zadania w podejściu statycznym. Dzięki temu awaria maszyny nie zawsze musi oznaczać opóźnienie całego harmonogramu. Widać to na Rysunkach \ref{rys_tradycyjny_jobshop} i \ref{rys_odporny_jobshop} W przypadku harmonogramowania statycznego (lewa strona na rysunkach) obydwa rozwiązania są takie same. Jednak z punktu widzenia harmonogramowania dynamicznego (prawa strona na rysunkach), np. wiemy, że są duże szanse awarii maszyny M1, rozwiązanie przedstawione na rysunku \ref{rys_odporny_jobshop} jest lepsze pod względem odporności na nieplanowane opóźnienia pierwotnego harmonogramu.
+Artykuły \cite{RFJSRMB_ElMekkawy11} oraz \cite{RFJSRMB_Chen} poruszają interesujący temat alternatywnych rozwiązań w poszukiwaniu optymalnych harmonogramów. Odporne harmonogramowanie w problemach gniazdowych z uwzględnieniem losowych awarii maszyn \cite{RFJSRMB_ElMekkawy11} zostało tutaj zrealizowane z wykorzystaniem hybrydowego algorytmu genetycznego. Odporność algorytmu polega na tym, że generowane harmonogramy nie są tak ciasno upakowane, jak te które otrzymuje się szeregując zadania w podejściu statycznym. Dzięki temu awaria maszyny nie zawsze musi oznaczać opóźnienie całego harmonogramu. Widać to na Rysunkach \ref{rys_tradycyjny_jobshop} i \ref{rys_odporny_jobshop} W przypadku harmonogramowania statycznego (lewa strona na rysunkach) obydwa rozwiązania są~takie same. Jednak z punktu widzenia harmonogramowania dynamicznego (prawa strona na rysunkach), np. wiemy, że są duże szanse awarii maszyny M1, rozwiązanie przedstawione na rysunku \ref{rys_odporny_jobshop} jest lepsze pod względem odporności na nieplanowane opóźnienia pierwotnego harmonogramu.
 \begin{figure}[!ht]
 \begin{center}
 \minipage{0.5\textwidth}
@@ -256,7 +256,7 @@ Artykuły \cite{RFJSRMB_ElMekkawy11} oraz \cite{RFJSRMB_Chen} poruszają interes
 \label{rys_odporny_jobshop}
 \end{center}
 \end{figure}
-Proponowanym podejściem jest rozwiązanie elastycznego problemu gniazdowego za pomocą hybrydowego algorytmu genetycznego opracowanego przez autorów \cite{RFJSRMB_ElMekkawy11} w ich wcześniejszym artykule \cite{AEHGAFJS_ElMekkawy11}. Korzysta się z niego dwukrotnie - za pierwszym razem do stworzenia harmonogramu, który minimalizuje czas wykonania wszystkich zadań, tak jak w klasycznym elastycznym problemie gniazdowym, a następnie uruchamiany jest ponownie, w celu zwiększenia odporności harmonogramu na późniejsze zmiany (uwzględnienie możliwości awarii maszyn). Reprezentacja genów chromosomów to trójki liczb $(k,i,j)$ oznaczające kolejno:
+Proponowanym podejściem jest rozwiązanie elastycznego problemu gniazdowego za pomocą hybrydowego algorytmu genetycznego opracowanego przez autorów \cite{RFJSRMB_ElMekkawy11} w ich wcześniejszym artykule \cite{AEHGAFJS_ElMekkawy11}. Korzysta się z niego dwukrotnie - za pierwszym razem do stworzenia harmonogramu, który minimalizuje czas wykonania wszystkich zadań, tak jak w klasycznym elastycznym problemie gniazdowym, a następnie uruchamiany jest ponownie, w celu zwiększenia odporności harmonogramu na późniejsze zmiany (uwzględnienie możliwości awarii maszyn). Reprezentacja genów chromosomów to~trójki liczb $(k,i,j)$ oznaczające kolejno:
 \begin{itemize}
     \item $k$ -- numer maszyny,
     \item $i$ -- numer zadania,
@@ -269,14 +269,14 @@ Potrzeba korygowania harmonogramów jest bardzo obszernie analizowana w literatu
 %
 %
 \chapter{Sformułowanie problemu \label{ch_problem_def}}
-Elastyczny Problem Gniazdowy (ang. \emph{Flexible Job Shop Problem}, \emph{FJSP}) jest uogólnieniem klasycznego Problemu Gniazdowego. Różnica poleta na tym, że nie uwzględnia się w nim ograniczenia dotyczącego maszyny, która ma wykonać konkretną operację w zadaniu. W konsekwencji, dla każdej z operacji w trakcie układania harmonogramu należy podjąć dodatkową decyzję o wyborze maszyny, która przetworzy daną operację. Ponieważ już klasyczny Problem Gniazdowy został zakwalifikowany do problemów silnie NP-trudnych, z uwagi na dodatkowe skomplikowanie FJSP także zakwalifikowano jako problem silnie NP-trudny \cite{Tay2004}. Sformułowanie problemu deterministycznego Elastycznego Problemu Gniazdowego podane w \cite{AEHGAFJS_ElMekkawy11} przedstawia się jak poniżej:
+Elastyczny Problem Gniazdowy (ang. \emph{Flexible Job Shop Problem}, \emph{FJSP}) jest uogólnieniem klasycznego Problemu Gniazdowego. Różnica poleta na tym, że nie uwzględnia się w~nim ograniczenia dotyczącego maszyny, która ma wykonać konkretną operację w zadaniu. W~konsekwencji, dla każdej z operacji w trakcie układania harmonogramu należy podjąć dodatkową decyzję o wyborze maszyny, która przetworzy daną operację. Ponieważ już klasyczny Problem Gniazdowy został zakwalifikowany do problemów silnie NP-trudnych, z uwagi na dodatkowe skomplikowanie FJSP także zakwalifikowano jako problem silnie NP-trudny \cite{Tay2004}. Sformułowanie problemu deterministycznego Elastycznego Problemu Gniazdowego podane w \cite{AEHGAFJS_ElMekkawy11} przedstawia się jak poniżej:
 \begin{itemize}
     \item Mamy $n$ niezależnych wzajemnie zadań $J$ indeksowanych przez $i$.
     \item Wszystkie zadania są gotowe do rozpoczęcia przetwarzania w chwili czasu 0.
     Każde zadanie $J_i$ składa się z $O_i$ operacji, których kolejność wykonania jest określona przez $O_{ij}$, gdzie $j = 1, ..., O_i$.
     \item Mamy $m$ maszyn $M$ indeksowanych przez $k$.
     \item Maszyny nigdy nie ulegają awarii i są zawsze dostępne.
-    \item Każda operacja $O_{ij}$ ma zdefiniowany zbiór maszyn $M_{kij} \subseteq {1, ..., m}$, które mogą ją przetwarzać.
+    \item Każda operacja $O_{ij}$ ma zdefiniowany zbiór maszyn $M_{kij} \subseteq {1, ..., m}$, które mogą ją~przetwarzać.
     \item Poszczególne czasy przetwarzania operacji $O_{ij}$ na maszynach $M_{kij}$ są zdefiniowane w zbiorze $P_{ij}$ o tym samym rozmiarze co $M_{kij}$ -- przetwarzanie na maszynie $k$ zdefiniowane jest przez $p_{ijk}$.
     \item Odpowiednio, jako czas rozpoczęcia uszeregowanej operacji oznacza się $S_{ij}$, a czas jej zakończenia $C_{ij}$ wyraża się przez sumę $S_{ij} + p_{ijk}$.
     \item Czasy przezbrojenia maszyn są niezależne od kolejności operacji na nich wykonywanych i wliczone są w ich czasy przetwarzania.
@@ -287,7 +287,7 @@ Elastyczny Problem Gniazdowy (ang. \emph{Flexible Job Shop Problem}, \emph{FJSP}
 Celem jest minimalizacja całkowitego czasu wykonania harmonogramu $C_{max}$, w literaturze anglojęzycznej częściej określanym jako \emph{makespan}. Jendak w rzeczywistych warunkach produkcyjnych ustalony harmonogram może zostać zakłócony, na przykład na skutek awarii maszyny. Pozycja \cite{RFJSRMB_ElMekkawy11} zakłada pewną losowość występowania awarii maszyn. Jednak ta losowość jest zdeterminowana przez założenie posiadania historycznych danych ze środowiska produkcyjnego, a samo prawdopodobieństwo wystąpienia awarii jest wprost proporcjonalne do łącznego czasu pracy maszyny (suma czasów przetwarzania zakończonych operacji). Podobny efekt można uzyskać planując momenty wystąpienia awarii -- może to być na przykład zaplanowany serwis maszyny. W pracy zdecydowano się na zastosowanie tego drugiego podejścia. Dalszy jego opis można znaleźć w rozdziale \ref{ch_algorithm}.
 %
 \chapter{Opis algorytmów \label{ch_algorithm}}
-Opracowany algorytm inspirowany jest interesującym podejściem harmonogramowania odpornego. Korzysta on z procedury wyznaczającej pierwszy harmonogram metodą wstawień dostosowaną do elastycznych problemów gniazdowych (\emph{IniPopGen}) zaproponowaną przez Al-Hinai oraz ElMekkawy w \cite{AEHGAFJS_ElMekkawy11}. Choć \emph{IniPopGen} zaprojektowano do działania z algorytmem genetycznym, to praktycznie bez problemu udało się go zaadoptować do wykorzystania z metodą Tabu Search z nawrotami (\emph{TSAB}), którą pierwszy raz opisano w \cite{Smutnicki96}. Decyzję o rezygnacji z wykorzystania algorytmu genetycznego proponowanego przez autorów \emph{IniPopGen} podjęto z uwagi na wysoką złożoność obliczeniową metody. O ile dla małych problemów, rzędu kilkudziesięciu operacji nie było to problemem, to już przy jednej z najmniejszych instancji Taillard'a (225 operacji, 15x15) jedynie inicjalizacja populacji 500 osobników zajmowała minutę. Dla porównania, algorytm \emph{TSAB} wykonuje wszystkie obliczenia dla tej samej instancji średnio w sekundę. Jego szybkość spowodowana jest mocno ograniczonym sąsiedztwem w każdej iteracji -- brane są pod uwagę tylko takie ruchy, które mają szansę na skrócenie ścieżki krytycznej harmonogramu poprzez zamianę operacji w blokach krytycznych \cite{Grabowski86}. Widać to w eksperymentach -- w ciągu kilku minut otrzymano przybliżone rozwiązania kolejno wszystkich 80 instancji opublikowanych przez Taillard'a dla problemu gniazdowego. Szczegółowe wyniki eksperymentów opisano w rozdziale \ref{ch_experiments}. Zaprojektowany algorytm pozwala rozwiązywać instancje Elastycznego Problemu Gniazdowego oraz jego szczególnych odmian, takich jak klasyczny Problem Gniazdowy, czy Problem Przepływowy.
+Opracowany algorytm inspirowany jest interesującym podejściem harmonogramowania odpornego. Korzysta on z procedury wyznaczającej pierwszy harmonogram metodą wstawień dostosowaną do elastycznych problemów gniazdowych (\emph{IniPopGen}) zaproponowaną przez Al-Hinai oraz ElMekkawy w \cite{AEHGAFJS_ElMekkawy11}. Choć \emph{IniPopGen} zaprojektowano do działania z~algorytmem genetycznym, to praktycznie bez problemu udało się go zaadoptować do~wykorzystania z metodą Tabu Search z nawrotami (\emph{TSAB}), którą pierwszy raz opisano w~\cite{Smutnicki96}. Decyzję o rezygnacji z wykorzystania algorytmu genetycznego proponowanego przez autorów \emph{IniPopGen} podjęto z uwagi na wysoką złożoność obliczeniową metody. O ile dla małych problemów, rzędu kilkudziesięciu operacji nie było to problemem, to już przy jednej z najmniejszych instancji Taillard'a (225 operacji, 15x15) jedynie inicjalizacja populacji 500 osobników zajmowała minutę. Dla porównania, algorytm \emph{TSAB} wykonuje wszystkie obliczenia dla tej samej instancji średnio w sekundę. Jego szybkość spowodowana jest mocno ograniczonym sąsiedztwem w każdej iteracji -- brane są pod uwagę tylko takie ruchy, które mają szansę na skrócenie ścieżki krytycznej harmonogramu poprzez zamianę operacji w blokach krytycznych \cite{Grabowski86}. Widać to w eksperymentach -- w ciągu kilku minut otrzymano przybliżone rozwiązania kolejno wszystkich 80 instancji opublikowanych przez Taillard'a dla problemu gniazdowego. Szczegółowe wyniki eksperymentów opisano w rozdziale \ref{ch_experiments}. Zaprojektowany algorytm pozwala rozwiązywać instancje Elastycznego Problemu Gniazdowego oraz jego szczególnych odmian, takich jak klasyczny Problem Gniazdowy, czy Problem Przepływowy.
 %
 \section{Model danych}
 Podstawowym elementem harmonogramu jest operacja. W tabeli \ref{table_operation} zestawiono jej cechy charakterystyczne.
@@ -385,7 +385,7 @@ Podstawowym elementem na którym bazuje algorytm \emph{TSAB} jest ścieżka kryt
     }
     \caption{IniPopGen. Źródło: \cite{AEHGAFJS_ElMekkawy11}.}
 \end{algorithm}
-\ \\W algorytmie Tabu Search, aby był on jak najbardziej wydajny, najważniejsze jest obserwowane otoczenie (sąsiedztwo) bieżącego w danej iteracji rozwiązania oraz wybór najlepszego ruchu, który należy wykonać, aby przetransformować aktualne rozwiązanie do tego wybranego. Za ten obszar w algorytmie \emph{TSAB} odpowiedzialny jest jest zmodyfikowany algorytm \emph{NSP} \cite{Smutnicki96}. Bazuje on na blokach krytycznych składających się z więcej niż jednej operacji. Do wygenerowania otoczenia wykonuje tylko takie ruchy, które polegają na zamianie kolejnością dwóch pierwszych lub dwóch ostatnich operacji w danym bloku. Pomija się jedynie sąsiadów, którzy mogliby zostać wygenerowani przez zamianę dwóch pierwszych operacji w pierwszym bloku ścieżki krytycznej oraz dwóch ostatnich w ostatnim bloku krytycznym. Modyfikacja algorytmu polega na tym, że sprawdza się dopuszczalność wykonania danego ruchu, tzn. czy wykonanie ruchu nie naruszy ograniczeń kolejnościowych w jakimkolwiek zdaniu w harmonogramie. Pierwotnie, algorytm \emph{NSP} nie potrzebował takiego sprawdzenia, ponieważ nie był stosowany do Elastycznych Problemów Gniazdowych.
+\ \\W algorytmie Tabu Search, aby był on jak najbardziej wydajny, najważniejsze jest obserwowane otoczenie (sąsiedztwo) bieżącego w danej iteracji rozwiązania oraz wybór najlepszego ruchu, który należy wykonać, aby przetransformować aktualne rozwiązanie do~tego wybranego. Za ten obszar w algorytmie \emph{TSAB} odpowiedzialny jest jest zmodyfikowany algorytm \emph{NSP} \cite{Smutnicki96}. Bazuje on na blokach krytycznych składających się z więcej niż jednej operacji. Do wygenerowania otoczenia wykonuje tylko takie ruchy, które polegają na zamianie kolejnością dwóch pierwszych lub dwóch ostatnich operacji w danym bloku. Pomija się jedynie sąsiadów, którzy mogliby zostać wygenerowani przez zamianę dwóch pierwszych operacji w pierwszym bloku ścieżki krytycznej oraz dwóch ostatnich w~ostatnim bloku krytycznym. Modyfikacja algorytmu polega na tym, że sprawdza się dopuszczalność wykonania danego ruchu, tzn. czy wykonanie ruchu nie naruszy ograniczeń kolejnościowych w jakimkolwiek zdaniu w harmonogramie. Pierwotnie, algorytm \emph{NSP} nie potrzebował takiego sprawdzenia, ponieważ nie był stosowany do Elastycznych Problemów Gniazdowych.
 \begin{algorithm}[!ht]
     \SetKwInput{KwIn}{Przyjmuje}%
     \SetKwInput{KwOut}{Zwraca}%
@@ -513,10 +513,10 @@ Podstawowym elementem na którym bazuje algorytm \emph{TSAB} jest ścieżka kryt
 Wybrany model zaplanowanych awarii wymaga jedynie, aby uzupełnić strukturę diagramu Gantta o pojedynczą \emph{operację}, która opisuje czas rozpoczęcia \textbf{S}, czas trwania \textbf{P(M)} oraz czas zakończenia \textbf{C} awarii na określonej maszynie \textbf{M}. W ten sposób, dodając taką operację \emph{na sztywno} do listy sąsiedztwa $LS_M$ wszystkie poprzednio zadeklarowane algorytmy mogą działać bez zmian.
 %
 \chapter{Eksperymenty obliczeniowe \label{ch_experiments}}
-Zaimplementowany algorytm przetestowano na wszystkich 80 instancjach Taillarda do klasycznego Problemu Gniazdowego, oraz na jednej z instancji Elastycznego Problemu Gniazdowego przedstawionego w \cite{Kacem2002a}.
+Zaimplementowany algorytm przetestowano na wszystkich 80 instancjach Taillarda do~klasycznego Problemu Gniazdowego, oraz na jednej z instancji Elastycznego Problemu Gniazdowego przedstawionego w \cite{Kacem2002a}.
 
 \section{Wizualizacja wyników}
-W celu automatyzacji graficznej prezentacji otrzymanych w wynikach harmonogramów napisano prostą bibliotekę pozwalającą na budowanie stron HTML. Składa się ona z czterech klas:
+W celu automatyzacji graficznej prezentacji otrzymanych w wynikach harmonogramów napisano małą bibliotekę udostępniającą API do budowania stron HTML z poziomu języka C++. Składa się ona z~czterech klas:
 \begin{description}
     \item [ContentHTML] interfejs po którym dziedziczą wszystkie klasy opisane dalej.
     \item [TextContentHTML] implementuje \texttt{ContentHTML}. Klasa opisująca element HTML będący zwykłym tekstem.
@@ -542,18 +542,136 @@ Przyjęto:
 \end{figure}
 %
 \section{Statystyki}
-Dla wszystkich instancji aplikację uruchomiono 5 razy. Uzyskane wyniki zestawiono w tabeli \ref{tab_res_one}.
+Uzyskane wyniki zestawiono w tabeli \ref{tab_res_one}. Oznaczenia, jakie przyjęto:
+\begin{itemize}
+	\item $\mathbf{iID}$ -- unikalny identyfikator badanej instancji.
+	\item $\mathbf{totNOper}$ -- jak poprzenio, całkowita liczba operacji w harmonogramie
+	\item $\mathbf{t_{AVG}}$ -- średni czas obliczeń algorytmu (w sekundach).
+	\item $\mathbf{\underline{C_{max}}}$ -- najmniejszy uzyskany $C_{max}$.
+	\item $\mathbf{\overline{C_{max}}}$ -- największy uzyskany $C_{max}$.
+	\item $\mathbf{F_{onCP}}$ -- jak często awaria miała wpływ na wydłużenie harmonogramu/znajdowała się na ścieżce krytycznej (wartość znormalizowana)
+\end{itemize}
 \begin{table}[ht]
 \renewcommand{\arraystretch}{1.2}
-\begin{tabularx}{\textwidth}{|c|X|c|c|}
+\begin{tabularx}{\textwidth}{|X|c|c|c|c|c|c|c|c|c|c|}
 \hline
-\textbf{Nr instancji} & \textbf{Średni czas obliczeń [s]} & \textbf{$C_{max}$ -- MIN} & \textbf{$C_{max}$ -- MAX}\\
+$\mathbf{iID}$ & Ta00 & Ta01 & Ta02 & Ta03 & Ta04 & Ta05 & Ta06 & Ta07 & Ta08 & Ta09\\
 \hline
-0 & 1,08 & 1412 & 1433\\      
+$\mathbf{totNOper}$ & 225 & 225 & 225 & 225 & 225 & 225 & 225 & 225 & 225 & 225\\
+\hline
+$\mathbf{t_{AVG}}$ & 1,08 &  &  &  &  &  &  &  &  & \\
+\hline
+$\mathbf{\underline{C_{max}}}$ & 1412 &  &  &  &  &  &  &  &  & \\
+\hline
+$\mathbf{\overline{C_{max}}}$ & 1433 &  &  &  &  &  &  &  &  & \\
+\hline
+$\mathbf{F_{onCP}}$ & 0,2 &  &  &  &  &  &  &  &  & \\
+\hline
+\hline
+$\mathbf{iID}$ & Ta10 & Ta11 & Ta12 & Ta13 & Ta14 & Ta15 & Ta16 & Ta17 & Ta18 & Ta19\\
+\hline
+$\mathbf{totNOper}$ & 300 & 300 & 300 & 300 & 300 & 300 & 300 & 300 & 300 & 300\\
+\hline
+$\mathbf{t_{AVG}}$ & 1,08 &  &  &  &  &  &  &  &  & \\
+\hline
+$\mathbf{\underline{C_{max}}}$ & 1412 &  &  &  &  &  &  &  &  & \\
+\hline
+$\mathbf{\overline{C_{max}}}$ & 1433 &  &  &  &  &  &  &  &  & \\
+\hline
+$\mathbf{F_{onCP}}$ & 0,2 &  &  &  &  &  &  &  &  & \\
+\hline
+\hline
+$\mathbf{iID}$ & Ta20 & Ta21 & Ta22 & Ta23 & Ta24 & Ta25 & Ta26 & Ta27 & Ta28 & Ta29\\
+\hline
+$\mathbf{totNOper}$ & 400 & 400 & 400 & 400 & 400 & 400 & 400 & 400 & 400 & 400\\
+\hline
+$\mathbf{t_{AVG}}$ & 1,08 &  &  &  &  &  &  &  &  & \\
+\hline
+$\mathbf{\underline{C_{max}}}$ & 1412 &  &  &  &  &  &  &  &  & \\
+\hline
+$\mathbf{\overline{C_{max}}}$ & 1433 &  &  &  &  &  &  &  &  & \\
+\hline
+$\mathbf{F_{onCP}}$ & 0,2 &  &  &  &  &  &  &  &  & \\
+\hline
+\hline
+$\mathbf{iID}$ & Ta30 & Ta31 & Ta32 & Ta33 & Ta34 & Ta35 & Ta36 & Ta37 & Ta38 & Ta39\\
+\hline
+$\mathbf{totNOper}$ & 450 & 450 & 450 & 450 & 450 & 450 & 450 & 450 & 450 & 450\\
+\hline
+$\mathbf{t_{AVG}}$ & 1,08 &  &  &  &  &  &  &  &  & \\
+\hline
+$\mathbf{\underline{C_{max}}}$ & 1412 &  &  &  &  &  &  &  &  & \\
+\hline
+$\mathbf{\overline{C_{max}}}$ & 1433 &  &  &  &  &  &  &  &  & \\
+\hline
+$\mathbf{F_{onCP}}$ & 0,2 &  &  &  &  &  &  &  &  & \\
 \hline
 \end{tabularx}
-\caption{Statystyki po 5 uruchomieniach aplikacji. W każdym przypadku awaria nastąpiła w chwili czasu 50 na maszynie nr 6. i trwała 100 jednostek czasu.}
+\caption{Część 1. Statystyki po 5 uruchomieniach aplikacji. W każdym przypadku awaria nastąpiła w chwili czasu 50 na maszynie nr 6. i trwała 100 jednostek czasu.}
 \label{tab_res_one}
+\renewcommand{\arraystretch}{1.0}
+\end{table}
+\begin{table}[ht]
+\renewcommand{\arraystretch}{1.2}
+\begin{tabularx}{\textwidth}{|X|c|c|c|c|c|c|c|c|c|c|}
+\hline
+$\mathbf{iID}$ & Ta40 & Ta41 & Ta42 & Ta43 & Ta44 & Ta45 & Ta46 & Ta47 & Ta48 & Ta49\\
+\hline
+$\mathbf{t_{AVG}}$ & 1,08 &  &  &  &  &  &  &  &  & \\
+\hline
+$\mathbf{\underline{C_{max}}}$ & 1412 &  &  &  &  &  &  &  &  & \\
+\hline
+$\mathbf{\overline{C_{max}}}$ & 1433 &  &  &  &  &  &  &  &  & \\
+\hline
+$\mathbf{F_{onCP}}$ & 0,2 &  &  &  &  &  &  &  &  & \\
+\hline
+\hline
+$\mathbf{iID}$ & Ta50 & Ta51 & Ta52 & Ta53 & Ta54 & Ta55 & Ta56 & Ta57 & Ta58 & Ta59\\
+\hline
+$\mathbf{t_{AVG}}$ & 1,08 &  &  &  &  &  &  &  &  & \\
+\hline
+$\mathbf{\underline{C_{max}}}$ & 1412 &  &  &  &  &  &  &  &  & \\
+\hline
+$\mathbf{\overline{C_{max}}}$ & 1433 &  &  &  &  &  &  &  &  & \\
+\hline
+$\mathbf{F_{onCP}}$ & 0,2 &  &  &  &  &  &  &  &  & \\
+\hline
+\hline
+$\mathbf{iID}$ & Ta60 & Ta61 & Ta62 & Ta63 & Ta64 & Ta65 & Ta66 & Ta67 & Ta68 & Ta69\\
+\hline
+$\mathbf{t_{AVG}}$ & 1,08 &  &  &  &  &  &  &  &  & \\
+\hline
+$\mathbf{\underline{C_{max}}}$ & 1412 &  &  &  &  &  &  &  &  & \\
+\hline
+$\mathbf{\overline{C_{max}}}$ & 1433 &  &  &  &  &  &  &  &  & \\
+\hline
+$\mathbf{F_{onCP}}$ & 0,2 &  &  &  &  &  &  &  &  & \\
+\hline
+\hline
+$\mathbf{iID}$ & Ta70 & Ta71 & Ta72 & Ta73 & Ta74 & Ta75 & Ta76 & Ta77 & Ta78 & Ta79\\
+\hline
+$\mathbf{t_{AVG}}$ & 1,08 &  &  &  &  &  &  &  &  & \\
+\hline
+$\mathbf{\underline{C_{max}}}$ & 1412 &  &  &  &  &  &  &  &  & \\
+\hline
+$\mathbf{\overline{C_{max}}}$ & 1433 &  &  &  &  &  &  &  &  & \\
+\hline
+$\mathbf{F_{onCP}}$ & 0,2 &  &  &  &  &  &  &  &  & \\
+\hline
+\hline
+$\mathbf{iID}$ & Ka00\\
+\hline
+$\mathbf{t_{AVG}}$ & 0,09\\
+\hline
+$\mathbf{\underline{C_{max}}}$ & 15\\
+\hline
+$\mathbf{\overline{C_{max}}}$ & 22\\
+\hline
+$\mathbf{F_{onCP}}$ & 0,6\\
+\hline
+\end{tabularx}
+\caption{Część 2. Statystyki po 5 uruchomieniach aplikacji. W przypadku pozostałych instancji Taillard'a przypadku awaria nastąpiła w chwili czasu 50, tak jak poprzednio na maszynie nr 6. i trwała 100 jednostek czasu. Dla ostatniej instancji również wystąpiła na maszynie nr 6., ale nastąpiła w chwili czasu 5 i trwała 10 jednostek czasu.}
+\label{tab_res_two}
 \renewcommand{\arraystretch}{1.0}
 \end{table}
 %
