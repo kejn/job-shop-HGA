@@ -89,7 +89,7 @@
 \title{Korygowanie harmonogramów\\ z uwzględnieniem awarii maszyn}
 \engtitle{Re-scheduling with regard to machine failure}
 \author{inż. Kamil Niemczyk}
-\supervisor{dr hab. Wojciech Bożejko Prof. PWr, W4/K-8}
+\supervisor{dr hab. Wojciech Bożejko prof. nadzw. PWr}
 %\guardian{dr hab. inż. Imię Nazwisko Prof. PWr, I-6} %nie używać jeśli opiekun jest tą samą osobą co prowadzący pracę
 
 \date{2016} %standardowo u dołu strony tytułowej umieszczany jest bieżący rok, to polecenie pozwala wstawić dowolny rok
@@ -115,26 +115,32 @@
 % TU ZACZYNA SIĘ WŁAŚCIWA TREŚĆ PRACY
 %
 %
-% \addcontentsline{toc}{chapter}{Wstęp}
-% \chapter*{Wstęp}
-% %\addcontentsline{toc}{section}{Streszczenie}
-% %\section*{Streszczenie}
-% %
-% %
-% %
-% \newpage
-% \addcontentsline{toc}{chapter}{Cel i zakres projektu}
-% \chapter*{Cel i zakres projektu}
-% %
-% %
-% %
-% \newpage
-% \addcontentsline{toc}{chapter}{Zakres pracy}
-% \chapter*{Zakres pracy}
+\addcontentsline{toc}{chapter}{Wstęp}
+\chapter*{Wstęp}
+Problemy harmonogramowania, zdefiniowane pod koniec lat 70. XX wieku \cite{Garey76}, takie jak problem przepływowy, gniazdowy czy otwarty, klasyfikuje się jako NP trudne. Do ich rozwiązywania najczęściej stosuje się metaheurystyki takie jak Tabu Search, Symulowane Wyżarzanie, czy Algorytm Genetyczny.\\\\
+W warunkach rzeczywistych, istnieje wiele rodzajów zakłóceń, których nie uwzględniają klasyczne problemy harmonogramowania. Powoduje to, że często nie wystarcza jednorazowe wyznaczenie harmonogramu dla określonego zestawu zadań, ponieważ w trakcie jego wykonywania warunki produkcji mogą ulec zmianie. Literatura opisuje różnego rodzaju zakłócenia: awarie/serwisowanie maszyn, niedokładna praca maszyn (ponowna obróbka elementu lub wykonanie zadania jeszcze raz), nadejście nowych zadań, anulowanie zadań, zmienny czas przetwarzania zadań, zmienny czas finalizacji zadań, a także ograniczony bufor transportu między stacjami roboczymi.\\\\
+Okazuje się, że takie problemy można również rozwiązywać za pomocą wcześniej wspomnianych metaheurystyk odpowiednio przystosowując funkcję celu lub rozszerzając model danych o dodatkowe parametry. W pracy wzorowano się na podejściu harmonogramowania odpornego \cite{RFJSRMB_ElMekkawy11}, które oprócz minimalizacji całkowitego czasu wykonania harmonogramu $C_{max}$ (ang. \emph{makespan}) pozwala także zminimalizować jego podatność na opóźnienia wynikające z zakłóceń, takich jak awarie maszyn.  W przeciwieństwie do autorów \cite{RFJSRMB_ElMekkawy11} nie skorzystano z Algorytmu Genetycznego, a z \emph{TSAB} \cite{Smutnicki96} -- bardzo efektywnej odmiany Tabu Search odpowiednio przystosowując ją, aby uwzględniała możliwość awarii maszyn.\\\\
+Uzyskane wyniki pozwoliły uzyskać dobre rezultaty niewielkim nakładem czasowym -- pojedencza instancja problemu obliczana jest średnio kilka sekund na współczesnym komputerze klasy PC. Nie oznacza to jednak końca badań w tej dziedzinie. Potencjał algorytmu \emph{TSAB} jest bardzo duży, dlatego kolejne wariacje zaproponowanego algorytmu pozwoliłyby w przyszłości na uzyskanie rozwiązań bliższych optimum w kontekście Elastycznych Problemów Gniazdowych.
 %
+\addcontentsline{toc}{chapter}{Cele i zakres pracy}
+\chapter*{Cele i zakres pracy}
+\section*{Cele pracy}
+W pracy założono realizację celów wymienionych poniżej.
+\begin{enumerate}
+	\item Zbadanie dotychczasowych rozwiązań problemu korygowania harmonogramów w literaturze.
+	\item Wybór oraz sformułowanie problemu harmonogramowania, który będzie analizowany w kontekście tematu pracy.
+	\item Zaproponowanie algorytmu do rozwiązywania wybranego problemu harmonogramowania z uwzględnieniem awarii maszyn oraz jego opis tego rozwiązania.
+	\item Stworzenie narzędzia służącego do wizualizacji wyników eksperymentalnych.
+	\item Analiza wyników eksperymentalnych.
+\end{enumerate}
+\section*{Zakres pracy}
+W rozdziale \ref{ch_lit_rev}. przeanalizowano dotychczasowe osiągnięcia w tematyce korygowania harmonogramów. Wydzielono w nim sekcje, które opisują różne podejścia w kontekście różnych zakłóceń, wymuszających potrzebę korygowania harmonogramów.\\\\
+Rozdział \ref{ch_problem_def}. przedstawia sformułowanie wybranego problemu, który jest analizowany w dalszej części pracy - Elastycznego Problemu Gniazdowego. Opisano w nim kryteria oraz ograniczenia, które wynikają ze specyfiki problemu.\\\\
+Wybrane rozwiązania, czyli algorytmy, które zastosowano w badaniach opisano w rozdziale \ref{ch_algorithm}. Można tam znaleźć opis modelu danych, na którym operowano, strategii wyznaczania rozwiązania początkowego i w końcu głównego algorytmu oraz modyfikacji, które należy w nim wykonać, aby dostosować go do uwzględnienia awarii maszyn.\\\\
+Ostatni, rozdział \ref{ch_experiments}. zawiera wyniki eksperymentów, które przeprowadzono z wykorzystaniem zaimplementowanych algorytmów.\\\\
+Dodatek \ref{ch_code_snippets}. zawiera kod źródłowy stworzonej biblioteki, z której korzystano do generowania wykresów Gantt'a otrzymanych w rozdziale \ref{ch_experiments}. rozwiązań.
 %
-%
-\chapter{Przegląd literatury}
+\chapter{Korygowanie harmonogramów z~uwzględnieniem zakłóceń \label{ch_lit_rev}}
 Pierwsze próby rozwiązania problemu harmonogramowania zadań w procesach produkcyjnych sięgają końca lat 70 XX wieku \cite{Garey76}. Tak wcześnie jak zaczęto problemem się zajmować, wkrótce zakwalifikowano go jako problem NP trudny \cite{Garey76, Nawaz83}. Trzy ogólne problemy, które wydzielono w tym zagadnieniu, to:
 \begin{itemize}
     \item problem przepływowy (flow shop),
@@ -150,7 +156,7 @@ W \cite{DTLBO} autorzy proponują optymalizację dyskretną opartą na uczeniu z
     \item nadejście nowego zadania,
     \item anulowanie zadań,
     \item zmienny czas przetwarzania zadań,
-    \item zmienny czas \emph{stygnięcia} zadania.
+    \item zmienny czas finalizacji zadania (np. stygnięcie rozgrzanego elementu).
 \end{itemize}
 Odnośnie awarii maszyn, zakłada się tutaj, że nie wiemy kiedy występują, ani jak długo trwają. Ponadto, zadanie przerwane przez taką awarię, po jej usunięciu jest kontynuowane od momentu jego przerwania. W zależności od tego czy dana operacja została zakończona przed wystąpieniem awarii, przerwana przez awarię lub miała się dopiero wykonać, zostaje przypisana do odpowiedniej grupy. Wszystkie przerwane zadania pozostają na swoich maszynach, a  kolejne zadania są przesuwane w czasie, w zależności od oszacowania czasu naprawy usterki. W przypadku nadejścia nowego zadania stosuje się reaktywne procedury, które odpowiednio plasują je w harmonogramie. Poza sytuacjami wystąpienia zakłóceń nie jest dopuszczalne przerywanie zadań, a kolejne operacje danego zadania nie mogą się na siebie nakładać. Poza fazami nauczania i uczenia, charakterystycznymi dla TLBO wykorzystano tutaj również iteracyjny algorytm zachłanny (IG) w celu przyspieszenia procesu ewolucji. Celem porównania wybranej przez autorów metody w zależności od jej parametryzacji, skonstruowano sześć wariantów TLBO, spośród których wyłoniono najlepszy i wykorzystano do konstrukcji kolejnych czterech wariantów DTLBO. Ponownie w testach wybrano najwydajniejszy wariant i ostatecznie porównano go z algorytmami:
 \begin{itemize}
@@ -262,7 +268,7 @@ Potrzeba korygowania harmonogramów jest bardzo obszernie analizowana w literatu
 %
 %
 %
-\chapter{Sformułowanie problemu}
+\chapter{Sformułowanie problemu \label{ch_problem_def}}
 Elastyczny Problem Gniazdowy (ang. \emph{Flexible Job Shop Problem}, \emph{FJSP}) jest uogólnieniem klasycznego Problemu Gniazdowego. Różnica poleta na tym, że nie uwzględnia się w nim ograniczenia dotyczącego maszyny, która ma wykonać konkretną operację w zadaniu. W konsekwencji, dla każdej z operacji w trakcie układania harmonogramu należy podjąć dodatkową decyzję o wyborze maszyny, która przetworzy daną operację. Ponieważ już klasyczny Problem Gniazdowy został zakwalifikowany do problemów silnie NP-trudnych, z uwagi na dodatkowe skomplikowanie FJSP także zakwalifikowano jako problem silnie NP-trudny \cite{Tay2004}. Sformułowanie problemu deterministycznego Elastycznego Problemu Gniazdowego podane w \cite{AEHGAFJS_ElMekkawy11} przedstawia się jak poniżej:
 \begin{itemize}
     \item Mamy $n$ niezależnych wzajemnie zadań $J$ indeksowanych przez $i$.
@@ -556,36 +562,36 @@ Dla wszystkich instancji aplikację uruchomiono 5 razy. Uzyskane wyniki zestawio
 \chapter*{Wnioski i uwagi}
 Wszystkie postawione cele projektu zostały zrealizowane. W przyszłości można by rozszerzyć możliwe do wykonania ruchy (algorytm NSP) o zamianę operacji między maszynami, aby uzyskać jeszcze krótsze harmonogramy przy zachowaniu ich odporności na zmiany wynikające z awarii.\\\\
 Wszystkie pliki źródłowe można znaleźć w repozytorium \url{https://github.com/kejn/job-shop-HGA/tree/tabuSearch/jobshop_HGA}.
-% DODATKI DO PRACY
-\begin{appendices}
-\chapter{Biblioteka do generowania HTML dla C++ \label{ch_code_snippets}}
-%
-\section{Interfejs \texttt{ContentHTML}}
-\lstinputlisting[language=C++]{html_lib/ContentHTML.h}
-%
-\section{Klasa \texttt{TextContentHTML.h}}
-\lstinputlisting[language=C++]{html_lib/TextContentHTML.h}
-\lstinputlisting[language=C++]{html_lib/TextContentHTML.cpp}
-%
-\section{Klasa \texttt{TagContentHTML}}
-\lstinputlisting[language=C++]{html_lib/TagContentHTML.h}
-\lstinputlisting[language=C++]{html_lib/TagContentHTML.cpp}
-%
-\section{Klasa \texttt{PageHTML}}
-\lstinputlisting[language=C++]{html_lib/PageHTML.h}
-\lstinputlisting[language=C++]{html_lib/PageHTML.cpp}
-%
-\section{Style CSS}
-\lstinputlisting{html_lib/gantt_styles.css}
-\section{JavaScript}
-\lstinputlisting{html_lib/hover_functions.js}
-\end{appendices}
 % BIBLIOGRAFIA
 \newpage
 %\clearpage        % ALBO
 \clearpage % JEŻELI WYPADNIE NA STRONIE PARZYSTEJ
 \addcontentsline{toc}{chapter}{Bibliografia} %utworzenie w spisie treści pozycji Bibliografia
 \bibliography{bibliografia} % wstawia bibliografię korzystając z pliku bibliografia.bib - dotyczy BibTeXa, jeżeli nie korzystamy z BibTeXa należy użyć otoczenia thebibliography
+% DODATKI DO PRACY
+\begin{appendices}
+\chapter{Biblioteka do generowania HTML dla C++ \label{ch_code_snippets}}
+%
+\section{Interfejs \texttt{ContentHTML}}
+\lstinputlisting[language=C++]{../inc/html/ContentHTML.h}
+%
+\section{Klasa \texttt{TextContentHTML.h}}
+\lstinputlisting[language=C++]{../inc/html/TextContentHTML.h}
+\lstinputlisting[language=C++]{../src/html/TextContentHTML.cpp}
+%
+\section{Klasa \texttt{TagContentHTML}}
+\lstinputlisting[language=C++]{../inc/html/TagContentHTML.h}
+\lstinputlisting[language=C++]{../src/html/TagContentHTML.cpp}
+%
+\section{Klasa \texttt{PageHTML}}
+\lstinputlisting[language=C++]{../inc/html/PageHTML.h}
+\lstinputlisting[language=C++]{../src/html/PageHTML.cpp}
+%
+\section{Style CSS}
+\lstinputlisting{../res/css/gantt_styles.css}
+\section{JavaScript}
+\lstinputlisting{../res/js/hover_functions.js}
+\end{appendices}
 \clearpage
 %opcjonalnie może się tu pojawić spis rysunków i tabel
 \addcontentsline{toc}{chapter}{Spis rysunków} %utworzenie w spisie treści pozycji
