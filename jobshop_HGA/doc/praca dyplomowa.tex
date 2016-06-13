@@ -521,7 +521,7 @@ W celu automatyzacji graficznej prezentacji otrzymanych w wynikach harmonogramó
     \item [ContentHTML] interfejs po którym dziedziczą wszystkie klasy opisane dalej.
     \item [TextContentHTML] implementuje \texttt{ContentHTML}. Klasa opisująca element HTML będący zwykłym tekstem.
     \item [TagContentHTML] implementuje \texttt{ContentHTML}. Klasa opisująca tag HTML. Posiada on swoją nazwę, mapę parametrów oraz listę  elementów potomnych typu \texttt{ContentHTML}.
-    \item [PageHTML] implementuje \texttt{ContentHTML}. Klasa opisująca stronę HTML. Składa się z tagów HTML \texttt{HEAD} oraz \texttt{BODY}.
+    \item [PageHTML] implementuje \texttt{ContentHTML}. Klasa opisująca stronę HTML. Składa się z~tagów HTML \texttt{HEAD} oraz \texttt{BODY}.
 \end{description}
 Ich pliki źródłowe dołączono do dodatku \ref{ch_code_snippets}. Podczas projektowania tej biblioteki wykorzystano wzorce projektowe Kompozyt oraz Builder \cite{GangOfFour}. Pozwoliło to na znaczące uproszczenie struktury klas i lepszy podział ich odpowiedzialności. Co najważniejsze, niezależnie od poziomu zagłębienia w kodzie HTML, na każdym jego elemencie można wywołać metodę \texttt{toString()}, która zwróci wygenerowany kod HTML danego elementu i wszystkich jego elementów potomnych. Dzięki temu, po poprawnym zbudowaniu struktury strony HTML, aby otrzymać jej kod źródłowy wystarczy wywołać metodę \texttt{toString()} na głównym obiekcie agregującym typu \texttt{PageHTML}.
 %
@@ -535,7 +535,7 @@ Ich pliki źródłowe dołączono do dodatku \ref{ch_code_snippets}. Podczas pro
 %
 \section{Parametryzacja i środowisko testowe}
 Testy zostały przeprowadzone na laptopie z procesorem Intel Core i5 1.9GHz, 4GB pamięci RAM, na systemie Windows 10. Aplikacja realizująca opisane algorytmy została napisana w C++.\\\\
-Kod wytworzony przez bibliotekę generującą HTML przetestowano na przeglądarce Google Chrome.\\\\
+Kod wytworzony przez bibliotekę generującą HTML przetestowano na przeglądarce internetowej Google Chrome.\\\\
 W algorytmie \emph{TSAB} przyjęto:
 \begin{itemize}
  	\item długość listy tabu: 7,
