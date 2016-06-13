@@ -236,9 +236,11 @@ void Gantt::printMachinesHTML(string fileName) {
 					delete tdOperation;
 					tdOperation = TagContentHTML::forTDOperation(breakdown,
 							"red", HTML_SCALE, (foundInPath != path.end()));
+					cout << "breakdown on path" << endl;
 				} else if (bEnd == sCurr) {
 					tdPrevOp = TagContentHTML::forTDOperation(breakdown, "red",
 							HTML_SCALE, (foundInPath != path.end()));
+					cout << "breakdown on path" << endl;
 				}
 			}
 			tr->addChild(tdPrevOp);

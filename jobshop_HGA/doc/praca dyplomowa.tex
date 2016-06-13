@@ -323,7 +323,7 @@ W pierwszej kolejności z pliku wczytywana jest pojedyncza instancja problemu i 
 Podstawowym elementem na którym bazuje algorytm \emph{TSAB} jest ścieżka krytyczna. Jest to taki ciąg operacji, że opóźnienie którejkolwiek z nich spowodowałoby opóźnienie całego harmonogramu. Harmonogramy w Problemach Gniazdowych mogą mieć więcej niż jedną ścieżkę krytyczną. Każda ścieżka krytyczna dzieli się na bloki \cite{Grabowski86} -- ciągi operacji wykonywanych bez odstępów czasowych na określonej maszynie.
 \begin{figure}[!ht]
 \begin{center}
-\includegraphics[scale=1.0]{rysunki/criticalPath.png}
+\includegraphics[scale=1.0]{rysunki/criticalPath2.png}
 \caption[Przykładowy harmonogram wraz z wyróżnioną ścieżką krytyczną]{Przykładowy harmonogram wraz z wyróżnioną ścieżką krytyczną zawierającą dwa bloki krytyczne, każdy składający się z trzech operacji, na maszynach 1 i 4.}
 \label{rys_critical_path_example}
 \end{center}
@@ -525,141 +525,215 @@ W celu automatyzacji graficznej prezentacji otrzymanych w wynikach harmonogramó
 \end{description}
 Ich pliki źródłowe dołączono do dodatku \ref{ch_code_snippets}. Podczas projektowania tej biblioteki wykorzystano wzorce projektowe Kompozyt oraz Builder \cite{GangOfFour}. Pozwoliło to na znaczące uproszczenie struktury klas i lepszy podział ich odpowiedzialności. Co najważniejsze, niezależnie od poziomu zagłębienia w kodzie HTML, na każdym jego elemencie można wywołać metodę \texttt{toString()}, która zwróci wygenerowany kod HTML danego elementu i wszystkich jego elementów potomnych. Dzięki temu, po poprawnym zbudowaniu struktury strony HTML, aby otrzymać jej kod źródłowy wystarczy wywołać metodę \texttt{toString()} na głównym obiekcie agregującym typu \texttt{PageHTML}.
 %
-\section{Parametryzacja}
-Przyjęto:
+\begin{figure}[!ht]
+\begin{center}
+\includegraphics[scale=0.52]{rysunki/scheduleTail00.png}
+\caption{Wygenerowany za pomocą napisanej biblioteki diagram Gantta.}{Czarno-czerwonym gradientem zaznaczono moment awarii maszyny 6.}
+\label{rys_Gantt_HTML}
+\end{center}
+\end{figure}
+%
+\section{Parametryzacja i środowisko testowe}
+Testy zostały przeprowadzone na laptopie z procesorem Intel Core i5 1.9GHz, 4GB pamięci RAM, na systemie Windows 10. Aplikacja realizująca opisane algorytmy została napisana w C++.\\\\
+Kod wytworzony przez bibliotekę generującą HTML przetestowano na przeglądarce Google Chrome.\\\\
+W algorytmie \emph{TSAB} przyjęto:
 \begin{itemize}
  	\item długość listy tabu: 7,
  	\item długość listy najlepszych rozwiązań: 5,
  	\item $maxIter = 10$.
 \end{itemize}
 %
-\begin{figure}[t!]
-\begin{center}
-\includegraphics[scale=0.58]{rysunki/scheduleTail00.png}
-\caption{Wygenerowany za pomocą napisanej biblioteki diagram Gantta.}{Czarno-czerwonym gradientem zaznaczono moment awarii maszyny 6.}
-\label{rys_Gantt_HTML}
-\end{center}
-\end{figure}
-%
 \section{Statystyki}
-Uzyskane wyniki zestawiono w tabeli \ref{tab_res_one}. Oznaczenia, jakie przyjęto:
+Uzyskane wyniki zestawiono w tabelach \ref{tab_res_one}, \ref{tab_res_two}, \ref{tab_res_three} oraz zaprezentowano na wykresach przedstawionych na rysunkach \ref{rys_wykres_czas_iID}, \ref{rys_wykres_czas_FonCP}, \ref{rys_wykres_cmax_iID}. Oznaczenia, jakie przyjęto:
 \begin{itemize}
 	\item $\mathbf{iID}$ -- unikalny identyfikator badanej instancji.
-	\item $\mathbf{totNOper}$ -- jak poprzenio, całkowita liczba operacji w harmonogramie
-	\item $\mathbf{t_{AVG}}$ -- średni czas obliczeń algorytmu (w sekundach).
+	\item $\mathbf{totNOper}$ -- jak poprzenio, całkowita liczba operacji w harmonogramie.
+	\item $\mathbf{t_{AVG}}$ -- średni czas obliczeń algorytmu (w sekundach); mniej = lepiej.
 	\item $\mathbf{\underline{C_{max}}}$ -- najmniejszy uzyskany $C_{max}$.
 	\item $\mathbf{\overline{C_{max}}}$ -- największy uzyskany $C_{max}$.
-	\item $\mathbf{F_{onCP}}$ -- jak często awaria miała wpływ na wydłużenie harmonogramu/znajdowała się na ścieżce krytycznej (wartość znormalizowana)
+	\item $\mathbf{F_{onCP}}$ -- jak często awaria miała wpływ na wydłużenie harmonogramu/znajdowała się na ścieżce krytycznej (wartość znormalizowana); mniej = lepiej.
 \end{itemize}
 \begin{table}[ht]
 \renewcommand{\arraystretch}{1.2}
+% 0 start
 \begin{tabularx}{\textwidth}{|X|c|c|c|c|c|c|c|c|c|c|}
 \hline
-$\mathbf{iID}$ & Ta00 & Ta01 & Ta02 & Ta03 & Ta04 & Ta05 & Ta06 & Ta07 & Ta08 & Ta09\\
+$\mathbf{iID}$ & \textbf{ta00} & \textbf{ta01} & \textbf{ta02} & \textbf{ta03} & \textbf{ta04} & \textbf{ta05} & \textbf{ta06} & \textbf{ta07} & \textbf{ta08} & \textbf{ta09}\\
 \hline
 $\mathbf{totNOper}$ & 225 & 225 & 225 & 225 & 225 & 225 & 225 & 225 & 225 & 225\\
 \hline
-$\mathbf{t_{AVG}}$ & 1,08 &  &  &  &  &  &  &  &  & \\
+$\mathbf{t_{AVG}}$ & 0.79 & 1.05 & 1.42 & 1.48 & 1.46 & 1.06 & 1.15 & 1.49 & 1.37 & 1.23\\
 \hline
-$\mathbf{\underline{C_{max}}}$ & 1412 &  &  &  &  &  &  &  &  & \\
+$\mathbf{\underline{C_{max}}}$ & 1441 & 1377 & 1376 & 1452 & 1505 & 1383 & 1310 & 1340 & 1467 & 1407\\
 \hline
-$\mathbf{\overline{C_{max}}}$ & 1433 &  &  &  &  &  &  &  &  & \\
+$\mathbf{\overline{C_{max}}}$ & 1486 & 1407 & 1467 & 1531 & 1632 & 1484 & 1482 & 1398 & 1482 & 1479\\
 \hline
-$\mathbf{F_{onCP}}$ & 0,2 &  &  &  &  &  &  &  &  & \\
+$\mathbf{F_{onCP}}$ & 1.00 & 0.40 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 0.00 & 1.00\\
 \hline
+%\end{tabularx}
+% 0end
+% 1 start
+%\begin{tabularx}{\textwidth}{|X|c|c|c|c|c|c|c|c|c|c|}
 \hline
-$\mathbf{iID}$ & Ta10 & Ta11 & Ta12 & Ta13 & Ta14 & Ta15 & Ta16 & Ta17 & Ta18 & Ta19\\
+$\mathbf{iID}$ & \textbf{ta10} & \textbf{ta11} & \textbf{ta12} & \textbf{ta13} & \textbf{ta14} & \textbf{ta15} & \textbf{ta16} & \textbf{ta17} & \textbf{ta18} & \textbf{ta19}\\
 \hline
 $\mathbf{totNOper}$ & 300 & 300 & 300 & 300 & 300 & 300 & 300 & 300 & 300 & 300\\
 \hline
-$\mathbf{t_{AVG}}$ & 1,08 &  &  &  &  &  &  &  &  & \\
+$\mathbf{t_{AVG}}$ & 2.33 & 2.31 & 1.59 & 2.29 & 1.99 & 1.58 & 2.09 & 1.37 & 1.80 & 2.97\\
 \hline
-$\mathbf{\underline{C_{max}}}$ & 1412 &  &  &  &  &  &  &  &  & \\
+$\mathbf{\underline{C_{max}}}$ & 1611 & 1577 & 1581 & 1597 & 1589 & 1551 & 1653 & 1669 & 1570 & 1584\\
 \hline
-$\mathbf{\overline{C_{max}}}$ & 1433 &  &  &  &  &  &  &  &  & \\
+$\mathbf{\overline{C_{max}}}$ & 1702 & 1701 & 1671 & 1668 & 1681 & 1618 & 1782 & 1745 & 1653 & 1657\\
 \hline
-$\mathbf{F_{onCP}}$ & 0,2 &  &  &  &  &  &  &  &  & \\
-\hline
-\hline
-$\mathbf{iID}$ & Ta20 & Ta21 & Ta22 & Ta23 & Ta24 & Ta25 & Ta26 & Ta27 & Ta28 & Ta29\\
-\hline
-$\mathbf{totNOper}$ & 400 & 400 & 400 & 400 & 400 & 400 & 400 & 400 & 400 & 400\\
-\hline
-$\mathbf{t_{AVG}}$ & 1,08 &  &  &  &  &  &  &  &  & \\
-\hline
-$\mathbf{\underline{C_{max}}}$ & 1412 &  &  &  &  &  &  &  &  & \\
-\hline
-$\mathbf{\overline{C_{max}}}$ & 1433 &  &  &  &  &  &  &  &  & \\
-\hline
-$\mathbf{F_{onCP}}$ & 0,2 &  &  &  &  &  &  &  &  & \\
-\hline
-\hline
-$\mathbf{iID}$ & Ta30 & Ta31 & Ta32 & Ta33 & Ta34 & Ta35 & Ta36 & Ta37 & Ta38 & Ta39\\
-\hline
-$\mathbf{totNOper}$ & 450 & 450 & 450 & 450 & 450 & 450 & 450 & 450 & 450 & 450\\
-\hline
-$\mathbf{t_{AVG}}$ & 1,08 &  &  &  &  &  &  &  &  & \\
-\hline
-$\mathbf{\underline{C_{max}}}$ & 1412 &  &  &  &  &  &  &  &  & \\
-\hline
-$\mathbf{\overline{C_{max}}}$ & 1433 &  &  &  &  &  &  &  &  & \\
-\hline
-$\mathbf{F_{onCP}}$ & 0,2 &  &  &  &  &  &  &  &  & \\
+$\mathbf{F_{onCP}}$ & 0.40 & 0.20 & 1.00 & 1.00 & 0.20 & 1.00 & 1.00 & 1.00 & 1.00 & 0.60\\
 \hline
 \end{tabularx}
+% 1end
 \caption{Część 1. Statystyki po 5 uruchomieniach aplikacji. W każdym przypadku awaria nastąpiła w chwili czasu 50 na maszynie nr 6. i trwała 100 jednostek czasu.}
 \label{tab_res_one}
 \renewcommand{\arraystretch}{1.0}
 \end{table}
-\begin{table}[ht]
+%
+\begin{table}[!ht]
 \renewcommand{\arraystretch}{1.2}
+% 2 start
 \begin{tabularx}{\textwidth}{|X|c|c|c|c|c|c|c|c|c|c|}
 \hline
-$\mathbf{iID}$ & Ta40 & Ta41 & Ta42 & Ta43 & Ta44 & Ta45 & Ta46 & Ta47 & Ta48 & Ta49\\
+$\mathbf{iID}$ & \textbf{ta20} & \textbf{ta21} & \textbf{ta22} & \textbf{ta23} & \textbf{ta24} & \textbf{ta25} & \textbf{ta26} & \textbf{ta27} & \textbf{ta28} & \textbf{ta29}\\
 \hline
-$\mathbf{t_{AVG}}$ & 1,08 &  &  &  &  &  &  &  &  & \\
+$\mathbf{totNOper}$ & 400 & 400 & 400 & 400 & 400 & 400 & 400 & 400 & 400 & 400\\
 \hline
-$\mathbf{\underline{C_{max}}}$ & 1412 &  &  &  &  &  &  &  &  & \\
+$\mathbf{t_{AVG}}$ & 3.17 & 2.98 & 3.69 & 3.17 & 4.22 & 3.35 & 2.45 & 4.34 & 2.99 & 5.31\\
 \hline
-$\mathbf{\overline{C_{max}}}$ & 1433 &  &  &  &  &  &  &  &  & \\
+$\mathbf{\underline{C_{max}}}$ & 1921 & 1880 & 1803 & 1896 & 1880 & 1930 & 2062 & 1896 & 1831 & 1803\\
 \hline
-$\mathbf{F_{onCP}}$ & 0,2 &  &  &  &  &  &  &  &  & \\
+$\mathbf{\overline{C_{max}}}$ & 2014 & 1933 & 1850 & 1972 & 1961 & 2072 & 2180 & 2037 & 1982 & 1956\\
 \hline
+$\mathbf{F_{onCP}}$ & 1.00 & 1.00 & 1.00 & 0.00 & 1.00 & 0.20 & 0.20 & 1.00 & 0.00 & 0.60\\
 \hline
-$\mathbf{iID}$ & Ta50 & Ta51 & Ta52 & Ta53 & Ta54 & Ta55 & Ta56 & Ta57 & Ta58 & Ta59\\
+%\end{tabularx}
+% 2end
+% 3 start
+%\begin{tabularx}{\textwidth}{|X|c|c|c|c|c|c|c|c|c|c|}
 \hline
-$\mathbf{t_{AVG}}$ & 1,08 &  &  &  &  &  &  &  &  & \\
+$\mathbf{iID}$ & \textbf{ta30} & \textbf{ta31} & \textbf{ta32} & \textbf{ta33} & \textbf{ta34} & \textbf{ta35} & \textbf{ta36} & \textbf{ta37} & \textbf{ta38} & \textbf{ta39}\\
 \hline
-$\mathbf{\underline{C_{max}}}$ & 1412 &  &  &  &  &  &  &  &  & \\
+$\mathbf{totNOper}$ & 450 & 450 & 450 & 450 & 450 & 450 & 450 & 450 & 450 & 450\\
 \hline
-$\mathbf{\overline{C_{max}}}$ & 1433 &  &  &  &  &  &  &  &  & \\
+$\mathbf{t_{AVG}}$ & 1.20 & 1.90 & 1.37 & 1.92 & 1.34 & 2.22 & 2.37 & 3.30 & 2.16 & 3.01\\
 \hline
-$\mathbf{F_{onCP}}$ & 0,2 &  &  &  &  &  &  &  &  & \\
+$\mathbf{\underline{C_{max}}}$ & 2103 & 2154 & 2248 & 2091 & 2281 & 2241 & 2085 & 2022 & 2198 & 1917\\
 \hline
+$\mathbf{\overline{C_{max}}}$ & 2193 & 2260 & 2289 & 2204 & 2339 & 2309 & 2195 & 2052 & 2292 & 2043\\
 \hline
-$\mathbf{iID}$ & Ta60 & Ta61 & Ta62 & Ta63 & Ta64 & Ta65 & Ta66 & Ta67 & Ta68 & Ta69\\
+$\mathbf{F_{onCP}}$ & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00\\
 \hline
-$\mathbf{t_{AVG}}$ & 1,08 &  &  &  &  &  &  &  &  & \\
+%\end{tabularx}
+% 3end
+% 4 start
+%\begin{tabularx}{\textwidth}{|X|c|c|c|c|c|c|c|c|c|c|}
 \hline
-$\mathbf{\underline{C_{max}}}$ & 1412 &  &  &  &  &  &  &  &  & \\
+$\mathbf{iID}$ & \textbf{ta40} & \textbf{ta41} & \textbf{ta42} & \textbf{ta43} & \textbf{ta44} & \textbf{ta45} & \textbf{ta46} & \textbf{ta47} & \textbf{ta48} & \textbf{ta49}\\
 \hline
-$\mathbf{\overline{C_{max}}}$ & 1433 &  &  &  &  &  &  &  &  & \\
+$\mathbf{totNOper}$ & 600 & 600 & 600 & 600 & 600 & 600 & 600 & 600 & 600 & 600\\
 \hline
-$\mathbf{F_{onCP}}$ & 0,2 &  &  &  &  &  &  &  &  & \\
+$\mathbf{t_{AVG}}$ & 4.39 & 7.21 & 10.16 & 4.29 & 5.07 & 3.43 & 4.20 & 4.43 & 4.65 & 6.67\\
 \hline
+$\mathbf{\underline{C_{max}}}$ & 2443 & 2427 & 2326 & 2575 & 2368 & 2603 & 2379 & 2351 & 2364 & 2404\\
 \hline
-$\mathbf{iID}$ & Ta70 & Ta71 & Ta72 & Ta73 & Ta74 & Ta75 & Ta76 & Ta77 & Ta78 & Ta79\\
+$\mathbf{\overline{C_{max}}}$ & 2565 & 2562 & 2415 & 2674 & 2456 & 2755 & 2480 & 2430 & 2424 & 2498\\
 \hline
-$\mathbf{t_{AVG}}$ & 1,08 &  &  &  &  &  &  &  &  & \\
+$\mathbf{F_{onCP}}$ & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 0.80 & 1.00 & 1.00 & 1.00 & 1.00\\
 \hline
-$\mathbf{\underline{C_{max}}}$ & 1412 &  &  &  &  &  &  &  &  & \\
+%\end{tabularx}
+% 4end
+% 5 start
+%\begin{tabularx}{\textwidth}{|X|c|c|c|c|c|c|c|c|c|c|}
 \hline
-$\mathbf{\overline{C_{max}}}$ & 1433 &  &  &  &  &  &  &  &  & \\
+$\mathbf{iID}$ & \textbf{ta50} & \textbf{ta51} & \textbf{ta52} & \textbf{ta53} & \textbf{ta54} & \textbf{ta55} & \textbf{ta56} & \textbf{ta57} & \textbf{ta58} & \textbf{ta59}\\
 \hline
-$\mathbf{F_{onCP}}$ & 0,2 &  &  &  &  &  &  &  &  & \\
+$\mathbf{totNOper}$ & 750 & 750 & 750 & 750 & 750 & 750 & 750 & 750 & 750 & 750\\
 \hline
+$\mathbf{t_{AVG}}$ & 2.71 & 2.61 & 2.33 & 1.85 & 3.19 & 2.66 & 2.35 & 1.65 & 3.04 & 2.00\\
 \hline
-$\mathbf{iID}$ & Ka00\\
+$\mathbf{\underline{C_{max}}}$ & 3317 & 3275 & 2995 & 3121 & 3116 & 3140 & 3262 & 3395 & 2992 & 3004\\
+\hline
+$\mathbf{\overline{C_{max}}}$ & 3446 & 3388 & 3087 & 3237 & 3335 & 3283 & 3327 & 3511 & 3183 & 3058\\
+\hline
+$\mathbf{F_{onCP}}$ & 0.60 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00\\
+\hline
+%\end{tabularx}
+% 5end
+% 6 start
+%\begin{tabularx}{\textwidth}{|X|c|c|c|c|c|c|c|c|c|c|}
+\hline
+$\mathbf{iID}$ & \textbf{ta60} & \textbf{ta61} & \textbf{ta62} & \textbf{ta63} & \textbf{ta64} & \textbf{ta65} & \textbf{ta66} & \textbf{ta67} & \textbf{ta68} & \textbf{ta69}\\
+\hline
+$\mathbf{totNOper}$ & 1000 & 1000 & 1000 & 1000 & 1000 & 1000 & 1000 & 1000 & 1000 & 1000\\
+\hline
+$\mathbf{t_{AVG}}$ & 14.92 & 12.88 & 7.00 & 8.68 & 10.97 & 6.66 & 7.22 & 11.22 & 4.51 & 3.10\\
+\hline
+$\mathbf{\underline{C_{max}}}$ & 3191 & 3342 & 3157 & 3084 & 3153 & 3251 & 3303 & 3114 & 3515 & 3632\\
+\hline
+$\mathbf{\overline{C_{max}}}$ & 3296 & 3398 & 3294 & 3184 & 3257 & 3310 & 3528 & 3254 & 3589 & 3708\\
+\hline
+$\mathbf{F_{onCP}}$ & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00\\
+\hline
+%\end{tabularx}
+% 6end
+% 7 start
+%\begin{tabularx}{\textwidth}{|X|c|c|c|c|c|c|c|c|c|c|}
+\hline
+$\mathbf{iID}$ & \textbf{ta70} & \textbf{ta71} & \textbf{ta72} & \textbf{ta73} & \textbf{ta74} & \textbf{ta75} & \textbf{ta76} & \textbf{ta77} & \textbf{ta78} & \textbf{ta79}\\
+\hline
+$\mathbf{totNOper}$ & 2000 & 2000 & 2000 & 2000 & 2000 & 2000 & 2000 & 2000 & 2000 & 2000\\
+\hline
+$\mathbf{t_{AVG}}$ & 10.01 & 10.53 & 7.23 & 8.75 & 11.03 & 12.18 & 11.67 & 7.60 & 12.11 & 5.82\\
+\hline
+$\mathbf{\underline{C_{max}}}$ & 6092 & 5575 & 6143 & 5627 & 6033 & 5797 & 5771 & 5831 & 5629 & 5706\\
+\hline
+$\mathbf{\overline{C_{max}}}$ & 6262 & 5740 & 6320 & 5727 & 6316 & 5981 & 5868 & 6055 & 5786 & 5838\\
+\hline
+$\mathbf{F_{onCP}}$ & 1.00 & 1.00 & 1.00 & 1.00 & 0.40 & 1.00 & 1.00 & 1.00 & 1.00 & 1.00\\
+\hline
+\end{tabularx}
+% 7end
+\caption{Część 2. Warunki jak podano w tabeli \ref{tab_res_one}.}
+\label{tab_res_two}
+\renewcommand{\arraystretch}{1.0}
+\end{table}
+%
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[scale=0.7]{rysunki/wykres_czas_iID.png}
+\caption{Wykres przedstawiający średnie czasy wykonania algorytmu}{dla różnych rozmiarów instancji problemu gniazdowego.}
+\label{rys_wykres_czas_iID}
+\end{center}
+\end{figure}
+%
+\begin{figure}[t!]
+\begin{center}
+\includegraphics[scale=0.68]{rysunki/wykres_czas_FonCP.png}
+\caption{Wykres przedstawiający znormalizowaną częstotliwość występowania}{awarii na ścieżce krytycznej dla różnych średnich czasów wykonania algorytmu.}
+\label{rys_wykres_czas_FonCP}
+\end{center}
+\end{figure}
+%
+Z otrzymanych wyników można zauważyć, że średni czas obliczeń algorytmu jest wprost proporcjonalny do rozmiaru instancji. Oczywiście tak naprawdę czas ten jest zależny od rozwiązania, z którego startuje algorytm \emph{TSAB}, dlatego na wykresach zauważalny jest duży rozrzut tych czasów -- największy w przypadku instancji o rozmiarze 1000. Częstotliwość występowania awarii na ścieżce krytycznej w trakcie eksperymentów w większości przypadków wyniosła 100\% (na wykresach i w tabelach wartość 1.0). Powodem jest sztywność testowanych instancji -- przykłady podane przez Taillarda reprezentują klasyczne Problemy Gniazdowe, więc nie ma alternatywnych maszyn, na które można by przerzucić operacje z maszyny, która ulega awarii, tak jak miało to miejsce podczas testowania przypadku przedstawionego w tabeli \ref{tab_res_three}. Zróżnicowanie wartości $C_{max}$ jest spowodowane tym, że algorytm zatrzymuje się w lokalnych minimach. Mimo prób zwiększenia liczby iteracji nie udało się osiągnąć znacząco lepszych rezultatów. Również w tym przypadku, różnica $\overline{C{max}} - \underline{C{max}}$ jest wprost proporcjonalna do rozmiaru instancji, ale wzrost ten jest bardzo powolny -- do instancji o rozmiarze 1000 wydaje się wręcz, że utrzymuje się na stałym poziomie.
+\begin{figure}[t!]
+\begin{center}
+\includegraphics[scale=0.68]{rysunki/wykres_cmax_iID.png}
+\caption{Wykres przedstawiający zróżnicowanie otrzymanych}{wartości $C_{max}$ w zależności od rozmiaru instancji.}
+\label{rys_wykres_cmax_iID}
+\end{center}
+\end{figure}
+%
+\begin{table}[ht]
+\begin{center}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|c|c|}
+\hline
+$\mathbf{iID}$ & \textbf{ka00}\\
 \hline
 $\mathbf{t_{AVG}}$ & 0,09\\
 \hline
@@ -669,16 +743,23 @@ $\mathbf{\overline{C_{max}}}$ & 22\\
 \hline
 $\mathbf{F_{onCP}}$ & 0,6\\
 \hline
-\end{tabularx}
-\caption{Część 2. Statystyki po 5 uruchomieniach aplikacji. W przypadku pozostałych instancji Taillard'a przypadku awaria nastąpiła w chwili czasu 50, tak jak poprzednio na maszynie nr 6. i trwała 100 jednostek czasu. Dla ostatniej instancji również wystąpiła na maszynie nr 6., ale nastąpiła w chwili czasu 5 i trwała 10 jednostek czasu.}
-\label{tab_res_two}
+\end{tabular}
+\caption{Część 3. Dla ostatniej instancji, awaria wystąpiła}{na maszynie nr 6. w chwili czasu 5 i trwała 10 jednostek czasu.}
+\label{tab_res_three}
 \renewcommand{\arraystretch}{1.0}
+\end{center}
 \end{table}
+%
+
 %
 \clearpage
 \addcontentsline{toc}{chapter}{Wnioski i uwagi}
 \chapter*{Wnioski i uwagi}
-Wszystkie postawione cele projektu zostały zrealizowane. W przyszłości można by rozszerzyć możliwe do wykonania ruchy (algorytm NSP) o zamianę operacji między maszynami, aby uzyskać jeszcze krótsze harmonogramy przy zachowaniu ich odporności na zmiany wynikające z awarii.\\\\
+Wszystkie postawione cele projektu zostały zrealizowane. W literaturze znaleziono wiele różnych nurtów ukierunkowanych na korygowanie harmonogramów. Spośród nich wybrano problem harmonogramowania odpornego dla Elastycznych Problemów Gniazdowych.\\\\
+Zaproponowany algorytm jest hybrydą metody inicjującej populację początkową w Algorytmie Genetycznym zaproponowanym przez Al-Hinai oraz ElMekkawy w \cite{AEHGAFJS_ElMekkawy11} oraz bardzo efektywnego \emph{TSAB} Nowickiego i Smutnickiego \cite{Smutnicki96}. Połączenie te dało znakomite rezultaty wydajnościowe w porównaniu z Algorytmem Genetycznym z \cite{AEHGAFJS_ElMekkawy11}.\\\\
+Aby łatwiej było prezentować wyniki eksperymentów stworzono narzędzie służące do graficznej prezentacji otrzymywanych w eksperymentach wyników -- diagramów Gantt'a harmonogramów zwracanych przez algorytm. W dodatku \ref{ch_code_snippets}dostępny jest kod biblioteki do wykorzystania w aplikacjach pisanych w C++.\\\\
+Analiza wyników pokazała, że w przypadku klasycznych Problemów Gniazdowych, które w przeciwieństwie do Elastycznych Problemów Gniazdowych nie definiują alternatywnych maszyn, na których można by wykonywać zadania z maszyny, która uległa awarii, harmonogramowanie odporne nie ma zastosowania -- otrzymane harmonogramy po wystąpieniu awarii niemal zawsze są opóźniane ($F_{onCP}$ > 0).\\\\
+W przyszłości można by rozszerzyć możliwe do wykonania ruchy (algorytm NSP) o zamianę operacji między maszynami, aby uzyskać jeszcze krótsze harmonogramy przy zachowaniu ich odporności na zmiany wynikające z awarii. Wtedy też, aby lepiej zbadać problem harmonogramowania odpornego, można by uelastycznić przykłady podane przez Taillard'a, zakładając że definiują one W Pełni Elastyczne Problemy Gniazdowe, tzn. każda operacja może zostać przetworzona przez dowolną maszynę, przy czym czas wykonania operacji na każdej z maszyn byłby jednakowy.\\\\
 Wszystkie pliki źródłowe można znaleźć w repozytorium \url{https://github.com/kejn/job-shop-HGA/tree/tabuSearch/jobshop_HGA}.
 % BIBLIOGRAFIA
 \newpage
