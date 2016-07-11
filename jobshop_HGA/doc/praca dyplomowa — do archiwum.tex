@@ -3,7 +3,7 @@
 %Przykładowy plik ułatwiający złożenie projektu dyplomowego inżynierskiego.
 %UWAGA: Generowany napis na stronie tytułowej o treści PROJEKT DYPLOMOWY INŻYNIERSKI został zaproponowany przeze mnie i nie jest, póki co, potwierdzony przez władze wydziału. Przed ostatecznym oddaniem tak złożonej pracy należy upewnić się jaka powinna być treść tego napisu. W momencie gdy uzyskam informację na temat treści tego napisu, dokonam niezbędnych zmian w źródłach.
 
-\documentclass[printmode,oneside]{mgr}
+\documentclass[archivemode]{mgr}
 %\documentclass[eng,printmode,oneside]{mgr}
 %opcje klasy dokumentu mgr.cls zostały opisane w dołączonej instrukcji
 
@@ -120,7 +120,7 @@
 Problemy harmonogramowania, zdefiniowane pod koniec lat 70. XX wieku \cite{Garey76}, takie jak problem przepływowy, gniazdowy czy otwarty, klasyfikuje się jako NP trudne. Do ich rozwiązywania najczęściej stosuje się metaheurystyki takie jak Tabu Search, Symulowane Wyżarzanie, czy Algorytm Genetyczny.\\\\
 W warunkach rzeczywistych, istnieje wiele rodzajów zakłóceń, których nie uwzględniają klasyczne problemy harmonogramowania. Powoduje to, że często nie wystarcza jednorazowe wyznaczenie harmonogramu dla określonego zestawu zadań, ponieważ w trakcie jego wykonywania warunki produkcji mogą ulec zmianie. Literatura opisuje różnego rodzaju zakłócenia: awarie/serwisowanie maszyn, niedokładna praca maszyn (ponowna obróbka elementu lub wykonanie zadania jeszcze raz), nadejście nowych zadań, anulowanie zadań, zmienny czas przetwarzania zadań, zmienny czas finalizacji zadań, a także ograniczony bufor transportu między stacjami roboczymi.\\\\
 Okazuje się, że takie problemy można również rozwiązywać za pomocą wcześniej wspomnianych metaheurystyk odpowiednio przystosowując funkcję celu lub rozszerzając model danych o dodatkowe parametry. W pracy wzorowano się na podejściu harmonogramowania odpornego \cite{RFJSRMB_ElMekkawy11}, które oprócz minimalizacji całkowitego czasu wykonania harmonogramu $C_{max}$ (ang. \emph{makespan}) pozwala także zminimalizować jego podatność na opóźnienia wynikające z zakłóceń, takich jak awarie maszyn.  W przeciwieństwie do autorów \cite{RFJSRMB_ElMekkawy11} nie skorzystano z Algorytmu Genetycznego, a z \emph{TSAB} \cite{Smutnicki96} -- bardzo efektywnej odmiany Tabu Search odpowiednio przystosowując ją, aby uwzględniała możliwość awarii maszyn.\\\\
-Uzyskane wyniki pozwoliły uzyskać dobre rezultaty niewielkim nakładem czasowym -- pojedyncza instancja problemu obliczana jest średnio kilka sekund na współczesnym komputerze klasy PC. Nie oznacza to jednak końca badań w tej dziedzinie. Potencjał algorytmu \emph{TSAB} jest bardzo duży, dlatego kolejne wariacje zaproponowanego algorytmu pozwoliłyby w przyszłości na uzyskanie rozwiązań bliższych optimum w kontekście Elastycznych Problemów Gniazdowych.
+Uzyskane wyniki pozwoliły uzyskać dobre rezultaty niewielkim nakładem czasowym -- pojedencza instancja problemu obliczana jest średnio kilka sekund na współczesnym komputerze klasy PC. Nie oznacza to jednak końca badań w tej dziedzinie. Potencjał algorytmu \emph{TSAB} jest bardzo duży, dlatego kolejne wariacje zaproponowanego algorytmu pozwoliłyby w przyszłości na uzyskanie rozwiązań bliższych optimum w kontekście Elastycznych Problemów Gniazdowych.
 %
 \addcontentsline{toc}{chapter}{Cele i zakres pracy}
 \chapter*{Cele i zakres pracy}

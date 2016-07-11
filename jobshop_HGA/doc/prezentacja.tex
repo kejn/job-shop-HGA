@@ -1,0 +1,209 @@
+\documentclass[table]{beamer}
+%\usetheme{Warsaw}
+%\beamersetaveragebackground{brown!25}
+\usetheme{Warsaw}
+\usecolortheme[rgb={0.6,0.18,0.11}]{structure}
+
+\newtheorem{tw}{Twierdzenie}
+
+
+\usepackage[font=scriptsize, labelfont=bf]{caption}
+\usepackage{latexsym,amsmath}
+\usepackage{graphicx}
+\usepackage[longend,linesnumbered]{algorithm2e}
+\usepackage[T1]{fontenc}
+\usepackage[cp1250]{inputenc}
+%\usepackage[MeX]{polski}
+%\usepackage[utf8]{inputenc}
+\setbeamertemplate{navigation symbols}{}
+%\usepackage{beamerthemesplit}
+\title[Korygowanie harmonogramów z uwzglêdnieniem awarii ...]{Korygowanie harmonogramów\\ z uwzglêdnieniem awarii maszyn}
+\author[in¿. Kamil Niemczyk]{in¿. Kamil Niemczyk\\{\tiny Promotor: dr hab. Wojciech Bo¿ejko prof. nadzw. PWr}}
+\institute{Politechnika Wroc³awska\\ Automatyka i Robotyka, Wydzia³ Elektroniki\\ Technologie informacyjne w~systemach
+automatyki}
+
+
+\date{\includegraphics[width=18mm]{rysunki/pwr.jpg}}
+
+\newcommand{\tab}{\hspace*{1cm}}
+\newcommand{\ta}{\hspace*{5mm}}
+\newcommand{\tas}{\hspace*{8mm}}
+\newcommand{\tat}{\hspace*{4mm}}
+
+\newcommand*\oldmacro{}
+\let\oldmacro\insertshortauthor% save previous definition
+\renewcommand*\insertshortauthor{%
+  \leftskip=.3cm% before the author could be a plus1fill ...
+  \insertframenumber\,/\,\inserttotalframenumber\hfill\oldmacro}
+
+\begin{document}
+\setbeamercovered{transparent=15}
+%\setbeamertemplate{footline}[frame number]
+\begin{frame}
+\maketitle
+\end{frame}
+
+\begin{frame}
+\frametitle{Plan prezentacji} \tableofcontents
+
+Zaproponowano algorytm Tabu Search z nawrotami, który przystosowano do rozwi\k{a}zywania elastycznych problemów gniazdowych.
+\end{frame}
+
+
+
+
+\section{Elastyczny problem gniazdowy}
+
+\subsection{Sformu³owanie problemu}
+
+\begin{frame}
+\frametitle{Sformu³owanie problemu}
+
+\begin{itemize}
+    \item $n$ wzajemnie niezale¿nych zadañ gotowych do rozpoczêcia przetwarzania w~chwili czasu 0.
+    \item Ka¿de zadanie $J_i$ sk³ada siê z $O_i$ nieprzerywalnych operacji, o~okre\'{s}lonej kolejno\'{s}ci wykonania.
+    \item $m$ maszyn, które nigdy nie ulegaj\k{a} awarii, s\k{a} zawsze dostêpne i~mog\k{a} przetwarzaæ jednocze\'{s}nie co najwy¿ej jedn\k{a} operacjê.
+    \item Ka¿da operacja $O_{ij}$ ma zdefiniowany zbiór maszyn $M_{kij} \subseteq {1, ..., m}$, które mog\k{a} j\k{a} przetwarzaæ.
+    \item Czasy przetwarzania operacji $O_{ij}$ na maszynach $M_{kij}$ s\k{a} zdefiniowane w zbiorze $P_{ij}$ o tym samym rozmiarze co $M_{kij}$.
+    \item Czasy przezbrojenia maszyn s\k{a} niezale¿ne od kolejno\'{s}ci operacji na nich wykonywanych i wliczone s\k{a} w~ich czasy przetwarzania.
+\end{itemize}
+    
+\end{frame}
+
+\subsection{Cele do osi\k{a}gniêcia i awarie maszyn}
+
+\begin{frame}
+\frametitle{Cele do osi\k{a}gniêcia i awarie maszyn}
+\textbf{Celem} jest minimalizacja ca³kowitego czasu wykonania harmonogramu $C_{max}$, w~literaturze anglojêzycznej czê\'{s}ciej okre\'{s}lanym jako \emph{makespan}.\\[3mm] w~rzeczywistych warunkach produkcyjnych ustalony harmonogram mo¿e zostaæ zak³ócony, na przyk³ad na skutek awarii maszyny. Podobny efekt mo¿na uzyskaæ \textbf{planuj\k{a}c momenty wyst\k{a}pienia awarii} -- mo¿e to byæ na przyk³ad zaplanowany serwis maszyny.
+
+\end{frame}
+
+\section{Algorytmy}
+
+\subsection{Model danych}
+
+\begin{frame}
+\frametitle{Model danych}
+
+Podstawowym elementem harmonogramu jest operacja.
+\begin{table}[ht]
+\renewcommand{\arraystretch}{1.25}
+	\begin{tabular}{|c|l|}
+    	\hline
+    	\textbf{PID} & numer zadania, którego elementem jest operacja\\
+    	\hline
+    	\textbf{ID} & numer kolejno\'{s}ciowy operacji w~zadaniu \textbf{PID}\\
+	    \hline
+	    \textbf{M} & \multicolumn{1}{m{9cm}|}{numer maszyny, do której aktualnie przyporz\k{a}dkowano operacjê}\\
+    	\hline
+    	\textbf{S} & czas rozpoczêcia wykonywania operacji w~harmonogramie\\
+    	\hline
+    	\textbf{P} & \multicolumn{1}{m{9cm}|}{mapa czasów przetwarzania operacji na poszczególnych maszynach, na których mo¿na przetwarzaæ dan\k{a} operacjê}\\
+    	\hline
+    	\textbf{C} & czas zakoñczenia operacji na maszynie \textbf{M}\\
+	    \hline
+    	\textbf{B} & bufor czasowy (domy\'{s}lnie $=0$)\\
+    	\hline
+	\end{tabular}
+\renewcommand{\arraystretch}{1}
+	\caption{Elementy opisuj\k{a}ce pojedyncz\k{a} operacjê harmonogramu.}
+\end{table}
+
+\end{frame}
+
+
+
+\subsection{Rozwi\k{a}zanie pocz\k{a}tkowe}
+
+\begin{frame}
+\frametitle{Rozwi\k{a}zanie pocz\k{a}tkowe}
+
+\textbf{\emph{IniPopGen}} - metoda wstawieñ dostosowana do elastycznych problemów gniazdowych zaproponowana przez Al-Hinai oraz ElMekkawy w~2011.\\\ \\Choæ zaprojektowana do dzia³ania z~algorytmem genetycznym, praktycznie bez problemu uda³o siê go zaadoptowaæ do~wykorzystania z metod\k{a} Tabu Search z nawrotami (\emph{TSAB}), któr\k{a} pierwszy raz zaproponowali Smutnicki i Nowicki w~1996.
+\end{frame}
+
+\subsection{TSAB}
+
+\begin{frame}
+\frametitle{TSAB}
+
+\begin{figure}[!ht]
+\begin{center}
+\includegraphics[scale=0.31]{rysunki/criticalPath3.png}
+\caption[Przyk³adowy harmonogram wraz z wyró¿nion\k{a} \'{s}cie¿k\k{a} krytyczn\k{a}]{Przyk³adowy harmonogram wraz z wyró¿nion\k{a} \'{s}cie¿k\k{a} krytyczn\k{a} zawieraj\k{a}c\k{a} dwa bloki krytyczne, ka¿dy sk³adaj\k{a}cy siê z trzech operacji, na maszynach 1 i 4.}
+\label{rys_critical_path_example}
+\end{center}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Repair perm}
+\begin{itemize}
+	\item Z³o¿ono\'{s}æ obliczeniowa $O(mn)$.
+	\item Dzia³a tylko dla rozwi\k{a}zañ dopuszczalnych.
+\end{itemize}
+
+\begin{enumerate}
+	\item Dopóki nie zostan\k{a} uszeregowane wszystkie operacje wszystkich zadañ.
+	\begin{enumerate}
+		\item Pobranie operacji z maszyny $M_k$
+		\item Je¿eli poprzednia w kolejno\'{s}ci operacja zosta³a ju¿ uszeregowana to dan\k{a} operacjê mo¿na uszeregowaæ wed³ug przydzia³u i ustawiæ czas jej rozpoczêcia.
+	\end{enumerate}
+\end{enumerate}
+
+\end{frame}
+
+\section{Eksperymenty obliczeniowe}
+\subsection{Parametryzacja i \'{s}rodowisko testowe}
+\begin{frame}
+\frametitle{Parametryzacja i \'{s}rodowisko testowe}
+
+Testy zosta³y przeprowadzone na laptopie z procesorem Intel Core i5 1.9GHz, 4GB pamiêci RAM, na systemie Windows 10. Aplikacja realizuj\k{a}ca opisane algorytmy zosta³a napisana w C++.\\\ \\
+Kod wytworzony przez bibliotekê generuj\k{a}c\k{a} HTML przetestowano na przegl\k{a}darce internetowej Google Chrome.\\\ \\
+W algorytmie \emph{TSAB} przyjêto:
+\begin{itemize}
+ 	\item d³ugo\'{s}æ listy tabu: 7,
+ 	\item d³ugo\'{s}æ listy najlepszych rozwi\k{a}zañ: 5,
+ 	\item $maxIter = 10$.
+\end{itemize}
+
+\end{frame}
+
+\subsection{Wyniki}
+
+\begin{frame}
+\frametitle{Czêstotliwo\'{s}æ awarii na \'{s}cie¿ce krytycznej}
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=0.477]{rysunki/wykres_czas_FonCP.png}
+%\caption{Wykres przedstawiaj\k{a}cy znormalizowan\k{a} czêstotliwo\'{s}æ wystêpowania}{awarii na \'{s}cie¿ce krytycznej dla ró¿nych \'{s}rednich czasów wykonania algorytmu.}
+\label{rys_wykres_czas_FonCP}
+\end{center}
+\end{figure}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{Zró¿nicowanie $C_{max}$ dla ró¿nych rozmiarów instancji}
+\begin{figure}[h]
+\begin{center}
+\includegraphics[scale=0.477]{rysunki/wykres_cmax_iID.png}
+%\caption{Wykres przedstawiaj\k{a}cy zró¿nicowanie otrzymanych}{warto¶ci $C_{max}$ w zale¿no¶ci od rozmiaru instancji.}
+\label{rys_wykres_cmax_iID}
+\end{center}
+\end{figure}
+\end{frame}
+
+\section{Wnioski}
+
+
+
+\begin{frame}
+\frametitle{Wnioski}
+\begin{itemize} 
+\item Zaproponowany algorytm jest hybryd\k{a} metody inicjuj\k{a}cej populacjê pocz\k{a}tkow\k{a} w Algorytmie Genetycznym zaproponowanym przez Al-Hinai oraz ElMekkawy w 2011 oraz bardzo efektywnego \emph{TSAB} Nowickiego i Smutnickiego z 1996. Te po³\k{a}czenie da³o znakomite rezultaty wydajno\'{s}ciowe w~porównaniu z Algorytmem Genetycznym proponowanym przez Al-Hinai oraz ElMekkawy.
+\item Aby ³atwiej by³o prezentowaæ wyniki eksperymentów stworzono narzêdzie s³u¿\k{a}ce do graficznej prezentacji otrzymywanych w~eksperymentach wyników.
+\end{itemize}
+\end{frame}
+
+\end{document}
